@@ -1,0 +1,20 @@
+{
+	"name": "cmsgears/module-notify",
+	"description": "The Notify Module required for CMSGears based projects. It got notification, event and reminder functionality.",
+	"homepage": "http://www.cmsgears.org",
+	"type": "package",
+	"keywords": [ "yii", "yii2", "cmsgears", "module", "notify" ],
+	"license": "GPLv3",
+	"support": {
+        "resources": "http://www.cmsgears.org"
+	},
+	"autoload": {
+		"psr-4": {
+			"cmsgears\\notify\\": ""
+		}
+	},
+    "require": {
+        "php": ">=5.4.0",
+        "cmsgears/module-core": "*"
+    }
+}
