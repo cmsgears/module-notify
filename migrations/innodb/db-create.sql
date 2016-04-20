@@ -24,7 +24,7 @@ CREATE TABLE `cmg_notify_event` (
   `content` mediumtext COLLATE utf8_unicode_ci DEFAULT NULL,
   `data` mediumtext COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_event_1` (`userId`)
+  KEY `fk_cmg_event_1` (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -48,7 +48,7 @@ CREATE TABLE `cmg_notify_model_notification` (
   `modifiedAt` datetime DEFAULT NULL,
   `content` mediumtext COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_model_notification_1` (`userId`)
+  KEY `fk_cmg_model_notification_1` (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -70,8 +70,8 @@ CREATE TABLE `cmg_notify_model_reminder` (
   `modifiedAt` datetime DEFAULT NULL,
   `content` mediumtext COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_model_reminder_1` (`userId`),
-  KEY `fk_model_reminder_2` (`eventId`)
+  KEY `fk_cmg_model_reminder_1` (`userId`),
+  KEY `fk_cmg_model_reminder_2` (`eventId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -83,21 +83,21 @@ SET FOREIGN_KEY_CHECKS=0;
 --
 
 ALTER TABLE `cmg_notify_event`
-	ADD CONSTRAINT `fk_event_1` FOREIGN KEY (`userId`) REFERENCES `cmg_core_user` (`id`);
+	ADD CONSTRAINT `fk_cmg_event_1` FOREIGN KEY (`userId`) REFERENCES `cmg_core_user` (`id`);
 
 --
 -- Constraints for table `cmg_notify_model_notification`
 --
 
 ALTER TABLE `cmg_notify_model_notification`
-	ADD CONSTRAINT `fk_model_notification_1` FOREIGN KEY (`userId`) REFERENCES `cmg_core_user` (`id`);
+	ADD CONSTRAINT `fk_cmg_model_notification_1` FOREIGN KEY (`userId`) REFERENCES `cmg_core_user` (`id`);
 
 --
 -- Constraints for table `cmg_notify_model_reminder`
 --
 
 ALTER TABLE `cmg_notify_model_reminder`
-	ADD CONSTRAINT `fk_model_reminder_1` FOREIGN KEY (`userId`) REFERENCES `cmg_core_user` (`id`),
-	ADD CONSTRAINT `fk_model_reminder_2` FOREIGN KEY (`eventId`) REFERENCES `cmg_notify_event` (`id`);
+	ADD CONSTRAINT `fk_cmg_model_reminder_1` FOREIGN KEY (`userId`) REFERENCES `cmg_core_user` (`id`),
+	ADD CONSTRAINT `fk_cmg_model_reminder_2` FOREIGN KEY (`eventId`) REFERENCES `cmg_notify_event` (`id`);
 
 SET FOREIGN_KEY_CHECKS=1;
