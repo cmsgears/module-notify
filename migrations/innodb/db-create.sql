@@ -39,16 +39,37 @@ CREATE TABLE `cmg_notify_model_notification` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `userId` bigint(20) DEFAULT NULL,
   `parentId` bigint(20) NOT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
   `parentType` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `type` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'default',
   `ip` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `agent` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `admin` tinyint(1) NOT NULL DEFAULT 0,
+  `follow` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `consumed` tinyint(1) NOT NULL DEFAULT 0,
   `createdAt` datetime NOT NULL,
   `modifiedAt` datetime DEFAULT NULL,
   `content` mediumtext COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_cmg_model_notification_1` (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `cmg_notify_model_event`
+--
+
+DROP TABLE IF EXISTS `cmg_notify_model_event`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `cmg_notify_model_event` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `eventId` bigint(20) NOT NULL,
+  `parentId` bigint(20) NOT NULL,
+  `parentType` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_cmg_model_event_1` (`eventId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -91,6 +112,14 @@ ALTER TABLE `cmg_notify_event`
 
 ALTER TABLE `cmg_notify_model_notification`
 	ADD CONSTRAINT `fk_cmg_model_notification_1` FOREIGN KEY (`userId`) REFERENCES `cmg_core_user` (`id`);
+
+--
+-- Constraints for table `cmg_notify_model_event`
+--
+
+ALTER TABLE `cmg_notify_model_event`
+
+	ADD CONSTRAINT `fk_cmg_model_event_1` FOREIGN KEY (`eventId`) REFERENCES `cmg_notify_event` (`id`);
 
 --
 -- Constraints for table `cmg_notify_model_reminder`
