@@ -38,10 +38,10 @@ DROP TABLE IF EXISTS `cmg_notify_model_notification`;
 CREATE TABLE `cmg_notify_model_notification` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `userId` bigint(20) DEFAULT NULL,
-  `parentId` bigint(20) NOT NULL,
+  `parentId` bigint(20) DEFAULT NULL,
   `createdBy` bigint(20) NOT NULL,
   `modifiedBy` bigint(20) DEFAULT NULL,
-  `parentType` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `parentType` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `type` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'default',
   `ip` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `agent` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,

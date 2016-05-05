@@ -24,6 +24,8 @@ Editor::widget( [ 'selector' => '.content-editor', 'loadAssets' => true ] );
     	<?= $form->field( $model, 'description' )->textarea() ?>
     	<?= IconChooser::widget( [ 'model' => $model, 'options' => [ 'class' => 'wrap-icon-picker clearfix' ] ] ) ?>
     	<?= $form->field( $model, 'renderer' )->dropDownList( $renderers ) ?>
+		<?= $form->field( $config, 'admin' )->checkbox() ?>
+		<?= $form->field( $config, 'user' )->checkbox() ?>
 		<?= $form->field( $config, 'adminEmail' )->checkbox() ?>
 		<?= $form->field( $config, 'userEmail' )->checkbox() ?>
 

@@ -13,6 +13,10 @@ class NotificationConfig extends \cmsgears\core\common\models\forms\JsonModel {
 
 	// Public Variables --------------------
 
+	public $admin		= false;
+
+	public $user		= false;
+
 	public $adminEmail	= false;
 
 	public $userEmail	= false;
@@ -24,8 +28,8 @@ class NotificationConfig extends \cmsgears\core\common\models\forms\JsonModel {
 	public function rules() {
 
         $rules = [
-        	[ [ 'adminEmail', 'userEmail' ], 'required' ],
-			[ [ 'adminEmail', 'userEmail' ], 'boolean' ]
+        	[ [ 'admin', 'user', 'adminEmail', 'userEmail' ], 'required' ],
+			[ [ 'admin', 'user', 'adminEmail', 'userEmail' ], 'boolean' ]
 		];
 
 		return $rules;
@@ -34,6 +38,8 @@ class NotificationConfig extends \cmsgears\core\common\models\forms\JsonModel {
 	public function attributeLabels() {
 
 		return [
+			'admin' => 'Admin',
+			'user' => 'User',
 			'adminEmail' => 'Admin Email',
 			'userEmail' => 'User Email'
 		];

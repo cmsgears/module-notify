@@ -6,7 +6,7 @@ use \Yii;
 use yii\base\Component;
 
 // CMG Imports
-use cmsgears\cms\common\config\CmsGlobal;
+use cmsgears\notify\common\config\NotifyGlobal;
 
 class MessageSource extends Component {
 
@@ -14,7 +14,8 @@ class MessageSource extends Component {
 
 	private $messageDb = [
 		// Generic Fields
-		CmsGlobal::FIELD_EVENT => 'Event'
+		NotifyGlobal::FIELD_EVENT => 'Event',
+		NotifyGlobal::FIELD_FOLLOW => 'Follow'
 	];
 
 	/**

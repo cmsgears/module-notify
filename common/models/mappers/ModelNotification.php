@@ -76,7 +76,6 @@ class ModelNotification extends \cmsgears\core\common\models\base\CmgModel {
 	public function rules() {
 
         $rules = [
-            [ [ 'userId', 'parentId', 'parentType' ], 'required' ],
             [ [ 'id', 'content' ], 'safe' ],
             [ [ 'parentType', 'type', 'ip', 'agent' ], 'string', 'min' => 1, 'max' => Yii::$app->cmgCore->mediumText ],
             [ [ 'follow' ], 'string', 'min' => 1, 'max' => Yii::$app->cmgCore->extraLargeText ],
@@ -94,7 +93,7 @@ class ModelNotification extends \cmsgears\core\common\models\base\CmgModel {
 	public function attributeLabels() {
 
 		return [
-			'userId' => Yii::$app->cmgCoreMessage->getMessage( CmsGlobal::FIELD_USER ),
+			'userId' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_USER ),
 			'parentId' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
 			'parentType' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
 			'type' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_TYPE ),

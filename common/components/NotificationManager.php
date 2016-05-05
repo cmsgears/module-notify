@@ -7,6 +7,10 @@ use \Yii;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
+use cmsgears\notify\common\models\mappers\ModelNotification;
+
+use cmsgears\notify\common\services\mappers\ModelNotificationService;
+
 class NotificationManager extends \yii\base\Component {
 
 	// Variables ---------------------------------------------------
@@ -22,9 +26,55 @@ class NotificationManager extends \yii\base\Component {
 
 	// NotificationManager -----------------------------------------
 
-	public function triggerNotification( $message, $models, $config = [] ) {
+	public function triggerNotification( $template, $message, $models, $config = [] ) {
 
-		// TODO: Trigger Notification
+		$templateConfig		= $template->getDataAttribute( CoreGlobal::DATA_CONFIG );
+
+		$notification		= new ModelNotification();
+
+		$notification->consumed	= false;
+		$notification->content	= $message;
+
+		if( isset( $config[ 'parentId' ] ) ) {
+
+			$notification->parentId = $config[ 'parentId' ];
+		}
+
+		if( isset( $config[ 'parentType' ] ) ) {
+
+			$notification->parentType = $config[ 'parentType' ];
+		}
+
+		if( isset( $config[ 'follow' ] ) ) {
+
+			$notification->follow = $config[ 'follow' ];
+		}
+
+		// Trigger for Admin
+		if( $templateConfig->admin ) {
+
+			$notification->admin	= true;
+
+			ModelNotificationService::create( $notification );
+		}
+
+		// Trigger for Users
+		if( $templateConfig->user ) {
+
+			$users 	= $config[ 'users' ];
+
+			foreach ( $users as $userId ) {
+
+				$userNotification			= new ModelNotification();
+
+				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'consumed', 'follow', 'content' ] );
+
+				$userNotification->userId	= $userId;
+				$userNotification->admin	= false;
+
+				ModelNotificationService::create( $userNotification );
+			}
+		}
 	}
 }
 
