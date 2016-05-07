@@ -13,31 +13,46 @@ use cmsgears\cms\common\config\CmsGlobal;
 class Mailer extends \cmsgears\core\common\base\Mailer {
 
 	// Various mail views
-	//const MAIL_CONTACT			= "contact";
+	const MAIL_ADMIN		= "admin";
+	const MAIL_USER			= "user";
 
     public $htmlLayout 		= '@cmsgears/module-notify/common/mails/layouts/html';
     public $textLayout 		= '@cmsgears/module-notify/common/mails/layouts/text';
     public $viewPath 		= '@cmsgears/module-notify/common/mails/views';
 
-	/*
-    public function sendContactMail( $contactForm ) {
+	// Admin Mails --------------
 
-		$mailProperties	= $this->mailProperties;
-		$adminEmail		= $mailProperties->getSenderEmail();
-		$adminName		= $mailProperties->getSenderName();
+	public function sendAdminMail( $message ) {
 
-		$fromEmail 		= $mailProperties->getContactEmail();
-		$fromName 		= $mailProperties->getContactName();
+		$fromEmail 	= $this->mailProperties->getSenderEmail();
+		$fromName 	= $this->mailProperties->getSenderName();
 
-		// User Mail
-        $this->getMailer()->compose( self::MAIL_CONTACT, [ 'coreProperties' => $this->coreProperties, FormsGlobal::FORM_CONTACT => $contactForm ] )
-            ->setTo( $contactForm->email )
+		$toEmail 	= $this->mailProperties->getContactEmail();
+
+		// Send Mail
+        $this->getMailer()->compose( self::MAIL_ADMIN, [ 'coreProperties' => $this->coreProperties, 'message' => $message ] )
+            ->setTo( $toEmail )
             ->setFrom( [ $fromEmail => $fromName ] )
-            ->setSubject( $contactForm->subject )
-            //->setTextBody( $contact->contact_message )
+            ->setSubject( "Notification | " . $this->coreProperties->getSiteName() )
+            //->setTextBody( "heroor" )
             ->send();
-    }
-	*/
+	}
+
+	// Website Mails ------------
+
+	public function sendUserMail( $message, $user ) {
+
+		$fromEmail 	= $this->mailProperties->getSenderEmail();
+		$fromName 	= $this->mailProperties->getSenderName();
+
+		// Send Mail
+        $this->getMailer()->compose( self::MAIL_USER, [ 'coreProperties' => $this->coreProperties, 'message' => $message, 'user' => $user ] )
+            ->setTo( $user->email )
+            ->setFrom( [ $fromEmail => $fromName ] )
+            ->setSubject( "Notification | " . $this->coreProperties->getSiteName() )
+            //->setTextBody( "heroor" )
+            ->send();
+	}
 }
 
 ?>

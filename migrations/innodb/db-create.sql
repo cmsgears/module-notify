@@ -44,7 +44,7 @@ CREATE TABLE `cmg_notify_model_notification` (
   `parentType` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `type` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'default',
   `ip` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `agent` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `agent` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `admin` tinyint(1) NOT NULL DEFAULT 0,
   `follow` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
   `consumed` tinyint(1) NOT NULL DEFAULT 0,

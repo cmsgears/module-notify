@@ -77,8 +77,8 @@ class ModelNotification extends \cmsgears\core\common\models\base\CmgModel {
 
         $rules = [
             [ [ 'id', 'content' ], 'safe' ],
-            [ [ 'parentType', 'type', 'ip', 'agent' ], 'string', 'min' => 1, 'max' => Yii::$app->cmgCore->mediumText ],
-            [ [ 'follow' ], 'string', 'min' => 1, 'max' => Yii::$app->cmgCore->extraLargeText ],
+            [ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->cmgCore->mediumText ],
+            [ [ 'agent', 'follow' ], 'string', 'min' => 1, 'max' => Yii::$app->cmgCore->extraLargeText ],
             [ [ 'admin', 'consumed' ], 'boolean' ],
             [ [ 'userId', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
             [ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]

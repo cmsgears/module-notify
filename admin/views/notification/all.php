@@ -6,6 +6,7 @@ use yii\widgets\LinkPager;
 use yii\helpers\Url;
 
 // CMG Imports
+use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\core\common\utilities\CodeGenUtil;
 
 $coreProperties = $this->context->getCoreProperties();
@@ -65,9 +66,14 @@ if( !isset( $sortOrder ) ) {
 					foreach( $models as $notification ) {
 
 						$id 	= $notification->id;
+
+						if( strlen( $notification->content ) > CoreGlobal::DISPLAY_TEXT_LARGE ) {
+
+							$notification->content	= "$notification->message ...";
+						}
 				?>
 					<tr>
-						<td><?= $notification->message ?></td>
+						<td><?= $notification->content ?></td>
 						<td>
 							<?php if( isset( $notification->follow ) ) { ?>
 								<a href="<?= Url::toRoute( [ $notification->follow ], true ) ?>">Follow</a>

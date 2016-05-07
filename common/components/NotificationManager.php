@@ -7,6 +7,7 @@ use \Yii;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
+use cmsgears\core\common\services\entities\UserService;
 use cmsgears\notify\common\models\mappers\ModelNotification;
 
 use cmsgears\notify\common\services\mappers\ModelNotificationService;
@@ -55,7 +56,14 @@ class NotificationManager extends \yii\base\Component {
 
 			$notification->admin	= true;
 
+			// Create Notification
 			ModelNotificationService::create( $notification );
+
+			if( $templateConfig->adminEmail ) {
+
+				// Trigger Mail
+				Yii::$app->cmgNotifyMailer->sendAdminMail( $message );
+			}
 		}
 
 		// Trigger for Users
@@ -72,7 +80,14 @@ class NotificationManager extends \yii\base\Component {
 				$userNotification->userId	= $userId;
 				$userNotification->admin	= false;
 
+				// Create Notification
 				ModelNotificationService::create( $userNotification );
+
+				if( $templateConfig->userEmail ) {
+
+					// Trigger Mail
+					Yii::$app->cmgNotifyMailer->sendUserMail( $message, UserService::findById( $userId ) );
+				}
 			}
 		}
 	}
