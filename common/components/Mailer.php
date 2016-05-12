@@ -15,6 +15,7 @@ class Mailer extends \cmsgears\core\common\base\Mailer {
 	// Various mail views
 	const MAIL_ADMIN		= "admin";
 	const MAIL_USER			= "user";
+	const MAIL_DIRECT		= "direct";
 
     public $htmlLayout 		= '@cmsgears/module-notify/common/mails/layouts/html';
     public $textLayout 		= '@cmsgears/module-notify/common/mails/layouts/text';
@@ -48,6 +49,20 @@ class Mailer extends \cmsgears\core\common\base\Mailer {
 		// Send Mail
         $this->getMailer()->compose( self::MAIL_USER, [ 'coreProperties' => $this->coreProperties, 'message' => $message, 'user' => $user ] )
             ->setTo( $user->email )
+            ->setFrom( [ $fromEmail => $fromName ] )
+            ->setSubject( "Notification | " . $this->coreProperties->getSiteName() )
+            //->setTextBody( "heroor" )
+            ->send();
+	}
+
+	public function sendDirectMail( $message, $email ) {
+
+		$fromEmail 	= $this->mailProperties->getSenderEmail();
+		$fromName 	= $this->mailProperties->getSenderName();
+
+		// Send Mail
+        $this->getMailer()->compose( self::MAIL_DIRECT, [ 'coreProperties' => $this->coreProperties, 'message' => $message ] )
+            ->setTo( $email )
             ->setFrom( [ $fromEmail => $fromName ] )
             ->setSubject( "Notification | " . $this->coreProperties->getSiteName() )
             //->setTextBody( "heroor" )

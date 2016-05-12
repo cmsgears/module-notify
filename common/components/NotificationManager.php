@@ -33,7 +33,7 @@ class NotificationManager extends \yii\base\Component {
 
 		$notification		= new ModelNotification();
 
-		$notification->consumed	= false;
+		$notification->status	= ModelNotification::STATUS_NEW;
 		$notification->content	= $message;
 
 		if( isset( $config[ 'parentId' ] ) ) {
@@ -51,10 +51,24 @@ class NotificationManager extends \yii\base\Component {
 			$notification->follow = $config[ 'follow' ];
 		}
 
+		if( isset( $config[ 'title' ] ) ) {
+
+			$notification->title = $config[ 'title' ];
+		}
+		else {
+
+			$notification->title = $template->name;
+		}
+
 		// Trigger for Admin
 		if( $templateConfig->admin ) {
 
 			$notification->admin	= true;
+
+			if( isset( $config[ 'adminFollow' ] ) ) {
+
+				$notification->adminFollow = $config[ 'adminFollow' ];
+			}
 
 			// Create Notification
 			ModelNotificationService::create( $notification );
@@ -75,7 +89,7 @@ class NotificationManager extends \yii\base\Component {
 
 				$userNotification			= new ModelNotification();
 
-				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'consumed', 'follow', 'content' ] );
+				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'title', 'status', 'follow', 'content' ] );
 
 				$userNotification->userId	= $userId;
 				$userNotification->admin	= false;
@@ -88,6 +102,19 @@ class NotificationManager extends \yii\base\Component {
 					// Trigger Mail
 					Yii::$app->cmgNotifyMailer->sendUserMail( $message, UserService::findById( $userId ) );
 				}
+			}
+		}
+
+		// Trigger for Model
+		if( !$templateConfig->admin && !$templateConfig->user ) {
+
+			// Create Notification
+			ModelNotificationService::create( $notification );
+
+			if( isset( $config[ 'email' ] ) ) {
+
+				// Trigger Mail
+				Yii::$app->cmgNotifyMailer->sendDirectMail( $message, $config[ 'email' ] );
 			}
 		}
 	}

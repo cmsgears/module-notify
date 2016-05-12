@@ -15,7 +15,8 @@ class MessageSource extends Component {
 	private $messageDb = [
 		// Generic Fields
 		NotifyGlobal::FIELD_EVENT => 'Event',
-		NotifyGlobal::FIELD_FOLLOW => 'Follow'
+		NotifyGlobal::FIELD_FOLLOW => 'Follow',
+		NotifyGlobal::FIELD_FOLLOW_ADMIN => 'Admin Follow'
 	];
 
 	/**

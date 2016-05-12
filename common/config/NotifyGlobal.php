@@ -19,6 +19,7 @@ class NotifyGlobal {
 	// Generic Fields
 	const FIELD_EVENT			= 'eventField';
 	const FIELD_FOLLOW			= 'followField';
+	const FIELD_FOLLOW_ADMIN	= 'adminFollowField';
 }
 
 ?>
