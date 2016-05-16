@@ -135,7 +135,7 @@ $statusFilter	= Yii::$app->request->getQueryParam( 'status' );
 			</tbody>
 		</table>
 	</div>
-	<div class="grid-header clearfix">
+	<div class="grid-footer clearfix">
 		<div class="col12x6 info">
 			<?=CodeGenUtil::getPaginationDetail( $dataProvider ) ?>
 		</div>

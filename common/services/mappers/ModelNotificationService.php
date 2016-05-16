@@ -116,7 +116,8 @@ class ModelNotificationService extends \cmsgears\core\common\services\base\Servi
 	                'default' => SORT_DESC,
 	                'label' => 'Updated At'
 	            ]
-	        ]
+	        ],
+	        'defaultOrder' => [ 'cdate' => 'SORT_ASC' ]
 	    ]);
 
 		if( !isset( $config[ 'sort' ] ) ) {
