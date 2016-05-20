@@ -78,6 +78,7 @@ $statusFilter	= Yii::$app->request->getQueryParam( 'status' );
 					<th>Title</th>
 					<th>Message</th>
 					<th>Follow</th>
+					<th>Status</th>
 					<th>Created At</th>
 					<th>Updated At</th>
 					<th>Actions</th>
@@ -85,8 +86,6 @@ $statusFilter	= Yii::$app->request->getQueryParam( 'status' );
 			</thead>
 			<tbody>
 				<?php
-
-					$trash = strcmp( $statusFilter, 'trash' ) == 0;
 
 					foreach( $models as $notification ) {
 
@@ -105,6 +104,7 @@ $statusFilter	= Yii::$app->request->getQueryParam( 'status' );
 								<a href="<?= Url::toRoute( [ $notification->adminFollow ], true ) ?>">Follow</a>
 							<?php } ?>
 						</td>
+						<td><?= $notification->getStatusStr() ?></td>
 						<td><?= $notification->createdAt ?></td>
 						<td><?= $notification->modifiedAt ?></td>
 						<td class="actions">
@@ -114,7 +114,7 @@ $statusFilter	= Yii::$app->request->getQueryParam( 'status' );
 								</div>
 								<span class="cmt-click cmti <?= $notification->isConsumed() ? 'cmti-envelope-o' : 'cmti-envelope' ?>" title="<?= $notification->isConsumed() ? 'Mark Unread' : 'Mark Read' ?>"></span>
 							</span>
-							<?php if( $trash ) { ?>
+							<?php if( $notification->isTrash() ) { ?>
 								<span class="cmt-request" cmt-controller="notification" cmt-action="delete" action="notify/notification/delete?id=<?= $id ?>">
 									<div class="spinner max-area-cover">
 										<div class="valign-center cmti cmti-spinner-1 spin"></div>
