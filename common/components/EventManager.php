@@ -12,20 +12,59 @@ use cmsgears\notify\common\models\mappers\ModelNotification;
 
 use cmsgears\notify\common\services\mappers\ModelNotificationService;
 
-class NotificationManager extends \yii\base\Component {
+class EventManager extends \yii\base\Component {
 
 	// Variables ---------------------------------------------------
 
 	public $email	= true;	// Check whether emails are enabled for notifications.
+
+	public $admin;
+
+	public $notifications;
+	public $notificationCount	= 0;
+
+	public $reminders;
+	public $reminderCount		= 0;
+
+	public $activities;
+	public $activityCount		= 0;
 
 	// Init --------------------------------------------------------
 
     public function init() {
 
         parent::init();
+
+		$this->initNotifications();
     }
 
-	// NotificationManager -----------------------------------------
+	// EventManager ------------------------------------------------
+
+	public function initNotifications() {
+
+		if( $this->admin ) {
+
+			$counts	= ModelNotificationService::getStatusCounts( true );
+
+			if( $counts[ 0 ] > 0 ) {
+
+				$this->notificationCount = $counts[ ModelNotification::STATUS_NEW ];
+			}
+
+			$this->notifications = ModelNotificationService::getRecent( 5, true );
+		}
+	}
+
+	public function getCounts() {
+
+		$counts		= [];
+
+		$counts[ 'notificationCount' ]	= $this->notificationCount;
+		$counts[ 'reminderCount' ]		= $this->reminderCount;
+		$counts[ 'activityCount' ]		= $this->activityCount;
+
+		return $counts;
+	}
 
 	public function triggerNotification( $template, $message, $models, $config = [] ) {
 
