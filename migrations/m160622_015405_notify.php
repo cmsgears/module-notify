@@ -39,6 +39,9 @@ class m160622_015405_notify extends \yii\db\Migration {
 		// Notification
 		$this->upNotification();
 
+		// Activity
+		$this->upActivity();
+
 		if( $this->fk ) {
 
 			$this->generateForeignKeys();
@@ -99,7 +102,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 			'eventId' => $this->bigInteger( 20 )->notNull(),
 			'userId' => $this->bigInteger( 20 )->notNull(),
 			'scheduledAt' => $this->dateTime(),
-			'trash' => $this->boolean()->notNull()->defaultValue( false ),
+			'status' => $this->smallInteger( 6 )->defaultValue( 0 ),
         ], $this->options );
 
         // Index for columns user
@@ -111,7 +114,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 
         $this->createTable( $this->prefix . 'notify_notification', [
 			'id' => $this->bigPrimaryKey( 20 ),
-			'userId' => $this->bigInteger( 20 )->notNull(),
+			'userId' => $this->bigInteger( 20 ),
 			'createdBy' => $this->bigInteger( 20 )->notNull(),
 			'modifiedBy' => $this->bigInteger( 20 ),
 			'parentId' => $this->bigInteger( 20 ),
@@ -120,9 +123,9 @@ class m160622_015405_notify extends \yii\db\Migration {
 			'type' => $this->string( CoreGlobal::TEXT_MEDIUM )->notNull()->defaultValue( 'default' ),
 			'ip' => $this->string( CoreGlobal::TEXT_MEDIUM )->defaultValue( null ),
 			'agent' => $this->string( CoreGlobal::TEXT_XLARGE )->defaultValue( null ),
-			'follow' => $this->string( CoreGlobal::TEXT_XLARGE )->defaultValue( null ),
+			'link' => $this->string( CoreGlobal::TEXT_XLARGE )->defaultValue( null ),
 			'admin' => $this->boolean()->notNull()->defaultValue( false ),
-			'adminFollow' => $this->string( CoreGlobal::TEXT_XLARGE )->defaultValue( null ),
+			'adminLink' => $this->string( CoreGlobal::TEXT_XLARGE )->defaultValue( null ),
 			'status' => $this->smallInteger( 6 )->defaultValue( 0 ),
 			'createdAt' => $this->dateTime()->notNull(),
 			'modifiedAt' => $this->dateTime(),
@@ -134,6 +137,25 @@ class m160622_015405_notify extends \yii\db\Migration {
         $this->createIndex( 'idx_' . $this->prefix . 'notification_user', $this->prefix . 'notify_notification', 'userId' );
 		$this->createIndex( 'idx_' . $this->prefix . 'notification_creator', $this->prefix . 'notify_notification', 'createdBy' );
 		$this->createIndex( 'idx_' . $this->prefix . 'notification_modifier', $this->prefix . 'notify_notification', 'modifiedBy' );
+	}
+
+	private function upActivity() {
+
+		$this->createTable( $this->prefix . 'notify_activity', [
+			'id' => $this->bigPrimaryKey( 20 ),
+			'userId' => $this->bigInteger( 20 )->notNull(),
+			'parentId' => $this->bigInteger( 20 ),
+			'parentType' => $this->string( CoreGlobal::TEXT_MEDIUM ),
+			'type' => $this->string( CoreGlobal::TEXT_MEDIUM )->notNull()->defaultValue( 'default' ),
+			'ip' => $this->string( CoreGlobal::TEXT_MEDIUM )->defaultValue( null ),
+			'agent' => $this->string( CoreGlobal::TEXT_XLARGE )->defaultValue( null ),
+			'createdAt' => $this->dateTime()->notNull(),
+			'modifiedAt' => $this->dateTime(),
+			'content' => $this->text()
+        ], $this->options );
+
+        // Index for columns user
+        $this->createIndex( 'idx_' . $this->prefix . 'activity_user', $this->prefix . 'notify_activity', 'userId' );
 	}
 
 	private function generateForeignKeys() {
@@ -155,6 +177,9 @@ class m160622_015405_notify extends \yii\db\Migration {
 		$this->addForeignKey( 'fk_' . $this->prefix . 'notification_user', $this->prefix . 'notify_notification', 'userId', $this->prefix . 'core_user', 'id', 'CASCADE' );
         $this->addForeignKey( 'fk_' . $this->prefix . 'notification_creator', $this->prefix . 'notify_notification', 'createdBy', $this->prefix . 'core_user', 'id', 'RESTRICT' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'notification_modifier', $this->prefix . 'notify_notification', 'modifiedBy', $this->prefix . 'core_user', 'id', 'SET NULL' );
+
+		// Activity
+		$this->addForeignKey( 'fk_' . $this->prefix . 'activity_user', $this->prefix . 'notify_activity', 'userId', $this->prefix . 'core_user', 'id', 'CASCADE' );
 	}
 
     public function down() {
@@ -167,7 +192,10 @@ class m160622_015405_notify extends \yii\db\Migration {
         $this->dropTable( $this->prefix . 'notify_event' );
 		$this->dropTable( $this->prefix . 'notify_event_participant' );
 		$this->dropTable( $this->prefix . 'notify_event_reminder' );
+
 		$this->dropTable( $this->prefix . 'notify_notification' );
+
+		$this->dropTable( $this->prefix . 'notify_activity' );
     }
 
 	private function dropForeignKeys() {
@@ -189,6 +217,9 @@ class m160622_015405_notify extends \yii\db\Migration {
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'notification_user', $this->prefix . 'notify_notification' );
         $this->dropForeignKey( 'fk_' . $this->prefix . 'notification_creator', $this->prefix . 'notify_notification' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'notification_modifier', $this->prefix . 'notify_notification' );
+
+		// Activity
+		$this->dropForeignKey( 'fk_' . $this->prefix . 'activity_user', $this->prefix . 'notify_activity' );
 	}
 }
 

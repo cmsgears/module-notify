@@ -8,18 +8,37 @@ use \Yii;
 use cmsgears\cms\common\config\CmsGlobal;
 
 /**
- * The mail component for CMSGears cms module. It must be initialised for app using the name cmgCmsMailer.
+ * The mail component for CMSGears notify module. It must be initialised for app using the name notifyMailer.
  */
 class Mailer extends \cmsgears\core\common\base\Mailer {
 
-	// Various mail views
+	// Variables ---------------------------------------------------
+
+	// Global -----------------
+
 	const MAIL_ADMIN		= "admin";
 	const MAIL_USER			= "user";
 	const MAIL_DIRECT		= "direct";
 
+	// Public -----------------
+
     public $htmlLayout 		= '@cmsgears/module-notify/common/mails/layouts/html';
     public $textLayout 		= '@cmsgears/module-notify/common/mails/layouts/text';
     public $viewPath 		= '@cmsgears/module-notify/common/mails/views';
+
+	// Protected --------------
+
+	// Private ----------------
+
+	// Constructor and Initialisation ------------------------------
+
+	// Instance methods --------------------------------------------
+
+	// Yii parent classes --------------------
+
+	// CMG parent classes --------------------
+
+	// Mailer --------------------------------
 
 	// Admin Mails --------------
 
@@ -69,5 +88,3 @@ class Mailer extends \cmsgears\core\common\base\Mailer {
             ->send();
 	}
 }
-
-?>

@@ -12,6 +12,14 @@ class MessageSource extends Component {
 
 	// Variables ---------------------------------------------------
 
+	// Global -----------------
+
+	// Public -----------------
+
+	// Protected --------------
+
+	// Private ----------------
+
 	private $messageDb = [
 		// Generic Fields
 		NotifyGlobal::FIELD_EVENT => 'Event',
@@ -19,18 +27,18 @@ class MessageSource extends Component {
 		NotifyGlobal::FIELD_FOLLOW_ADMIN => 'Admin Follow'
 	];
 
-	/**
-	 * Initialise the Cms Message DB Component.
-	 */
-    public function init() {
+	// Constructor and Initialisation ------------------------------
 
-        parent::init();
-    }
+	// Instance methods --------------------------------------------
+
+	// Yii parent classes --------------------
+
+	// CMG parent classes --------------------
+
+	// MessageSource -------------------------
 
 	public function getMessage( $messageKey, $params = [], $language = null ) {
 
 		return $this->messageDb[ $messageKey ];
 	}
 }
-
-?>

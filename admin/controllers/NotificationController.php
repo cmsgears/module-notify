@@ -4,38 +4,56 @@ namespace cmsgears\notify\admin\controllers;
 // Yii Imports
 use \Yii;
 use yii\filters\VerbFilter;
-use yii\web\NotFoundHttpException;
+use yii\helpers\Url;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\notify\common\models\mappers\ModelNotification;
-
-use cmsgears\notify\common\services\mappers\ModelNotificationService;
-
 class NotificationController extends \cmsgears\core\admin\controllers\base\Controller {
+
+	// Variables ---------------------------------------------------
+
+	// Globals ----------------
+
+	// Public -----------------
+
+	// Protected --------------
+
+	// Private ----------------
 
 	// Constructor and Initialisation ------------------------------
 
- 	public function __construct( $id, $module, $config = [] ) {
+	// Constructor and Initialisation ------------------------------
 
-        parent::__construct( $id, $module, $config );
+ 	public function init() {
 
-		$this->sidebar 	= [ 'parent' => 'sidebar-notify', 'child' => 'notification' ];
+        parent::init();
+
+		$this->crudPermission 	= CoreGlobal::PERM_CORE;
+		$this->modelService		= Yii::$app->factory->get( 'notificationService' );
+
+		$this->sidebar 			= [ 'parent' => 'sidebar-notify', 'child' => 'notification' ];
+
+		$this->returnUrl		= Url::previous( 'notifications' );
+		$this->returnUrl		= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/all' ], true );
 	}
 
-	// Instance Methods --------------------------------------------
+	// Instance methods --------------------------------------------
 
-	// yii\base\Component ----------------
+	// Yii interfaces ------------------------
+
+	// Yii parent classes --------------------
+
+	// yii\base\Component -----
 
     public function behaviors() {
 
         return [
             'rbac' => [
-                'class' => Yii::$app->cmgCore->getRbacFilterClass(),
+                'class' => Yii::$app->core->getRbacFilterClass(),
                 'actions' => [
-	                'index'  => [ 'permission' => CoreGlobal::PERM_CORE ],
-	                'all'    => [ 'permission' => CoreGlobal::PERM_CORE ]
+	                'index'  => [ 'permission' => $this->crudPermission ],
+	                'all'    => [ 'permission' => $this->crudPermission ]
                 ]
             ],
             'verbs' => [
@@ -48,7 +66,13 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
         ];
     }
 
-	// NotificationController ------------
+	// yii\base\Controller ----
+
+	// CMG interfaces ------------------------
+
+	// CMG parent classes --------------------
+
+	// NotificationController ----------------
 
 	public function actionIndex() {
 
@@ -57,12 +81,12 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 
 	public function actionAll() {
 
-		$dataProvider = ModelNotificationService::getPaginationForAdmin();
+		Url::remember( [ 'notification/all' ], 'notifications' );
+
+		$dataProvider = $this->modelService->getPageForAdmin();
 
 	    return $this->render( 'all', [
 	         'dataProvider' => $dataProvider
 	    ]);
 	}
 }
-
-?>

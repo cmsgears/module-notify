@@ -6,72 +6,115 @@ use \Yii;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\common\services\entities\UserService;
-use cmsgears\notify\common\models\mappers\ModelNotification;
+use cmsgears\notify\common\models\entities\Notification;
 
-use cmsgears\notify\common\services\mappers\ModelNotificationService;
-
-class EventManager extends \yii\base\Component {
+class EventManager extends \cmsgears\core\common\components\EventManager {
 
 	// Variables ---------------------------------------------------
 
+	// Global -----------------
+
+	// Public -----------------
+
 	public $email	= true;	// Check whether emails are enabled for notifications.
 
-	public $admin;
+	// Protected --------------
 
-	public $notifications;
-	public $notificationCount	= 0;
+	protected $userService;
+	protected $notificationService;
 
-	public $reminders;
-	public $reminderCount		= 0;
+	protected $templateService;
 
-	public $activities;
-	public $activityCount		= 0;
+	// Private ----------------
 
-	// Init --------------------------------------------------------
+	// Constructor and Initialisation ------------------------------
 
     public function init() {
 
         parent::init();
 
-		$this->initNotifications();
+		$this->userService				= Yii::$app->factory->get( 'userService' );
+		$this->notificationService		= Yii::$app->factory->get( 'notificationService' );
+
+		$this->templateService			= Yii::$app->factory->get( 'templateService' );
     }
 
-	// EventManager ------------------------------------------------
+	// Instance methods --------------------------------------------
 
-	public function initNotifications() {
+	// Yii parent classes --------------------
 
-		if( $this->admin ) {
+	// CMG parent classes --------------------
 
-			$counts	= ModelNotificationService::getStatusCounts( true );
+	// EventManager --------------------------
 
-			if( $counts[ 0 ] > 0 ) {
+	// Stats Collection -------
 
-				$this->notificationCount = $counts[ ModelNotification::STATUS_NEW ];
-			}
+	public function getAdminStats() {
 
-			$this->notifications = ModelNotificationService::getRecent( 5, true );
+		// Query
+		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
+		$notificationCounts	= $this->notificationService->getStatusCounts( [ 'conditions' => [ 'admin' => true ] ] );
+
+		// Results
+		$stats							= parent::getAdminStats();
+		$stats[ 'notifications' ]		= $notifications;
+		$stats[ 'notificationCount' ]	= $notificationCounts[ Notification::STATUS_NEW ];
+
+		return $stats;
+	}
+
+	public function getUserStats() {
+
+		// Query
+		$user				= Yii::$app->user->getIdentity();
+		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
+		$notificationCounts	= $this->notificationService->getStatusCounts( [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
+
+		// Results
+		$stats							= parent::getAdminStats();
+		$stats[ 'notifications' ]		= $notifications;
+		$stats[ 'notificationCount' ]	= $notificationCounts[ Notification::STATUS_NEW ];
+
+		return $stats;
+	}
+
+	// Notification Trigger ---
+
+	/**
+	 * It trigger nitification and also send mail based on the configuration.
+	 *
+	 * * Generates notification message using given template slug, models and config. Template manager will be used to generate this message.
+	 *
+	 * * Load the template config from it's data attribute.
+	 *
+	 * * Configure notification attributes i.e. parentId, parentType, link and title.
+	 *
+	 * * Trigger notification for admin if template config for admin is set and also trigger mail to admin if required.
+	 *
+	 * * Trigger notification for multiple users and also trigger user mail if required.
+	 *
+	 * * Trgger notification for model in case admin or user are turned off. The provided email will be used to trigger mail.
+	 */
+	public function triggerNotification( $templateSlug, $models, $config = [] ) {
+
+		// Return in case notifications are disabled at system level.
+		if( !Yii::$app->core->isNotifications() ) {
+
+			return false;
 		}
-	}
 
-	public function getCounts() {
+		// Generate Message
 
-		$counts		= [];
+		$template	= $this->templateService->getBySlugType( $templateSlug, NotifyGlobal::TYPE_NOTIFICATION );
+		$message	= Yii::$app->templateManager->renderMessage( $template, $models, $config );
 
-		$counts[ 'notificationCount' ]	= $this->notificationCount;
-		$counts[ 'reminderCount' ]		= $this->reminderCount;
-		$counts[ 'activityCount' ]		= $this->activityCount;
+		// Trigger Notification
 
-		return $counts;
-	}
+		$templateConfig			= $template->getDataAttribute( CoreGlobal::DATA_CONFIG );
 
-	public function triggerNotification( $template, $message, $models, $config = [] ) {
-
-		$templateConfig		= $template->getDataAttribute( CoreGlobal::DATA_CONFIG );
-
-		$notification		= new ModelNotification();
-
+		$notification			= new ModelNotification();
 		$notification->status	= ModelNotification::STATUS_NEW;
 		$notification->content	= $message;
 
@@ -85,9 +128,9 @@ class EventManager extends \yii\base\Component {
 			$notification->parentType = $config[ 'parentType' ];
 		}
 
-		if( isset( $config[ 'follow' ] ) ) {
+		if( isset( $config[ 'link' ] ) ) {
 
-			$notification->follow = $config[ 'follow' ];
+			$notification->link = $config[ 'link' ];
 		}
 
 		if( isset( $config[ 'title' ] ) ) {
@@ -104,18 +147,18 @@ class EventManager extends \yii\base\Component {
 
 			$notification->admin	= true;
 
-			if( isset( $config[ 'adminFollow' ] ) ) {
+			if( isset( $config[ 'adminLink' ] ) ) {
 
-				$notification->adminFollow = $config[ 'adminFollow' ];
+				$notification->adminFollow = $config[ 'adminLink' ];
 			}
 
 			// Create Notification
-			ModelNotificationService::create( $notification );
+			$this->notificationService->create( $notification );
 
 			if( $templateConfig->adminEmail ) {
 
 				// Trigger Mail
-				Yii::$app->cmgNotifyMailer->sendAdminMail( $message );
+				Yii::$app->notifyMailer->sendAdminMail( $message );
 			}
 		}
 
@@ -134,12 +177,12 @@ class EventManager extends \yii\base\Component {
 				$userNotification->admin	= false;
 
 				// Create Notification
-				ModelNotificationService::create( $userNotification );
+				$this->notificationService->create( $userNotification );
 
 				if( $templateConfig->userEmail ) {
 
 					// Trigger Mail
-					Yii::$app->cmgNotifyMailer->sendUserMail( $message, UserService::findById( $userId ) );
+					Yii::$app->notifyMailer->sendUserMail( $message, $this->userService->getById( $userId ) );
 				}
 			}
 		}
@@ -148,15 +191,27 @@ class EventManager extends \yii\base\Component {
 		if( !$templateConfig->admin && !$templateConfig->user ) {
 
 			// Create Notification
-			ModelNotificationService::create( $notification );
+			$this->notificationService->create( $notification );
 
 			if( isset( $config[ 'email' ] ) ) {
 
 				// Trigger Mail
-				Yii::$app->cmgNotifyMailer->sendDirectMail( $message, $config[ 'email' ] );
+				Yii::$app->notifyMailer->sendDirectMail( $message, $config[ 'email' ] );
 			}
 		}
 	}
-}
 
-?>
+	// Reminder Trigger -------
+
+	public function triggerReminder( $template, $message, $config = [] ) {
+
+		// Trigger notifications using given template, message and config
+	}
+
+	// Activity Logger --------
+
+	public function logActivity( $template, $message, $config = [] ) {
+
+		// Trigger notifications using given template, message and config
+	}
+}

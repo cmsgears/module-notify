@@ -7,8 +7,8 @@ use yii\helpers\Url;
 $core	= Yii::$app->core;
 $user	= Yii::$app->user->getIdentity();
 
-$counts			= Yii::$app->updateManager->getCounts();
-$count			= $counts[ 'notificationCount' ];
+$adminStats		= Yii::$app->eventManager->getAdminStats();
+$count			= $adminStats[ 'notificationCount' ];
 $notifCount1	= "<span class='right inline-block'>
 					<span class='upd-count upd-count-rounded upd-count-notification-all circled1 valign-center upd-count-$count'>$count</span>
 				</span>";

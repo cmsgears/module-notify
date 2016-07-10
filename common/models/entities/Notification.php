@@ -1,5 +1,5 @@
 <?php
-namespace cmsgears\notify\common\models\mappers;
+namespace cmsgears\notify\common\models\entities;
 
 // Yii Imports
 use \Yii;
@@ -16,36 +16,47 @@ use cmsgears\core\common\models\interfaces\IOwner;
 use cmsgears\core\common\models\entities\User;
 use cmsgears\notify\common\models\base\NotifyTables;
 
+use cmsgears\core\common\models\traits\CreateModifyTrait;
+use cmsgears\core\common\models\traits\ResourceTrait;
+use cmsgears\core\common\models\traits\resources\DataTrait;
+
 use cmsgears\core\common\behaviors\AuthorBehavior;
 
 /**
- * ModelNotification Entity
+ * Notification Entity
  *
  * @property integer $id
  * @property integer $userId
+ * @property integer $createdBy
+ * @property integer $modifiedBy
  * @property integer $parentId
  * @property string $parentType
  * @property string $title
  * @property string $type
  * @property string $ip
  * @property string $agent
- * @property string $follow
+ * @property string $link
  * @property boolean $admin
- * @property string $adminFollow
+ * @property string $adminLink
  * @property boolean $status
  * @property datetime $createdAt
  * @property datetime $modifiedAt
  * @property string $content
+ * @property string $data
  */
-class ModelNotification extends \cmsgears\core\common\models\base\CmgModel implements IOwner {
+class Notification extends \cmsgears\core\common\models\base\Entity implements IOwner {
 
 	// Variables ---------------------------------------------------
 
-	// Constants/Statics --
+	// Globals -------------------------------
+
+	// Constants --------------
 
 	const STATUS_NEW		=   0;
 	const STATUS_CONSUMED	= 100;
 	const STATUS_TRASH		= 200;
+
+	// Public -----------------
 
     public static $statusMap = [
         self::STATUS_NEW => 'New',
@@ -59,17 +70,31 @@ class ModelNotification extends \cmsgears\core\common\models\base\CmgModel imple
         'trash' => self::STATUS_TRASH
     ];
 
-	// Public -------------
+	// Protected --------------
 
-	// Private/Protected --
+	// Variables -----------------------------
+
+	// Public -----------------
+
+	// Protected --------------
+
+	// Private ----------------
 
 	// Traits ------------------------------------------------------
 
+	use CreateModifyTrait;
+	use DataTrait;
+	use ResourceTrait;
+
 	// Constructor and Initialisation ------------------------------
 
-	// Instance Methods --------------------------------------------
+	// Instance methods --------------------------------------------
 
-    // yii\base\Component ----------------
+	// Yii interfaces ------------------------
+
+	// Yii parent classes --------------------
+
+	// yii\base\Component -----
 
     /**
      * @inheritdoc
@@ -89,7 +114,7 @@ class ModelNotification extends \cmsgears\core\common\models\base\CmgModel imple
         ];
     }
 
-	// yii\base\Model --------------------
+	// yii\base\Model ---------
 
     /**
      * @inheritdoc
@@ -97,12 +122,12 @@ class ModelNotification extends \cmsgears\core\common\models\base\CmgModel imple
 	public function rules() {
 
         $rules = [
-            [ [ 'id', 'content' ], 'safe' ],
-            [ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->cmgCore->mediumText ],
-            [ [ 'title', 'agent', 'follow', 'adminFollow' ], 'string', 'min' => 1, 'max' => Yii::$app->cmgCore->extraLargeText ],
+            [ [ 'id', 'content', 'data' ], 'safe' ],
+            [ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
+            [ [ 'title', 'agent', 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xLargeText ],
             [ [ 'admin' ], 'boolean' ],
             [ [ 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-            [ [ 'userId', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+            [ [ 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
             [ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
         ];
 
@@ -115,26 +140,28 @@ class ModelNotification extends \cmsgears\core\common\models\base\CmgModel imple
 	public function attributeLabels() {
 
 		return [
-			'userId' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_USER ),
-			'parentId' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
-			'parentType' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
-			'title' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_TITLE ),
-			'type' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_TYPE ),
-			'ip' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_IP ),
-			'agent' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_AGENT_BROWSER ),
-			'follow' => Yii::$app->cmgNotifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
-			'admin' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
-			'adminFollow' => Yii::$app->cmgNotifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
-			'status' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
-			'content' => Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::FIELD_CONTENT )
+			'userId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_USER ),
+			'parentId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
+			'parentType' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
+			'title' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TITLE ),
+			'type' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TYPE ),
+			'ip' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_IP ),
+			'agent' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_AGENT_BROWSER ),
+			'link' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
+			'admin' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
+			'adminLink' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW_ADMIN ),
+			'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
+			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT )
 		];
 	}
 
-	// IOwner ----------------------------
+	// CMG interfaces ------------------------
 
-	public function isOwner( $user = null ) {
+	// IOwner -----------------
 
-		if( !isset( $user ) ) {
+	public function isOwner( $user = null, $strict = false ) {
+
+		if( !isset( $user ) && !$strict ) {
 
 			$user	= Yii::$app->user->getIdentity();
 		}
@@ -147,7 +174,11 @@ class ModelNotification extends \cmsgears\core\common\models\base\CmgModel imple
 		return false;
 	}
 
-	// ModelNotification -----------------
+	// CMG parent classes --------------------
+
+	// Validators ----------------------------
+
+	// Notification --------------------------
 
 	public function getUser() {
 
@@ -193,9 +224,9 @@ class ModelNotification extends \cmsgears\core\common\models\base\CmgModel imple
 			$content	= "<li class='trash'>";
 		}
 
-		if( !empty( $this->follow ) ) {
+		if( !empty( $this->link ) ) {
 
-			$link		 = Url::toRoute( [ $this->follow ], true );
+			$link		 = Url::toRoute( [ $this->link ], true );
 			$content	.= "<a href='$link'>$this->content</a></li>";
 		}
 		else {
@@ -208,25 +239,46 @@ class ModelNotification extends \cmsgears\core\common\models\base\CmgModel imple
 
 	// Static Methods ----------------------------------------------
 
-	// yii\db\ActiveRecord ---------------
+	// Yii parent classes --------------------
+
+	// yii\db\ActiveRecord ----
 
     /**
      * @inheritdoc
      */
 	public static function tableName() {
 
-		return NotifyTables::TABLE_MODEL_NOTIFICATION;
+		return NotifyTables::TABLE_NOTIFICATION;
 	}
 
-	// ModelNotification -----------------
+	// CMG parent classes --------------------
 
-	// Create -------------
+	// Notification --------------------------
 
-	// Read ---------------
+	// Read - Query -----------
 
-	// Update -------------
+	public static function queryWithAll( $config = [] ) {
 
-	// Delete ----
+		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user' ];
+		$config[ 'relations' ]	= $relations;
+
+		return parent::queryWithAll( $config );
+	}
+
+	public static function queryWithUser( $config = [] ) {
+
+		$config[ 'relations' ]	= [ 'user' ];
+
+		return parent::queryWithAll( $config );
+	}
+
+	// Read - Find ------------
+
+	// Create -----------------
+
+	// Update -----------------
+
+	// Delete -----------------
 
 	/**
 	 * Delete all entries related to a user
@@ -236,5 +288,3 @@ class ModelNotification extends \cmsgears\core\common\models\base\CmgModel imple
 		self::deleteAll( 'userId=:uid', [ ':uid' => $userId ] );
 	}
 }
-
-?>

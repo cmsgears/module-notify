@@ -11,7 +11,11 @@ class NotificationConfig extends \cmsgears\core\common\models\forms\JsonModel {
 
 	// Variables ---------------------------------------------------
 
-	// Public Variables --------------------
+	// Globals -------------------------------
+
+	// Constants --------------
+
+	// Public -----------------
 
 	public $admin		= false;
 
@@ -21,9 +25,29 @@ class NotificationConfig extends \cmsgears\core\common\models\forms\JsonModel {
 
 	public $userEmail	= false;
 
-	// Instance Methods --------------------------------------------
+	// Protected --------------
 
-	// yii\base\Model
+	// Variables -----------------------------
+
+	// Public -----------------
+
+	// Protected --------------
+
+	// Private ----------------
+
+	// Traits ------------------------------------------------------
+
+	// Constructor and Initialisation ------------------------------
+
+	// Instance methods --------------------------------------------
+
+	// Yii interfaces ------------------------
+
+	// Yii parent classes --------------------
+
+	// yii\base\Component -----
+
+	// yii\base\Model ---------
 
 	public function rules() {
 
@@ -44,6 +68,12 @@ class NotificationConfig extends \cmsgears\core\common\models\forms\JsonModel {
 			'userEmail' => 'User Email'
 		];
 	}
-}
 
-?>
+	// CMG interfaces ------------------------
+
+	// CMG parent classes --------------------
+
+	// Validators ----------------------------
+
+	// NotificationConfig --------------------
+}
