@@ -220,43 +220,42 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 		]);
  	}
 
-	public function toggleRead( $notification ) {
+	public function toggleRead( $model ) {
 
-		if( $notification->isConsumed() ) {
+		if( $model->isConsumed() ) {
 
-			return $this->markNew( $notification );
+			return $this->markNew( $model );
 		}
 
-		return $this->markConsumed( $notification );
+		return $this->markConsumed( $model );
 	}
 
-	public function markNew( $notification ) {
+	public function markNew( $model ) {
 
-		$notification->status	= Notification::STATUS_NEW;
+		$model->status	= Notification::STATUS_NEW;
 
 		return parent::update( $model, [
 			'attributes' => [ 'status' ]
 		]);
 	}
 
-	public function markConsumed( $notification ) {
+	public function markConsumed( $model ) {
 
-		$notification->status	= Notification::STATUS_CONSUMED;
-
-		return parent::update( $model, [
-			'attributes' => [ 'status' ]
-		]);
-	}
-
-	public function markTrash( $notification ) {
-
-		$notification->status	= Notification::STATUS_TRASH;
+		$model->status	= Notification::STATUS_CONSUMED;
 
 		return parent::update( $model, [
 			'attributes' => [ 'status' ]
 		]);
 	}
 
+	public function markTrash( $model ) {
+
+		$model->status	= Notification::STATUS_TRASH;
+
+		return parent::update( $model, [
+			'attributes' => [ 'status' ]
+		]);
+	}
 
 	// Delete -------------
 

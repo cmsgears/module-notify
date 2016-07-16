@@ -114,8 +114,8 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 		$templateConfig			= $template->getDataAttribute( CoreGlobal::DATA_CONFIG );
 
-		$notification			= new ModelNotification();
-		$notification->status	= ModelNotification::STATUS_NEW;
+		$notification			= new Notification();
+		$notification->status	= Notification::STATUS_NEW;
 		$notification->content	= $message;
 
 		if( isset( $config[ 'parentId' ] ) ) {
@@ -149,7 +149,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 			if( isset( $config[ 'adminLink' ] ) ) {
 
-				$notification->adminFollow = $config[ 'adminLink' ];
+				$notification->adminLink = $config[ 'adminLink' ];
 			}
 
 			// Create Notification
@@ -169,9 +169,9 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 			foreach ( $users as $userId ) {
 
-				$userNotification			= new ModelNotification();
+				$userNotification			= new Notification();
 
-				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'title', 'status', 'follow', 'content' ] );
+				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'title', 'status', 'link', 'content' ] );
 
 				$userNotification->userId	= $userId;
 				$userNotification->admin	= false;

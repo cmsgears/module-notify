@@ -7,7 +7,7 @@ use \Yii;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\notify\common\models\mappers\ModelNotification;
+use cmsgears\notify\common\models\entities\Notification;
 
 use cmsgears\core\common\utilities\AjaxUtil;
 
@@ -33,7 +33,7 @@ class ToggleRead extends \cmsgears\core\common\base\Action {
 
 	// Protected --------------
 
-	protected $modelNotificationService;
+	protected $notificationService;
 
 	// Private ----------------
 
@@ -43,7 +43,9 @@ class ToggleRead extends \cmsgears\core\common\base\Action {
 
 	public function init() {
 
-		$this->modelNotificationService	= Yii::$app->factory->get( 'modelNotificationService' );
+		parent::init();
+
+		$this->notificationService	= Yii::$app->factory->get( 'notificationService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -58,17 +60,17 @@ class ToggleRead extends \cmsgears\core\common\base\Action {
 
 	// ToggleRead ----------------------------
 
-	public function run( $directory, $type ) {
+	public function run( $id ) {
 
-		$notification	= $this->modelNotificationService->getById( $id );
+		$notification	= $this->notificationService->getById( $id );
 
 		if( isset( $notification ) ) {
 
-			$notification	= $this->modelNotificationService->toggleRead( $notification );
+			$notification	= $this->notificationService->toggleRead( $notification );
 
-			$counts			= $this->modelNotificationService->getStatusCounts( $this->admin, $this->conditions );
+			$counts			= $this->notificationService->getStatusCounts( $this->admin, $this->conditions );
 
-			$data			= [ 'unread' => $counts[ ModelNotification::STATUS_NEW ], 'consumed' => $notification->isConsumed() ];
+			$data			= [ 'unread' => $counts[ Notification::STATUS_NEW ], 'consumed' => $notification->isConsumed() ];
 
 			// Trigger Ajax Success
 			return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ), $data );

@@ -8,7 +8,7 @@ use yii\filters\VerbFilter;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-class NotificationController extends \cmsgears\notify\common\controllers\apix\NotificationController {
+class NotificationController extends \cmsgears\core\common\controllers\base\Controller {
 
 	// Constructor and Initialisation ------------------------------
 

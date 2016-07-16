@@ -3,44 +3,80 @@ namespace cmsgears\notify\frontend\controllers\apix;
 
 // Yii Imports
 use \Yii;
+use yii\filters\VerbFilter;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\notify\common\services\mappers\ModelNotificationService;
+class NotificationController extends \cmsgears\core\common\controllers\base\Controller {
 
-class NotificationController extends \cmsgears\notify\common\controllers\apix\NotificationController {
+	// Variables ---------------------------------------------------
 
-	private $modelService;
+	// Globals ----------------
+
+	// Public -----------------
+
+	// Protected --------------
+
+	// Private ----------------
 
 	// Constructor and Initialisation ------------------------------
 
- 	public function __construct( $id, $module, $config = [] ) {
+ 	public function init() {
 
-        parent::__construct( $id, $module, $config );
+        parent::init();
 
-		$this->modelService = new ModelNotificationService();
-		$user				= Yii::$app->user->getIdentity();
-		$this->conditions	= [ 'userId' => $user->id ];
+		$this->crudPermission	= CoreGlobal::PERM_USER;
+		$this->modelService 	= Yii::$app->factory->get( 'notificationService' );
 	}
 
-	// Instance Methods --------------------------------------------
+	// Instance methods --------------------------------------------
 
-	// yii\base\Component ----------------
+	// Yii interfaces ------------------------
+
+	// Yii parent classes --------------------
+
+	// yii\base\Component -----
 
     public function behaviors() {
 
-		$behaviors	= parent::behaviors();
-
-        $behaviors[ 'rbac' ][ 'actions' ][ 'toggleRead' ] = [ 'permission' => CoreGlobal::PERM_USER, 'filters' => [ 'owner' => [ 'id' => true, 'service' => $this->modelService ] ] ];
-	    $behaviors[ 'rbac' ][ 'actions' ][ 'trash' ] = [ 'permission' => CoreGlobal::PERM_USER, 'filters' => [ 'owner' => [ 'id' => true, 'service' => $this->modelService ] ] ];
-		$behaviors[ 'rbac' ][ 'actions' ][ 'delete' ] = [ 'permission' => CoreGlobal::PERM_USER, 'filters' => [ 'owner' => [ 'id' => true, 'service' => $this->modelService ] ] ];
-
-		return $behaviors;
+        return [
+            'rbac' => [
+                'class' => Yii::$app->core->getRbacFilterClass(),
+                'actions' => [
+	                'toggleRead' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
+	                'trash' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
+	                'delete' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ]
+                ]
+            ],
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+	                'toggleRead' => [ 'post' ],
+	                'trash' => [ 'post' ],
+	                'delete' => [ 'post' ]
+                ]
+            ]
+        ];
     }
 
-	// NotificationController ------------
+	// yii\base\Controller ----
 
+    public function actions() {
+
+		$user		= Yii::$app->user->getIdentity();
+		$conditions	= [ 'userId' => $user->id ];
+
+        return [
+        	'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead', 'conditions' => $conditions ],
+        	'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash', 'conditions' => $conditions ],
+        	'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete', 'conditions' => $conditions ]
+		];
+    }
+
+	// CMG interfaces ------------------------
+
+	// CMG parent classes --------------------
+
+	// NotificationController ----------------
 }
-
-?>
