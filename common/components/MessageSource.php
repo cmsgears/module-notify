@@ -3,12 +3,11 @@ namespace cmsgears\notify\common\components;
 
 // Yii Imports
 use \Yii;
-use yii\base\Component;
 
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-class MessageSource extends Component {
+class MessageSource extends \yii\base\Component {
 
 	// Variables ---------------------------------------------------
 
@@ -18,14 +17,14 @@ class MessageSource extends Component {
 
 	// Protected --------------
 
-	// Private ----------------
-
-	private $messageDb = [
+	protected $messageDb = [
 		// Generic Fields
 		NotifyGlobal::FIELD_EVENT => 'Event',
 		NotifyGlobal::FIELD_FOLLOW => 'Follow',
 		NotifyGlobal::FIELD_FOLLOW_ADMIN => 'Admin Follow'
 	];
+
+	// Private ----------------
 
 	// Constructor and Initialisation ------------------------------
 

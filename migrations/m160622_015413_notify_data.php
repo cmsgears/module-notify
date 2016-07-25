@@ -18,7 +18,7 @@ class m160622_015413_notify_data extends \yii\db\Migration {
 		$this->prefix		= 'cmg_';
 
 		$this->site		= Site::findBySlug( CoreGlobal::SITE_MAIN );
-		$this->master	= User::findByUsername( 'demomaster' );
+		$this->master	= User::findByUsername( Yii::$app->migration->getSiteMaster() );
 
 		Yii::$app->core->setSite( $this->site );
 	}

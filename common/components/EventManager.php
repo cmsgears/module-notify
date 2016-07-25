@@ -112,7 +112,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 		// Trigger Notification
 
-		$templateConfig			= $template->getDataAttribute( CoreGlobal::DATA_CONFIG );
+		$templateConfig			= $template->getDataMeta( CoreGlobal::DATA_CONFIG );
 
 		$notification			= new Notification();
 		$notification->status	= Notification::STATUS_NEW;

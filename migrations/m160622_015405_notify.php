@@ -57,8 +57,8 @@ class m160622_015405_notify extends \yii\db\Migration {
 			'modifiedBy' => $this->bigInteger( 20 ),
 			'parentId' => $this->bigInteger( 20 ),
 			'parentType' => $this->string( CoreGlobal::TEXT_MEDIUM ),
-			'name' => $this->string( CoreGlobal::TEXT_MEDIUM )->notNull(),
-			'slug' => $this->string( CoreGlobal::TEXT_LARGE )->notNull(),
+			'name' => $this->string( CoreGlobal::TEXT_LARGE )->notNull(),
+			'slug' => $this->string( CoreGlobal::TEXT_XLARGE )->notNull(),
 			'type' => $this->string( CoreGlobal::TEXT_MEDIUM )->notNull(),
 			'icon' => $this->string( CoreGlobal::TEXT_MEDIUM )->defaultValue( null ),
 			'description' => $this->string( CoreGlobal::TEXT_XLARGE )->defaultValue( null ),
@@ -67,7 +67,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 			'postReminderCount' => $this->smallInteger( 6 )->defaultValue( 0 ),
 			'postReminderInterval' => $this->smallInteger( 6 )->defaultValue( 0 ),
 			'multi' => $this->boolean()->notNull()->defaultValue( false ),
-			'trash' => $this->boolean()->notNull()->defaultValue( false ),
+			'status' => $this->smallInteger( 6 )->defaultValue( 0 ),
 			'createdAt' => $this->dateTime()->notNull(),
 			'modifiedAt' => $this->dateTime(),
 			'scheduledAt' => $this->dateTime()->notNull(),
@@ -151,7 +151,8 @@ class m160622_015405_notify extends \yii\db\Migration {
 			'agent' => $this->string( CoreGlobal::TEXT_XLARGE )->defaultValue( null ),
 			'createdAt' => $this->dateTime()->notNull(),
 			'modifiedAt' => $this->dateTime(),
-			'content' => $this->text()
+			'content' => $this->text(),
+			'data' => $this->text()
         ], $this->options );
 
         // Index for columns user

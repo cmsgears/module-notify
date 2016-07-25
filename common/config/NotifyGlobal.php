@@ -21,5 +21,3 @@ class NotifyGlobal {
 	const FIELD_FOLLOW			= 'followField';
 	const FIELD_FOLLOW_ADMIN	= 'adminFollowField';
 }
-
-?>

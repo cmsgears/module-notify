@@ -4,9 +4,26 @@ namespace cmsgears\notify\frontend;
 // Yii Imports
 use \Yii;
 
+// CMG Imports
+use cmsgears\core\common\config\CoreGlobal;
+
 class Module extends \cmsgears\core\common\base\Module {
 
-    public $controllerNamespace = 'cmsgears\notify\frontend\controllers';
+	// Variables ---------------------------------------------------
+
+	// Globals ----------------
+
+	// Public -----------------
+
+	public $controllerNamespace = 'cmsgears\notify\frontend\controllers';
+
+	// Protected --------------
+
+	// Private ----------------
+
+	// Traits ------------------------------------------------------
+
+	// Constructor and Initialisation ------------------------------
 
     public function init() {
 
@@ -14,6 +31,16 @@ class Module extends \cmsgears\core\common\base\Module {
 
         $this->setViewPath( '@cmsgears/module-notify/frontend/views' );
     }
-}
 
-?>
+	// Instance methods --------------------------------------------
+
+	// Yii interfaces ------------------------
+
+	// Yii parent classes --------------------
+
+	// CMG interfaces ------------------------
+
+	// CMG parent classes --------------------
+
+	// Module --------------------------------
+}

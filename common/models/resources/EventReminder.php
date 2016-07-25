@@ -1,5 +1,5 @@
 <?php
-namespace cmsgears\notify\common\models\entities;
+namespace cmsgears\notify\common\models\resources;
 
 // Yii Imports
 use \Yii;
@@ -9,26 +9,19 @@ use cmsgears\core\common\config\CoreGlobal;
 
 use cmsgears\core\common\models\entities\User;
 use cmsgears\notify\common\models\base\NotifyTables;
+use cmsgears\notify\common\models\entities\Event;
 
-use cmsgears\core\common\models\traits\ResourceTrait;
-use cmsgears\core\common\models\traits\resources\DataTrait;
 
 /**
- * Activity Entity - It can be used to log user activities. A model can be optionally associated with it to identify model specific activities.
+ * EventReminder Entity
  *
  * @property long $id
+ * @property long $eventId
  * @property long $userId
- * @property long $parentId
- * @property string $parentType
- * @property short $type
- * @property string $ip
- * @property string $agent
- * @property datetime $createdAt
- * @property datetime $modifiedAt
- * @property string $content
- * @property string $data
+ * @property datetime $scheduledAt
+ * @property short $status
  */
-class Activity extends \cmsgears\core\common\models\base\Entity {
+class EventReminder extends \cmsgears\core\common\models\base\Mapper {
 
 	// Variables ---------------------------------------------------
 
@@ -50,9 +43,6 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
 
 	// Traits ------------------------------------------------------
 
-	use ResourceTrait;
-	use DataTrait;
-
 	// Constructor and Initialisation ------------------------------
 
 	// Instance methods --------------------------------------------
@@ -71,12 +61,10 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
     public function rules() {
 
         return [
-            [ [ 'userId' ], 'required' ],
-            [ [ 'id', 'content', 'data' ], 'safe' ],
-            [ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
-            [ [ 'agent' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xLargeText ],
-            [ [ 'userId', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
-            [ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
+            [ [ 'eventId', 'userId' ], 'required' ],
+            [ [ 'eventId', 'userId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+            [ 'status', 'number', 'integerOnly' => true, 'min' => 0 ],
+            [ [ 'scheduledAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
         ];
     }
 
@@ -86,13 +74,9 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
     public function attributeLabels() {
 
         return [
+            'eventId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_EVENT ),
             'userId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_USER ),
-            'parentId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
-            'parentType' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
-            'ip' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_IP ),
-            'agent' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_AGENT_BROWSER ),
-            'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT ),
-            'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA )
+            'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS )
         ];
     }
 
@@ -102,14 +86,16 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
 
 	// Validators ----------------------------
 
-    // ModelActivity -------------------------
+	// EventParticipant ----------------------
 
-    /**
-     * @return User - associated user
-     */
+    public function getEvent() {
+
+        return $this->hasOne( Event::className(), [ 'id' => 'eventId' ] );
+    }
+
     public function getUser() {
 
-        return $this->hasOne( Activity::className(), [ 'id' => 'userId' ] );
+        return $this->hasOne( User::className(), [ 'id' => 'userId' ] );
     }
 
 	// Static Methods ----------------------------------------------
@@ -123,19 +109,26 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
      */
     public static function tableName() {
 
-        return NotifyTables::TABLE_ACTIVITY;
+        return NotifyTables::TABLE_EVENT_REMINDER;
     }
 
 	// CMG parent classes --------------------
 
-	// ModelActivity -------------------------
+	// SiteMember ----------------------------
 
 	// Read - Query -----------
 
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user' ];
+		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'event', 'user' ];
 		$config[ 'relations' ]	= $relations;
+
+		return parent::queryWithAll( $config );
+	}
+
+	public static function queryWithEvent( $config = [] ) {
+
+		$config[ 'relations' ]	= [ 'event' ];
 
 		return parent::queryWithAll( $config );
 	}
@@ -154,4 +147,14 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
 	// Update -----------------
 
 	// Delete -----------------
+
+    public static function deleteByEventId( $eventId ) {
+
+        self::deleteAll( 'eventId=:id', [ ':id' => $eventId ] );
+    }
+
+    public static function deleteByUserId( $userId ) {
+
+        self::deleteAll( 'userId=:id', [ ':id' => $userId ] );
+    }
 }
