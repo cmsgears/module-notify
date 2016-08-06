@@ -77,7 +77,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 			$model->refresh();
 
-			$model->updateDataAttribute( CoreGlobal::DATA_CONFIG, $config );
+			$model->updateDataMeta( CoreGlobal::DATA_CONFIG, $config );
 
 			return $this->redirect( $this->returnUrl );
 		}
@@ -98,14 +98,14 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 		// Update/Render if exist
 		if( isset( $model ) ) {
 
-			$config	= new NotificationConfig( $model->getDataAttribute( CoreGlobal::DATA_CONFIG ) );
+			$config	= new NotificationConfig( $model->getDataMeta( CoreGlobal::DATA_CONFIG ) );
 
 			if( $model->load( Yii::$app->request->post(), $model->getClassName() )  && $config->load( Yii::$app->request->post(), 'NotificationConfig' ) &&
 				$model->validate() && $config->validate() ) {
 
 				$this->modelService->update( $model );
 
-				$model->updateDataAttribute( CoreGlobal::DATA_CONFIG, $config );
+				$model->updateDataMeta( CoreGlobal::DATA_CONFIG, $config );
 
 				return $this->redirect( $this->returnUrl );
 			}
@@ -117,6 +117,6 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 		}
 
 		// Model not found
-		throw new NotFoundHttpException( Yii::$app->cmgCoreMessage->getMessage( CoreGlobal::ERROR_NOT_FOUND ) );
+		throw new NotFoundHttpException( Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_NOT_FOUND ) );
 	}
 }

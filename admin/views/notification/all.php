@@ -99,8 +99,8 @@ $statusFilter	= Yii::$app->request->getQueryParam( 'status' );
 						<td><?= $notification->title ?></td>
 						<td><?= $notification->content ?></td>
 						<td>
-							<?php if( isset( $notification->adminFollow ) ) { ?>
-								<a href="<?= Url::toRoute( [ $notification->adminFollow ], true ) ?>">Follow</a>
+							<?php if( isset( $notification->adminLink ) ) { ?>
+								<a href="<?= Url::toRoute( [ $notification->adminLink ], true ) ?>">Follow</a>
 							<?php } ?>
 						</td>
 						<td><?= $notification->getStatusStr() ?></td>
