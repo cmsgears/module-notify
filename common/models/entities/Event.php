@@ -11,15 +11,14 @@ use yii\behaviors\TimestampBehavior;
 use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\common\models\interfaces\IOwner;
-
 use cmsgears\notify\common\models\base\NotifyTables;
+
+use cmsgears\core\common\models\entities\Site;
 
 use cmsgears\core\common\models\traits\CreateModifyTrait;
 use cmsgears\core\common\models\traits\NameTypeTrait;
 use cmsgears\core\common\models\traits\ResourceTrait;
 use cmsgears\core\common\models\traits\SlugTypeTrait;
-use cmsgears\core\common\models\traits\interfaces\OwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
 
 use cmsgears\core\common\behaviors\AuthorBehavior;
@@ -42,7 +41,9 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  * @property short $preReminderInterval
  * @property short $postReminderCount
  * @property short $postReminderInterval
- * @property boolean $multi
+ * @property short $preIntervalUnit
+ * @property short $postIntervalUnit
+ * @property boolean $multiUser
  * @property short $status
  * @property datetime $createdAt
  * @property datetime $modifiedAt
@@ -50,7 +51,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  * @property string $content
  * @property string $data
  */
-class Event extends \cmsgears\core\common\models\base\Entity implements IOwner {
+class Event extends \cmsgears\core\common\models\base\Entity {
 
 	// Variables ---------------------------------------------------
 
@@ -59,12 +60,29 @@ class Event extends \cmsgears\core\common\models\base\Entity implements IOwner {
 	const STATUS_NEW	= 	  0;
 	const STATUS_TRASH	= 20000;
 
+	// Interval Units ---------
+	const UNIT_YEAR		= 0;
+	const UNIT_MONTH	= 1;
+	const UNIT_DAY		= 2;
+	const UNIT_HOUR		= 3;
+	const UNIT_MINUTE	= 4;
+	const UNIT_SECOND	= 5;
+
 	// Constants --------------
 
     public static $statusMap = [
         self::STATUS_NEW => 'New',
         self::STATUS_TRASH => 'Trash'
     ];
+
+	public static $unitMap = [
+		self::UNIT_YEAR => 'year',
+		self::UNIT_MONTH => 'month',
+		self::UNIT_DAY => 'days',
+		self::UNIT_HOUR => 'hours',
+		self::UNIT_MINUTE => 'minute',
+		self::UNIT_SECOND => 'seconds'
+	];
 
 	// Public -----------------
 
@@ -86,7 +104,6 @@ class Event extends \cmsgears\core\common\models\base\Entity implements IOwner {
 
 	use CreateModifyTrait;
 	use DataTrait;
-	use OwnerTrait;
 	use NameTypeTrait;
 	use ResourceTrait;
 	use SlugTypeTrait;
@@ -107,9 +124,6 @@ class Event extends \cmsgears\core\common\models\base\Entity implements IOwner {
     public function behaviors() {
 
         return [
-            'authorBehavior' => [
-                'class' => AuthorBehavior::className()
-            ],
             'timestampBehavior' => [
                 'class' => TimestampBehavior::className(),
                 'createdAtAttribute' => 'createdAt',
@@ -135,8 +149,8 @@ class Event extends \cmsgears\core\common\models\base\Entity implements IOwner {
             [ [ 'description' ], 'string', 'min' => 0, 'max' => Yii::$app->core->xLargeText ],
             [ [ 'name', 'type' ], 'unique', 'targetAttribute' => [ 'name', 'type' ] ],
             [ [ 'slug', 'type' ], 'unique', 'targetAttribute' => [ 'slug', 'type' ] ],
-			[ [ 'preReminderCount', 'preReminderInterval', 'postReminderCount', 'postReminderInterval', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-			[ 'multi', 'boolean' ],
+			[ [ 'preReminderCount', 'preReminderInterval', 'postReminderCount', 'postReminderInterval', 'preIntervalUnit', 'postIntervalUnit', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ 'multiUser', 'boolean' ],
             [ [ 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
             [ [ 'createdAt', 'modifiedAt', 'scheduledAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
         ];
@@ -178,7 +192,7 @@ class Event extends \cmsgears\core\common\models\base\Entity implements IOwner {
 
     public function getMultiStr() {
 
-        return Yii::$app->formatter->asBoolean( $this->multi );
+        return Yii::$app->formatter->asBoolean( $this->multiUser );
     }
 
     public function getStatusStr() {
@@ -219,6 +233,13 @@ class Event extends \cmsgears\core\common\models\base\Entity implements IOwner {
 		$config[ 'relations' ]	= [ 'site' ];
 
 		return parent::queryWithAll( $config );
+	}
+
+	public static function getNewEvents() {
+
+		$events	= self::queryWithSite();
+
+		return $events->where( 'status='.self::STATUS_NEW )->all();
 	}
 
 	// Read - Find ------------

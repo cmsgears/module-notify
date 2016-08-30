@@ -205,7 +205,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 	public function triggerReminder( $template, $message, $config = [] ) {
 
-		// Trigger notifications using given template, message and config
+		// Trigger reminders using given template, message and config
 	}
 
 	// Activity Logger --------
