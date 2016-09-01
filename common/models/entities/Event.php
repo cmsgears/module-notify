@@ -235,11 +235,18 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 		return parent::queryWithAll( $config );
 	}
 
-	public static function getNewEvents() {
+	public static function findNewEvents() {
 
 		$events	= self::queryWithSite();
 
 		return $events->where( 'status='.self::STATUS_NEW )->all();
+	}
+
+	public static function findByParentId( $parentId ) {
+
+		$events	= self::queryWithSite();
+
+		return $events->where( 'parentId='.$parentId )->one();
 	}
 
 	// Read - Find ------------

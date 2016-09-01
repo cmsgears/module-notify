@@ -17,6 +17,8 @@ interface IEventService extends \cmsgears\core\common\services\interfaces\base\I
 
     public function getNewEvents();
 
+	public function getByParentId( $parentId );
+
     // Read - Lists ----
 
     // Read - Maps -----

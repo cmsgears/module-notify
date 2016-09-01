@@ -61,8 +61,15 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 
 		$modelClass	= static::$modelClass;
 
-		return $modelClass::getNewEvents();
+		return $modelClass::findNewEvents();
     }
+
+	public function getByParentId( $parentId ) {
+
+		$modelClass	= static::$modelClass;
+
+		return $modelClass::findByParentId( $parentId );
+	}
 
     // Read - Lists ----
 
