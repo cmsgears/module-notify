@@ -18,44 +18,44 @@ use cmsgears\notify\common\models\base\NotifyTables;
  */
 class Reminder extends \cmsgears\core\common\models\base\Entity {
 
-	// Variables ---------------------------------------------------
+    // Variables ---------------------------------------------------
 
-	// Globals -------------------------------
+    // Globals -------------------------------
 
-	// Constants --------------
-	const STATUS_READ	= 0;
-	const STATUS_UNREAD	= 1;
+    // Constants --------------
+    const STATUS_READ	= 0;
+    const STATUS_UNREAD	= 1;
 
-	// Public -----------------
+    // Public -----------------
 
-	// Protected --------------
+    // Protected --------------
 
-	// Variables -----------------------------
+    // Variables -----------------------------
 
-	// Public -----------------
+    // Public -----------------
 
-	// Protected --------------
+    // Protected --------------
 
-	// Private ----------------
+    // Private ----------------
 
-	// Traits ------------------------------------------------------
+    // Traits ------------------------------------------------------
 
-	// Constructor and Initialisation ------------------------------
+    // Constructor and Initialisation ------------------------------
 
-	// Instance methods --------------------------------------------
+    // Instance methods --------------------------------------------
 
-	// Yii interfaces ------------------------
+    // Yii interfaces ------------------------
 
-	// Yii parent classes --------------------
+    // Yii parent classes --------------------
 
-	// yii\base\Component -----
+    // yii\base\Component -----
 
-	// yii\base\Model ---------
+    // yii\base\Model ---------
 
     /**
      * @inheritdoc
      */
-	public function rules() {
+    public function rules() {
 
         $rules = [
             [ [ 'eventId', 'userId', 'scheduledAt' ], 'required' ],
@@ -63,70 +63,70 @@ class Reminder extends \cmsgears\core\common\models\base\Entity {
             [ [ 'scheduledAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
         ];
 
-		return $rules;
+        return $rules;
     }
 
-	// CMG interfaces ------------------------
+    // CMG interfaces ------------------------
 
-	// CMG parent classes --------------------
+    // CMG parent classes --------------------
 
-	// Validators ----------------------------
+    // Validators ----------------------------
 
-	// Reminder ---------------------------------
-	public function getEvent() {
+    // Reminder ---------------------------------
+    public function getEvent() {
 
-		return $this->hasOne( Event::className(), [ 'id' => 'eventId' ] );
-	}
+        return $this->hasOne( Event::className(), [ 'id' => 'eventId' ] );
+    }
 
-	// Static Methods ----------------------------------------------
+    // Static Methods ----------------------------------------------
 
-	// Yii parent classes --------------------
+    // Yii parent classes --------------------
 
-	// yii\db\ActiveRecord ----
+    // yii\db\ActiveRecord ----
 
-	/**
+    /**
      * @inheritdoc
      */
-	public static function tableName() {
+    public static function tableName() {
 
-		return NotifyTables::TABLE_EVENT_REMINDER;
-	}
+        return NotifyTables::TABLE_EVENT_REMINDER;
+    }
 
-	// CMG parent classes --------------------
+    // CMG parent classes --------------------
 
-	// Reminder ---------------------------------
+    // Reminder ---------------------------------
 
-	// Read - Query -----------
+    // Read - Query -----------
 
-	// Read - Find ------------
+    // Read - Find ------------
 
-	public static function getReminders( $all = false ) {
+    public static function getReminders( $all = false ) {
 
-		$user	= Yii::$app->user->getIdentity();
+        $user	= Yii::$app->user->getIdentity();
 
-		if( isset ( $user ) ) {
+        if( isset ( $user ) ) {
 
-			$reminders	= self::find()->where( 'scheduledAt <= NOW() AND userId='.$user->id );
+            $reminders	= self::find()->where( 'scheduledAt <= NOW() AND userId='.$user->id );
 
-			if( !$all ) {
+            if( !$all ) {
 
-				$reminders->andWhere( 'status='.self::STATUS_UNREAD );
-			}
+                $reminders->andWhere( 'status='.self::STATUS_UNREAD );
+            }
 
-			$reminders	= $reminders->all();
+            $reminders	= $reminders->all();
 
-			return $reminders;
-		}
-	}
+            return $reminders;
+        }
+    }
 
-	// Create -----------------
+    // Create -----------------
 
-	// Update -----------------
+    // Update -----------------
 
-	// Delete -----------------
+    // Delete -----------------
 
-	public static function deleteAllByEventId( $eventId ) {
+    public static function deleteAllByEventId( $eventId ) {
 
-		return self::deleteAll( [ 'eventId' => $eventId ] );
-	}
+        return self::deleteAll( [ 'eventId' => $eventId ] );
+    }
 }

@@ -7,21 +7,21 @@ use cmsgears\core\common\models\entities\User;
 
 class m160622_015413_notify_data extends \yii\db\Migration {
 
-	public $prefix;
+    public $prefix;
 
-	private $site;
+    private $site;
 
-	private $master;
+    private $master;
 
-	public function init() {
+    public function init() {
 
-		$this->prefix		= 'cmg_';
+        $this->prefix		= 'cmg_';
 
-		$this->site		= Site::findBySlug( CoreGlobal::SITE_MAIN );
-		$this->master	= User::findByUsername( Yii::$app->migration->getSiteMaster() );
+        $this->site		= Site::findBySlug( CoreGlobal::SITE_MAIN );
+        $this->master	= User::findByUsername( Yii::$app->migration->getSiteMaster() );
 
-		Yii::$app->core->setSite( $this->site );
-	}
+        Yii::$app->core->setSite( $this->site );
+    }
 
     public function up() {
 

@@ -14,24 +14,24 @@ use cmsgears\notify\common\models\entities\Notification;
  */
 trait NotificationTrait {
 
-	// Instance methods --------------------------------------------
+    // Instance methods --------------------------------------------
 
-	// Yii interfaces ------------------------
+    // Yii interfaces ------------------------
 
-	// Yii classes ---------------------------
+    // Yii classes ---------------------------
 
-	// CMG interfaces ------------------------
+    // CMG interfaces ------------------------
 
-	// CMG classes ---------------------------
+    // CMG classes ---------------------------
 
-	// Validators ----------------------------
+    // Validators ----------------------------
 
-	// NotificationTrait ---------------------
+    // NotificationTrait ---------------------
 
-	public function getModelNotifications() {
+    public function getModelNotifications() {
 
-		return Notification::findByParent( $this->id, $this->mParentType );
-	}
+        return Notification::findByParent( $this->id, $this->mParentType );
+    }
 
     public function getNotificationStatusCounts() {
 
@@ -63,21 +63,21 @@ trait NotificationTrait {
         return $returnArr;
     }
 
-	// Static Methods ----------------------------------------------
+    // Static Methods ----------------------------------------------
 
-	// Yii classes ---------------------------
+    // Yii classes ---------------------------
 
-	// CMG classes ---------------------------
+    // CMG classes ---------------------------
 
-	// NotificationTrait ---------------------
+    // NotificationTrait ---------------------
 
-	// Read - Query -----------
+    // Read - Query -----------
 
-	// Read - Find ------------
+    // Read - Find ------------
 
-	// Create -----------------
+    // Create -----------------
 
-	// Update -----------------
+    // Update -----------------
 
-	// Delete -----------------
+    // Delete -----------------
 }

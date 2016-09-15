@@ -23,37 +23,37 @@ use cmsgears\notify\common\models\entities\Event;
  */
 class EventReminder extends \cmsgears\core\common\models\base\Mapper {
 
-	// Variables ---------------------------------------------------
+    // Variables ---------------------------------------------------
 
-	// Globals -------------------------------
+    // Globals -------------------------------
 
-	// Constants --------------
+    // Constants --------------
 
-	// Public -----------------
+    // Public -----------------
 
-	// Protected --------------
+    // Protected --------------
 
-	// Variables -----------------------------
+    // Variables -----------------------------
 
-	// Public -----------------
+    // Public -----------------
 
-	// Protected --------------
+    // Protected --------------
 
-	// Private ----------------
+    // Private ----------------
 
-	// Traits ------------------------------------------------------
+    // Traits ------------------------------------------------------
 
-	// Constructor and Initialisation ------------------------------
+    // Constructor and Initialisation ------------------------------
 
-	// Instance methods --------------------------------------------
+    // Instance methods --------------------------------------------
 
-	// Yii interfaces ------------------------
+    // Yii interfaces ------------------------
 
-	// Yii parent classes --------------------
+    // Yii parent classes --------------------
 
-	// yii\base\Component -----
+    // yii\base\Component -----
 
-	// yii\base\Model ---------
+    // yii\base\Model ---------
 
     /**
      * @inheritdoc
@@ -80,13 +80,13 @@ class EventReminder extends \cmsgears\core\common\models\base\Mapper {
         ];
     }
 
-	// CMG interfaces ------------------------
+    // CMG interfaces ------------------------
 
-	// CMG parent classes --------------------
+    // CMG parent classes --------------------
 
-	// Validators ----------------------------
+    // Validators ----------------------------
 
-	// EventParticipant ----------------------
+    // EventParticipant ----------------------
 
     public function getEvent() {
 
@@ -98,11 +98,11 @@ class EventReminder extends \cmsgears\core\common\models\base\Mapper {
         return $this->hasOne( User::className(), [ 'id' => 'userId' ] );
     }
 
-	// Static Methods ----------------------------------------------
+    // Static Methods ----------------------------------------------
 
-	// Yii parent classes --------------------
+    // Yii parent classes --------------------
 
-	// yii\db\ActiveRecord ----
+    // yii\db\ActiveRecord ----
 
     /**
      * @inheritdoc
@@ -112,41 +112,41 @@ class EventReminder extends \cmsgears\core\common\models\base\Mapper {
         return NotifyTables::TABLE_EVENT_REMINDER;
     }
 
-	// CMG parent classes --------------------
+    // CMG parent classes --------------------
 
-	// SiteMember ----------------------------
+    // SiteMember ----------------------------
 
-	// Read - Query -----------
+    // Read - Query -----------
 
-	public static function queryWithHasOne( $config = [] ) {
+    public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'event', 'user' ];
-		$config[ 'relations' ]	= $relations;
+        $relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'event', 'user' ];
+        $config[ 'relations' ]	= $relations;
 
-		return parent::queryWithAll( $config );
-	}
+        return parent::queryWithAll( $config );
+    }
 
-	public static function queryWithEvent( $config = [] ) {
+    public static function queryWithEvent( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'event' ];
+        $config[ 'relations' ]	= [ 'event' ];
 
-		return parent::queryWithAll( $config );
-	}
+        return parent::queryWithAll( $config );
+    }
 
-	public static function queryWithUser( $config = [] ) {
+    public static function queryWithUser( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'user' ];
+        $config[ 'relations' ]	= [ 'user' ];
 
-		return parent::queryWithAll( $config );
-	}
+        return parent::queryWithAll( $config );
+    }
 
-	// Read - Find ------------
+    // Read - Find ------------
 
-	// Create -----------------
+    // Create -----------------
 
-	// Update -----------------
+    // Update -----------------
 
-	// Delete -----------------
+    // Delete -----------------
 
     public static function deleteByEventId( $eventId ) {
 

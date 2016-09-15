@@ -46,17 +46,17 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  */
 class Notification extends \cmsgears\core\common\models\base\Entity implements IOwner {
 
-	// Variables ---------------------------------------------------
+    // Variables ---------------------------------------------------
 
-	// Globals -------------------------------
+    // Globals -------------------------------
 
-	// Constants --------------
+    // Constants --------------
 
-	const STATUS_NEW		=   0;
-	const STATUS_CONSUMED	= 100;
-	const STATUS_TRASH		= 200;
+    const STATUS_NEW		=   0;
+    const STATUS_CONSUMED	= 100;
+    const STATUS_TRASH		= 200;
 
-	// Public -----------------
+    // Public -----------------
 
     public static $statusMap = [
         self::STATUS_NEW => 'New',
@@ -70,31 +70,31 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
         'trash' => self::STATUS_TRASH
     ];
 
-	// Protected --------------
+    // Protected --------------
 
-	// Variables -----------------------------
+    // Variables -----------------------------
 
-	// Public -----------------
+    // Public -----------------
 
-	// Protected --------------
+    // Protected --------------
 
-	// Private ----------------
+    // Private ----------------
 
-	// Traits ------------------------------------------------------
+    // Traits ------------------------------------------------------
 
-	use CreateModifyTrait;
-	use DataTrait;
-	use ResourceTrait;
+    use CreateModifyTrait;
+    use DataTrait;
+    use ResourceTrait;
 
-	// Constructor and Initialisation ------------------------------
+    // Constructor and Initialisation ------------------------------
 
-	// Instance methods --------------------------------------------
+    // Instance methods --------------------------------------------
 
-	// Yii interfaces ------------------------
+    // Yii interfaces ------------------------
 
-	// Yii parent classes --------------------
+    // Yii parent classes --------------------
 
-	// yii\base\Component -----
+    // yii\base\Component -----
 
     /**
      * @inheritdoc
@@ -114,12 +114,12 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
         ];
     }
 
-	// yii\base\Model ---------
+    // yii\base\Model ---------
 
     /**
      * @inheritdoc
      */
-	public function rules() {
+    public function rules() {
 
         $rules = [
             [ [ 'id', 'content', 'data' ], 'safe' ],
@@ -131,59 +131,59 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
             [ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
         ];
 
-		return $rules;
+        return $rules;
     }
 
     /**
      * @inheritdoc
      */
-	public function attributeLabels() {
+    public function attributeLabels() {
 
-		return [
-			'userId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_USER ),
-			'parentId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
-			'parentType' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
-			'title' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TITLE ),
-			'type' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TYPE ),
-			'ip' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_IP ),
-			'agent' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_AGENT_BROWSER ),
-			'link' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
-			'admin' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
-			'adminLink' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW_ADMIN ),
-			'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
-			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT )
-		];
-	}
+        return [
+            'userId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_USER ),
+            'parentId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
+            'parentType' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
+            'title' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TITLE ),
+            'type' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TYPE ),
+            'ip' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_IP ),
+            'agent' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_AGENT_BROWSER ),
+            'link' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
+            'admin' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
+            'adminLink' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW_ADMIN ),
+            'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
+            'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT )
+        ];
+    }
 
-	// CMG interfaces ------------------------
+    // CMG interfaces ------------------------
 
-	// IOwner -----------------
+    // IOwner -----------------
 
-	public function isOwner( $user = null, $strict = false ) {
+    public function isOwner( $user = null, $strict = false ) {
 
-		if( !isset( $user ) && !$strict ) {
+        if( !isset( $user ) && !$strict ) {
 
-			$user	= Yii::$app->user->getIdentity();
-		}
+            $user	= Yii::$app->user->getIdentity();
+        }
 
-		if( isset( $user ) ) {
+        if( isset( $user ) ) {
 
-			return $this->userId == $user->id;
-		}
+            return $this->userId == $user->id;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	// CMG parent classes --------------------
+    // CMG parent classes --------------------
 
-	// Validators ----------------------------
+    // Validators ----------------------------
 
-	// Notification --------------------------
+    // Notification --------------------------
 
-	public function getUser() {
+    public function getUser() {
 
-		return $this->hasOne( User::className(), [ 'id' => 'userId' ] );
-	}
+        return $this->hasOne( User::className(), [ 'id' => 'userId' ] );
+    }
 
     public function getStatusStr() {
 
@@ -199,10 +199,10 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
 
         if( $strict ) {
 
-			return $this->status == self::STATUS_CONSUMED;
-		}
+            return $this->status == self::STATUS_CONSUMED;
+        }
 
-		return $this->status >= self::STATUS_CONSUMED;
+        return $this->status >= self::STATUS_CONSUMED;
     }
 
     public function isTrash() {
@@ -210,81 +210,81 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
         return $this->status == self::STATUS_TRASH;
     }
 
-	public function toHtml() {
+    public function toHtml() {
 
-		$content	= "<li class='new'>";
+        $content	= "<li class='new'>";
 
-		if( $this->isConsumed() ) {
+        if( $this->isConsumed() ) {
 
-			$content	= "<li class='consumed'>";
-		}
+            $content	= "<li class='consumed'>";
+        }
 
-		if( $this->isTrash() ) {
+        if( $this->isTrash() ) {
 
-			$content	= "<li class='trash'>";
-		}
+            $content	= "<li class='trash'>";
+        }
 
-		if( !empty( $this->link ) ) {
+        if( !empty( $this->link ) ) {
 
-			$link		 = Url::toRoute( [ $this->link ], true );
-			$content	.= "<a href='$link'>$this->content</a></li>";
-		}
-		else {
+            $link		 = Url::toRoute( [ $this->link ], true );
+            $content	.= "<a href='$link'>$this->content</a></li>";
+        }
+        else {
 
-			$content	.= "$this->content</li>";
-		}
+            $content	.= "$this->content</li>";
+        }
 
-		return $content;
-	}
+        return $content;
+    }
 
-	// Static Methods ----------------------------------------------
+    // Static Methods ----------------------------------------------
 
-	// Yii parent classes --------------------
+    // Yii parent classes --------------------
 
-	// yii\db\ActiveRecord ----
+    // yii\db\ActiveRecord ----
 
     /**
      * @inheritdoc
      */
-	public static function tableName() {
+    public static function tableName() {
 
-		return NotifyTables::TABLE_NOTIFICATION;
-	}
+        return NotifyTables::TABLE_NOTIFICATION;
+    }
 
-	// CMG parent classes --------------------
+    // CMG parent classes --------------------
 
-	// Notification --------------------------
+    // Notification --------------------------
 
-	// Read - Query -----------
+    // Read - Query -----------
 
-	public static function queryWithHasOne( $config = [] ) {
+    public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user', 'creator', 'modifier' ];
-		$config[ 'relations' ]	= $relations;
+        $relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user', 'creator', 'modifier' ];
+        $config[ 'relations' ]	= $relations;
 
-		return parent::queryWithAll( $config );
-	}
+        return parent::queryWithAll( $config );
+    }
 
-	public static function queryWithUser( $config = [] ) {
+    public static function queryWithUser( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'user' ];
+        $config[ 'relations' ]	= [ 'user' ];
 
-		return parent::queryWithAll( $config );
-	}
+        return parent::queryWithAll( $config );
+    }
 
-	// Read - Find ------------
+    // Read - Find ------------
 
-	// Create -----------------
+    // Create -----------------
 
-	// Update -----------------
+    // Update -----------------
 
-	// Delete -----------------
+    // Delete -----------------
 
-	/**
-	 * Delete all entries related to a user
-	 */
-	public static function deleteByUserId( $userId ) {
+    /**
+     * Delete all entries related to a user
+     */
+    public static function deleteByUserId( $userId ) {
 
-		self::deleteAll( 'userId=:uid', [ ':uid' => $userId ] );
-	}
+        self::deleteAll( 'userId=:uid', [ ':uid' => $userId ] );
+    }
 }

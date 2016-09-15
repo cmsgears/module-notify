@@ -10,33 +10,33 @@ use cmsgears\core\common\config\CoreGlobal;
 
 class NotificationController extends \cmsgears\core\common\controllers\base\Controller {
 
-	// Variables ---------------------------------------------------
+    // Variables ---------------------------------------------------
 
-	// Globals ----------------
+    // Globals ----------------
 
-	// Public -----------------
+    // Public -----------------
 
-	// Protected --------------
+    // Protected --------------
 
-	// Private ----------------
+    // Private ----------------
 
-	// Constructor and Initialisation ------------------------------
+    // Constructor and Initialisation ------------------------------
 
- 	public function init() {
+    public function init() {
 
         parent::init();
 
-		$this->crudPermission	= CoreGlobal::PERM_USER;
-		$this->modelService 	= Yii::$app->factory->get( 'notificationService' );
-	}
+        $this->crudPermission	= CoreGlobal::PERM_USER;
+        $this->modelService 	= Yii::$app->factory->get( 'notificationService' );
+    }
 
-	// Instance methods --------------------------------------------
+    // Instance methods --------------------------------------------
 
-	// Yii interfaces ------------------------
+    // Yii interfaces ------------------------
 
-	// Yii parent classes --------------------
+    // Yii parent classes --------------------
 
-	// yii\base\Component -----
+    // yii\base\Component -----
 
     public function behaviors() {
 
@@ -44,39 +44,39 @@ class NotificationController extends \cmsgears\core\common\controllers\base\Cont
             'rbac' => [
                 'class' => Yii::$app->core->getRbacFilterClass(),
                 'actions' => [
-	                'toggleRead' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
-	                'trash' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
-	                'delete' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ]
+                    'toggleRead' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
+                    'trash' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
+                    'delete' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ]
                 ]
             ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
-	                'toggleRead' => [ 'post' ],
-	                'trash' => [ 'post' ],
-	                'delete' => [ 'post' ]
+                    'toggleRead' => [ 'post' ],
+                    'trash' => [ 'post' ],
+                    'delete' => [ 'post' ]
                 ]
             ]
         ];
     }
 
-	// yii\base\Controller ----
+    // yii\base\Controller ----
 
     public function actions() {
 
-		$user		= Yii::$app->user->getIdentity();
-		$conditions	= [ 'userId' => $user->id ];
+        $user		= Yii::$app->user->getIdentity();
+        $conditions	= [ 'userId' => $user->id ];
 
         return [
-        	'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead', 'conditions' => $conditions ],
-        	'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash', 'conditions' => $conditions ],
-        	'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete', 'conditions' => $conditions ]
-		];
+            'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead', 'conditions' => $conditions ],
+            'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash', 'conditions' => $conditions ],
+            'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete', 'conditions' => $conditions ]
+        ];
     }
 
-	// CMG interfaces ------------------------
+    // CMG interfaces ------------------------
 
-	// CMG parent classes --------------------
+    // CMG parent classes --------------------
 
-	// NotificationController ----------------
+    // NotificationController ----------------
 }

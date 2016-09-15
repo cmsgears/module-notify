@@ -14,96 +14,96 @@ use cmsgears\notify\common\services\interfaces\entities\IReminderService;
  */
 class ReminderService extends \cmsgears\core\common\services\base\EntityService implements IReminderService {
 
-	// Variables ---------------------------------------------------
+    // Variables ---------------------------------------------------
 
-	// Globals -------------------------------
+    // Globals -------------------------------
 
-	// Constants --------------
+    // Constants --------------
 
-	// Public -----------------
+    // Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\entities\Reminder';
+    public static $modelClass	= '\cmsgears\notify\common\models\entities\Reminder';
 
-	public static $modelTable	= NotifyTables::TABLE_EVENT_REMINDER;
+    public static $modelTable	= NotifyTables::TABLE_EVENT_REMINDER;
 
-	// Protected --------------
+    // Protected --------------
 
-	// Variables -----------------------------
+    // Variables -----------------------------
 
-	// Public -----------------
+    // Public -----------------
 
-	// Protected --------------
+    // Protected --------------
 
-	// Private ----------------
+    // Private ----------------
 
-	// Traits ------------------------------------------------------
+    // Traits ------------------------------------------------------
 
-	// Constructor and Initialisation ------------------------------
+    // Constructor and Initialisation ------------------------------
 
-	// Instance methods --------------------------------------------
+    // Instance methods --------------------------------------------
 
-	// Yii parent classes --------------------
+    // Yii parent classes --------------------
 
-	// yii\base\Component -----
+    // yii\base\Component -----
 
-	// CMG interfaces ------------------------
+    // CMG interfaces ------------------------
 
-	// CMG parent classes --------------------
+    // CMG parent classes --------------------
 
-	// ReminderService -----------------------
+    // ReminderService -----------------------
 
-	// Data Provider ------
+    // Data Provider ------
 
-	// Read ---------------
+    // Read ---------------
 
     // Read - Models ---
 
     public function getReminders( $all = false  ) {
 
-		$modelClass	= static::$modelClass;
+        $modelClass	= static::$modelClass;
 
-		return $modelClass::getReminders( $all );
+        return $modelClass::getReminders( $all );
     }
 
     // Read - Lists ----
 
     // Read - Maps -----
 
-	// Read - Others ---
+    // Read - Others ---
 
-	// Create -------------
+    // Create -------------
 
-	// Update -------------
+    // Update -------------
 
-	public function setRead( $id ) {
+    public function setRead( $id ) {
 
-		$model	= self::findById( $id );
-		$user	= Yii::$app->user->getIdentity();
+        $model	= self::findById( $id );
+        $user	= Yii::$app->user->getIdentity();
 
-		if( isset( $model ) && isset( $user ) && $model->userId == $user->id ) {
+        if( isset( $model ) && isset( $user ) && $model->userId == $user->id ) {
 
-			$modelClass	= self::$modelClass;
+            $modelClass	= self::$modelClass;
 
-			$model->status	= $modelClass::STATUS_READ;
-			$model->update();
+            $model->status	= $modelClass::STATUS_READ;
+            $model->update();
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	// Delete -------------
+    // Delete -------------
 
-	// Static Methods ----------------------------------------------
+    // Static Methods ----------------------------------------------
 
-	// CMG parent classes --------------------
+    // CMG parent classes --------------------
 
-	// ReminderService -------------------
+    // ReminderService -------------------
 
-	// Data Provider ------
+    // Data Provider ------
 
-	// Read ---------------
+    // Read ---------------
 
     // Read - Models ---
 
@@ -111,18 +111,18 @@ class ReminderService extends \cmsgears\core\common\services\base\EntityService 
 
     // Read - Maps -----
 
-	// Read - Others ---
+    // Read - Others ---
 
-	// Create -------------
+    // Create -------------
 
-	// Update -------------
+    // Update -------------
 
-	// Delete -------------
+    // Delete -------------
 
-	public function deleteAllByEventId( $eventId ) {
+    public function deleteAllByEventId( $eventId ) {
 
-		$modelClass	= static::$modelClass;
+        $modelClass	= static::$modelClass;
 
-		return $modelClass::deleteAllByEventId( $eventId );
-	}
+        return $modelClass::deleteAllByEventId( $eventId );
+    }
 }

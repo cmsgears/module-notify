@@ -30,40 +30,40 @@ use cmsgears\core\common\models\traits\resources\DataTrait;
  */
 class Activity extends \cmsgears\core\common\models\base\Entity {
 
-	// Variables ---------------------------------------------------
+    // Variables ---------------------------------------------------
 
-	// Globals -------------------------------
+    // Globals -------------------------------
 
-	// Constants --------------
+    // Constants --------------
 
-	// Public -----------------
+    // Public -----------------
 
-	// Protected --------------
+    // Protected --------------
 
-	// Variables -----------------------------
+    // Variables -----------------------------
 
-	// Public -----------------
+    // Public -----------------
 
-	// Protected --------------
+    // Protected --------------
 
-	// Private ----------------
+    // Private ----------------
 
-	// Traits ------------------------------------------------------
+    // Traits ------------------------------------------------------
 
-	use ResourceTrait;
-	use DataTrait;
+    use ResourceTrait;
+    use DataTrait;
 
-	// Constructor and Initialisation ------------------------------
+    // Constructor and Initialisation ------------------------------
 
-	// Instance methods --------------------------------------------
+    // Instance methods --------------------------------------------
 
-	// Yii interfaces ------------------------
+    // Yii interfaces ------------------------
 
-	// Yii parent classes --------------------
+    // Yii parent classes --------------------
 
-	// yii\base\Component -----
+    // yii\base\Component -----
 
-	// yii\base\Model ---------
+    // yii\base\Model ---------
 
     /**
      * @inheritdoc
@@ -96,11 +96,11 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
         ];
     }
 
-	// CMG interfaces ------------------------
+    // CMG interfaces ------------------------
 
-	// CMG parent classes --------------------
+    // CMG parent classes --------------------
 
-	// Validators ----------------------------
+    // Validators ----------------------------
 
     // ModelActivity -------------------------
 
@@ -112,11 +112,11 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
         return $this->hasOne( Activity::className(), [ 'id' => 'userId' ] );
     }
 
-	// Static Methods ----------------------------------------------
+    // Static Methods ----------------------------------------------
 
-	// Yii parent classes --------------------
+    // Yii parent classes --------------------
 
-	// yii\db\ActiveRecord ----
+    // yii\db\ActiveRecord ----
 
     /**
      * @inheritdoc
@@ -126,32 +126,32 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
         return NotifyTables::TABLE_ACTIVITY;
     }
 
-	// CMG parent classes --------------------
+    // CMG parent classes --------------------
 
-	// ModelActivity -------------------------
+    // ModelActivity -------------------------
 
-	// Read - Query -----------
+    // Read - Query -----------
 
-	public static function queryWithHasOne( $config = [] ) {
+    public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user' ];
-		$config[ 'relations' ]	= $relations;
+        $relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user' ];
+        $config[ 'relations' ]	= $relations;
 
-		return parent::queryWithAll( $config );
-	}
+        return parent::queryWithAll( $config );
+    }
 
-	public static function queryWithUser( $config = [] ) {
+    public static function queryWithUser( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'user' ];
+        $config[ 'relations' ]	= [ 'user' ];
 
-		return parent::queryWithAll( $config );
-	}
+        return parent::queryWithAll( $config );
+    }
 
-	// Read - Find ------------
+    // Read - Find ------------
 
-	// Create -----------------
+    // Create -----------------
 
-	// Update -----------------
+    // Update -----------------
 
-	// Delete -----------------
+    // Delete -----------------
 }

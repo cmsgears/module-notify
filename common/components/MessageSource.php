@@ -9,35 +9,35 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 class MessageSource extends \yii\base\Component {
 
-	// Variables ---------------------------------------------------
+    // Variables ---------------------------------------------------
 
-	// Global -----------------
+    // Global -----------------
 
-	// Public -----------------
+    // Public -----------------
 
-	// Protected --------------
+    // Protected --------------
 
-	protected $messageDb = [
-		// Generic Fields
-		NotifyGlobal::FIELD_EVENT => 'Event',
-		NotifyGlobal::FIELD_FOLLOW => 'Follow',
-		NotifyGlobal::FIELD_FOLLOW_ADMIN => 'Admin Follow'
-	];
+    protected $messageDb = [
+        // Generic Fields
+        NotifyGlobal::FIELD_EVENT => 'Event',
+        NotifyGlobal::FIELD_FOLLOW => 'Follow',
+        NotifyGlobal::FIELD_FOLLOW_ADMIN => 'Admin Follow'
+    ];
 
-	// Private ----------------
+    // Private ----------------
 
-	// Constructor and Initialisation ------------------------------
+    // Constructor and Initialisation ------------------------------
 
-	// Instance methods --------------------------------------------
+    // Instance methods --------------------------------------------
 
-	// Yii parent classes --------------------
+    // Yii parent classes --------------------
 
-	// CMG parent classes --------------------
+    // CMG parent classes --------------------
 
-	// MessageSource -------------------------
+    // MessageSource -------------------------
 
-	public function getMessage( $messageKey, $params = [], $language = null ) {
+    public function getMessage( $messageKey, $params = [], $language = null ) {
 
-		return $this->messageDb[ $messageKey ];
-	}
+        return $this->messageDb[ $messageKey ];
+    }
 }
