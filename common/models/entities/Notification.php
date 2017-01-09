@@ -46,245 +46,249 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  */
 class Notification extends \cmsgears\core\common\models\base\Entity implements IOwner {
 
-    // Variables ---------------------------------------------------
+	// Variables ---------------------------------------------------
 
-    // Globals -------------------------------
+	// Globals -------------------------------
 
-    // Constants --------------
-
-    const STATUS_NEW		=   0;
-    const STATUS_CONSUMED	= 100;
-    const STATUS_TRASH		= 200;
-
-    // Public -----------------
+	// Constants --------------
+
+	const STATUS_NEW		=   0;
+	const STATUS_CONSUMED	= 100;
+	const STATUS_TRASH		= 200;
+
+	// Public -----------------
+
+	public static $statusMap = [
+		self::STATUS_NEW => 'New',
+		self::STATUS_CONSUMED => 'Consumed',
+		self::STATUS_TRASH => 'Trash'
+	];
+
+	public static $revStatusMap = [
+		'new' => self::STATUS_NEW,
+		'consumed' => self::STATUS_CONSUMED,
+		'trash' => self::STATUS_TRASH
+	];
 
-    public static $statusMap = [
-        self::STATUS_NEW => 'New',
-        self::STATUS_CONSUMED => 'Consumed',
-        self::STATUS_TRASH => 'Trash'
-    ];
+	// Protected --------------
 
-    public static $revStatusMap = [
-        'new' => self::STATUS_NEW,
-        'consumed' => self::STATUS_CONSUMED,
-        'trash' => self::STATUS_TRASH
-    ];
+	// Variables -----------------------------
 
-    // Protected --------------
+	// Public -----------------
 
-    // Variables -----------------------------
+	// Protected --------------
 
-    // Public -----------------
+	// Private ----------------
 
-    // Protected --------------
+	// Traits ------------------------------------------------------
 
-    // Private ----------------
+	use CreateModifyTrait;
+	use DataTrait;
+	use ResourceTrait;
 
-    // Traits ------------------------------------------------------
+	// Constructor and Initialisation ------------------------------
 
-    use CreateModifyTrait;
-    use DataTrait;
-    use ResourceTrait;
+	// Instance methods --------------------------------------------
 
-    // Constructor and Initialisation ------------------------------
+	// Yii interfaces ------------------------
 
-    // Instance methods --------------------------------------------
+	// Yii parent classes --------------------
 
-    // Yii interfaces ------------------------
+	// yii\base\Component -----
 
-    // Yii parent classes --------------------
+	/**
+	 * @inheritdoc
+	 */
+	public function behaviors() {
 
-    // yii\base\Component -----
+		return [
+			'authorBehavior' => [
+				'class' => AuthorBehavior::className()
+			],
+			'timestampBehavior' => [
+				'class' => TimestampBehavior::className(),
+				'createdAtAttribute' => 'createdAt',
+				'updatedAtAttribute' => 'modifiedAt',
+				'value' => new Expression('NOW()')
+			]
+		];
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function behaviors() {
+	// yii\base\Model ---------
 
-        return [
-            'authorBehavior' => [
-                'class' => AuthorBehavior::className()
-            ],
-            'timestampBehavior' => [
-                'class' => TimestampBehavior::className(),
-                'createdAtAttribute' => 'createdAt',
-                'updatedAtAttribute' => 'modifiedAt',
-                'value' => new Expression('NOW()')
-            ]
-        ];
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function rules() {
 
-    // yii\base\Model ---------
+		$rules = [
+			// Required, Safe
+			[ [ 'id', 'content', 'data' ], 'safe' ],
+			// Text Limit
+			[ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
+			[ [ 'title', 'agent' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xLargeText ],
+			[ [ 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
+			// Other
+			[ [ 'admin' ], 'boolean' ],
+			[ [ 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ [ 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
+		];
 
-    /**
-     * @inheritdoc
-     */
-    public function rules() {
+		return $rules;
+	}
 
-        $rules = [
-            [ [ 'id', 'content', 'data' ], 'safe' ],
-            [ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
-            [ [ 'title', 'agent', 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xLargeText ],
-            [ [ 'admin' ], 'boolean' ],
-            [ [ 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-            [ [ 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
-            [ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
-        ];
+	/**
+	 * @inheritdoc
+	 */
+	public function attributeLabels() {
 
-        return $rules;
-    }
+		return [
+			'userId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_USER ),
+			'parentId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
+			'parentType' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
+			'title' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TITLE ),
+			'type' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TYPE ),
+			'ip' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_IP ),
+			'agent' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_AGENT_BROWSER ),
+			'link' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
+			'admin' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
+			'adminLink' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW_ADMIN ),
+			'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
+			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT )
+		];
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels() {
+	// CMG interfaces ------------------------
 
-        return [
-            'userId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_USER ),
-            'parentId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
-            'parentType' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
-            'title' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TITLE ),
-            'type' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TYPE ),
-            'ip' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_IP ),
-            'agent' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_AGENT_BROWSER ),
-            'link' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
-            'admin' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
-            'adminLink' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW_ADMIN ),
-            'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
-            'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT )
-        ];
-    }
+	// IOwner -----------------
 
-    // CMG interfaces ------------------------
+	public function isOwner( $user = null, $strict = false ) {
 
-    // IOwner -----------------
+		if( !isset( $user ) && !$strict ) {
 
-    public function isOwner( $user = null, $strict = false ) {
+			$user	= Yii::$app->user->getIdentity();
+		}
 
-        if( !isset( $user ) && !$strict ) {
+		if( isset( $user ) ) {
 
-            $user	= Yii::$app->user->getIdentity();
-        }
+			return $this->userId == $user->id;
+		}
 
-        if( isset( $user ) ) {
+		return false;
+	}
 
-            return $this->userId == $user->id;
-        }
+	// CMG parent classes --------------------
 
-        return false;
-    }
+	// Validators ----------------------------
 
-    // CMG parent classes --------------------
+	// Notification --------------------------
 
-    // Validators ----------------------------
+	public function getUser() {
 
-    // Notification --------------------------
+		return $this->hasOne( User::className(), [ 'id' => 'userId' ] );
+	}
 
-    public function getUser() {
+	public function getStatusStr() {
 
-        return $this->hasOne( User::className(), [ 'id' => 'userId' ] );
-    }
+		return self::$statusMap[ $this->status ];
+	}
 
-    public function getStatusStr() {
+	public function isNew() {
 
-        return self::$statusMap[ $this->status ];
-    }
+		return $this->status == self::STATUS_NEW;
+	}
 
-    public function isNew() {
+	public function isConsumed( $strict = false ) {
 
-        return $this->status == self::STATUS_NEW;
-    }
+		if( $strict ) {
 
-    public function isConsumed( $strict = false ) {
+			return $this->status == self::STATUS_CONSUMED;
+		}
 
-        if( $strict ) {
+		return $this->status >= self::STATUS_CONSUMED;
+	}
 
-            return $this->status == self::STATUS_CONSUMED;
-        }
+	public function isTrash() {
 
-        return $this->status >= self::STATUS_CONSUMED;
-    }
+		return $this->status == self::STATUS_TRASH;
+	}
 
-    public function isTrash() {
+	public function toHtml() {
 
-        return $this->status == self::STATUS_TRASH;
-    }
+		$content	= "<li class='new'>";
 
-    public function toHtml() {
+		if( $this->isConsumed() ) {
 
-        $content	= "<li class='new'>";
+			$content	= "<li class='consumed'>";
+		}
 
-        if( $this->isConsumed() ) {
+		if( $this->isTrash() ) {
 
-            $content	= "<li class='consumed'>";
-        }
+			$content	= "<li class='trash'>";
+		}
 
-        if( $this->isTrash() ) {
+		if( !empty( $this->link ) ) {
 
-            $content	= "<li class='trash'>";
-        }
+			$link		 = Url::toRoute( [ $this->link ], true );
+			$content	.= "<a href='$link'>$this->content</a></li>";
+		}
+		else {
 
-        if( !empty( $this->link ) ) {
+			$content	.= "$this->content</li>";
+		}
 
-            $link		 = Url::toRoute( [ $this->link ], true );
-            $content	.= "<a href='$link'>$this->content</a></li>";
-        }
-        else {
+		return $content;
+	}
 
-            $content	.= "$this->content</li>";
-        }
+	// Static Methods ----------------------------------------------
 
-        return $content;
-    }
+	// Yii parent classes --------------------
 
-    // Static Methods ----------------------------------------------
+	// yii\db\ActiveRecord ----
 
-    // Yii parent classes --------------------
+	/**
+	 * @inheritdoc
+	 */
+	public static function tableName() {
 
-    // yii\db\ActiveRecord ----
+		return NotifyTables::TABLE_NOTIFICATION;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public static function tableName() {
+	// CMG parent classes --------------------
 
-        return NotifyTables::TABLE_NOTIFICATION;
-    }
+	// Notification --------------------------
 
-    // CMG parent classes --------------------
+	// Read - Query -----------
 
-    // Notification --------------------------
+	public static function queryWithHasOne( $config = [] ) {
 
-    // Read - Query -----------
+		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user', 'creator', 'modifier' ];
+		$config[ 'relations' ]	= $relations;
 
-    public static function queryWithHasOne( $config = [] ) {
+		return parent::queryWithAll( $config );
+	}
 
-        $relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user', 'creator', 'modifier' ];
-        $config[ 'relations' ]	= $relations;
+	public static function queryWithUser( $config = [] ) {
 
-        return parent::queryWithAll( $config );
-    }
+		$config[ 'relations' ]	= [ 'user' ];
 
-    public static function queryWithUser( $config = [] ) {
+		return parent::queryWithAll( $config );
+	}
 
-        $config[ 'relations' ]	= [ 'user' ];
+	// Read - Find ------------
 
-        return parent::queryWithAll( $config );
-    }
+	// Create -----------------
 
-    // Read - Find ------------
+	// Update -----------------
 
-    // Create -----------------
+	// Delete -----------------
 
-    // Update -----------------
+	/**
+	 * Delete all entries related to a user
+	 */
+	public static function deleteByUserId( $userId ) {
 
-    // Delete -----------------
-
-    /**
-     * Delete all entries related to a user
-     */
-    public static function deleteByUserId( $userId ) {
-
-        self::deleteAll( 'userId=:uid', [ ':uid' => $userId ] );
-    }
+		self::deleteAll( 'userId=:uid', [ ':uid' => $userId ] );
+	}
 }

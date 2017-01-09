@@ -9,71 +9,66 @@ use cmsgears\core\common\config\CoreGlobal;
 
 class NotificationConfig extends \cmsgears\core\common\models\forms\JsonModel {
 
-    // Variables ---------------------------------------------------
+	// Variables ---------------------------------------------------
 
-    // Globals -------------------------------
+	// Globals -------------------------------
 
-    // Constants --------------
+	// Constants --------------
 
-    // Public -----------------
+	// Public -----------------
 
-    public $admin		= false;
+	public $admin = false;
 
-    public $user		= false;
+	public $user = false;
 
-    public $adminEmail	= false;
+	public $adminEmail = false;
 
-    public $userEmail	= false;
+	public $userEmail = false;
 
-    // Protected --------------
+	// Protected --------------
 
-    // Variables -----------------------------
+	// Variables -----------------------------
 
-    // Public -----------------
+	// Public -----------------
 
-    // Protected --------------
+	// Protected --------------
 
-    // Private ----------------
+	// Private ----------------
 
-    // Traits ------------------------------------------------------
+	// Traits ------------------------------------------------------
 
-    // Constructor and Initialisation ------------------------------
+	// Constructor and Initialisation ------------------------------
 
-    // Instance methods --------------------------------------------
+	// Instance methods --------------------------------------------
 
-    // Yii interfaces ------------------------
+	// Yii interfaces ------------------------
 
-    // Yii parent classes --------------------
+	// Yii parent classes --------------------
 
-    // yii\base\Component -----
+	// yii\base\Component -----
 
-    // yii\base\Model ---------
+	// yii\base\Model ---------
 
-    public function rules() {
+	public function rules() {
 
-        $rules = [
-            [ [ 'admin', 'user', 'adminEmail', 'userEmail' ], 'required' ],
-            [ [ 'admin', 'user', 'adminEmail', 'userEmail' ], 'boolean' ]
-        ];
+		$rules = [
+					[ ['admin', 'user', 'adminEmail', 'userEmail' ], 'required' ],
+					[ ['admin', 'user', 'adminEmail', 'userEmail' ], 'boolean' ]
+				];
 
-        return $rules;
-    }
+		return $rules;
+	}
 
-    public function attributeLabels() {
+	public function attributeLabels() {
 
-        return [
-            'admin' => 'Admin',
-            'user' => 'User',
-            'adminEmail' => 'Admin Email',
-            'userEmail' => 'User Email'
-        ];
-    }
+		return ['admin' => 'Admin', 'user' => 'User', 'adminEmail' => 'Admin Email', 'userEmail' => 'User Email'];
+	}
 
-    // CMG interfaces ------------------------
+	// CMG interfaces ------------------------
 
-    // CMG parent classes --------------------
+	// CMG parent classes --------------------
 
-    // Validators ----------------------------
+	// Validators ----------------------------
 
-    // NotificationConfig --------------------
+	// NotificationConfig --------------------
 }

@@ -9,24 +9,24 @@ use cmsgears\core\common\services\interfaces\base\IEntityService;
 
 interface IReminderService extends \cmsgears\core\common\services\interfaces\base\IEntityService {
 
-    // Data Provider ------
+	// Data Provider ------
 
-    // Read ---------------
+	// Read ---------------
 
-    // Read - Models ---
+	// Read - Models ---
 
-    public function getReminders( $all = false  );
+	public function getReminders( $all = false  );
 
-    // Read - Lists ----
+	// Read - Lists ----
 
-    // Read - Maps -----
+	// Read - Maps -----
 
-    // Create -------------
+	// Create -------------
 
-    // Update -------------
+	// Update -------------
 
-    // Delete -------------
+	// Delete -------------
 
-    public function deleteAllByEventId( $eventId );
+	public function deleteAllByEventId( $eventId );
 
 }

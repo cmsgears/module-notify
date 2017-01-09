@@ -11,82 +11,80 @@ use cmsgears\core\common\config\CoreGlobal;
 
 class NotificationController extends \cmsgears\core\admin\controllers\base\Controller {
 
-    // Variables ---------------------------------------------------
+	// Variables ---------------------------------------------------
 
-    // Globals ----------------
+	// Globals ----------------
 
-    // Public -----------------
+	// Public -----------------
 
-    // Protected --------------
+	// Protected --------------
 
-    // Private ----------------
+	// Private ----------------
 
-    // Constructor and Initialisation ------------------------------
+	// Constructor and Initialisation ------------------------------
 
-    // Constructor and Initialisation ------------------------------
+	// Constructor and Initialisation ------------------------------
 
-    public function init() {
+	public function init() {
 
-        parent::init();
+		parent::init();
 
-        $this->crudPermission 	= CoreGlobal::PERM_CORE;
-        $this->modelService		= Yii::$app->factory->get( 'notificationService' );
+		$this->crudPermission 	= CoreGlobal::PERM_CORE;
+		$this->modelService 	= Yii::$app->factory->get( 'notificationService' );
 
-        $this->sidebar 			= [ 'parent' => 'sidebar-notify', 'child' => 'notification' ];
+		$this->sidebar 		= [ 'parent' => 'sidebar-notify', 'child' => 'notification' ];
 
-        $this->returnUrl		= Url::previous( 'notifications' );
-        $this->returnUrl		= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/all' ], true );
-    }
+		$this->returnUrl 	= Url::previous( 'notifications' );
+		$this->returnUrl 	= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/all' ], true );
+	}
 
-    // Instance methods --------------------------------------------
+	// Instance methods --------------------------------------------
 
-    // Yii interfaces ------------------------
+	// Yii interfaces ------------------------
 
-    // Yii parent classes --------------------
+	// Yii parent classes --------------------
 
-    // yii\base\Component -----
+	// yii\base\Component -----
 
-    public function behaviors() {
+	public function behaviors() {
 
-        return [
-            'rbac' => [
-                'class' => Yii::$app->core->getRbacFilterClass(),
-                'actions' => [
-                    'index'  => [ 'permission' => $this->crudPermission ],
-                    'all'    => [ 'permission' => $this->crudPermission ]
-                ]
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'index'  => [ 'get' ],
-                    'all'   => [ 'get' ]
-                ]
-            ]
-        ];
-    }
+		return [
+				'rbac' => [
+					'class' => Yii::$app->core->getRbacFilterClass(),
+					'actions' => [
+						'index' => [ 'permission' => $this->crudPermission ],
+						'all' => [ 'permission' => $this->crudPermission ]
+					]
+				],
+				'verbs' => [
+					'class' => VerbFilter::className(),
+					'actions' => [
+						'index' => [ 'get' ],
+						'all' => [ 'get' ]
+					]
+				]
+			];
+	}
 
-    // yii\base\Controller ----
+	// yii\base\Controller ----
 
-    // CMG interfaces ------------------------
+	// CMG interfaces ------------------------
 
-    // CMG parent classes --------------------
+	// CMG parent classes --------------------
 
-    // NotificationController ----------------
+	// NotificationController ----------------
 
-    public function actionIndex() {
+	public function actionIndex() {
 
-        return $this->redirect( [ 'all' ] );
-    }
+		return $this->redirect( [ 'all' ] );
+	}
 
-    public function actionAll() {
+	public function actionAll() {
 
-        Url::remember( [ 'notification/all' ], 'notifications' );
+		Url::remember( [ 'notification/all' ], 'notifications' );
 
-        $dataProvider = $this->modelService->getPageForAdmin();
+		$dataProvider = $this->modelService->getPageForAdmin();
 
-        return $this->render( 'all', [
-             'dataProvider' => $dataProvider
-        ]);
-    }
+		return $this->render( 'all', [ 'dataProvider' => $dataProvider ] );
+	}
 }

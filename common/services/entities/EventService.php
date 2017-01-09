@@ -14,96 +14,96 @@ use cmsgears\notify\common\services\interfaces\entities\IEventService;
  */
 class EventService extends \cmsgears\core\common\services\base\EntityService implements IEventService {
 
-    // Variables ---------------------------------------------------
+	// Variables ---------------------------------------------------
 
-    // Globals -------------------------------
+	// Globals -------------------------------
 
-    // Constants --------------
+	// Constants --------------
 
-    // Public -----------------
+	// Public -----------------
 
-    public static $modelClass	= '\cmsgears\notify\common\models\entities\Event';
+	public static $modelClass	= '\cmsgears\notify\common\models\entities\Event';
 
-    public static $modelTable	= NotifyTables::TABLE_EVENT;
+	public static $modelTable	= NotifyTables::TABLE_EVENT;
 
-    // Protected --------------
+	// Protected --------------
 
-    // Variables -----------------------------
+	// Variables -----------------------------
 
-    // Public -----------------
+	// Public -----------------
 
-    // Protected --------------
+	// Protected --------------
 
-    // Private ----------------
+	// Private ----------------
 
-    // Traits ------------------------------------------------------
+	// Traits ------------------------------------------------------
 
-    // Constructor and Initialisation ------------------------------
+	// Constructor and Initialisation ------------------------------
 
-    // Instance methods --------------------------------------------
+	// Instance methods --------------------------------------------
 
-    // Yii parent classes --------------------
+	// Yii parent classes --------------------
 
-    // yii\base\Component -----
+	// yii\base\Component -----
 
-    // CMG interfaces ------------------------
+	// CMG interfaces ------------------------
 
-    // CMG parent classes --------------------
+	// CMG parent classes --------------------
 
-    // EventService -------------------
+	// EventService -------------------
 
-    // Data Provider ------
+	// Data Provider ------
 
-    // Read ---------------
+	// Read ---------------
 
-    // Read - Models ---
-    public function getNewEvents() {
+	// Read - Models ---
+	public function getNewEvents() {
 
-        $modelClass	= static::$modelClass;
+		$modelClass	= static::$modelClass;
 
-        return $modelClass::findNewEvents();
-    }
+		return $modelClass::findNewEvents();
+	}
 
-    public function getByParentId( $parentId ) {
+	public function getByParentId( $parentId ) {
 
-        $modelClass	= static::$modelClass;
+		$modelClass	= static::$modelClass;
 
-        return $modelClass::findByParentId( $parentId );
-    }
+		return $modelClass::findByParentId( $parentId );
+	}
 
-    // Read - Lists ----
+	// Read - Lists ----
 
-    // Read - Maps -----
+	// Read - Maps -----
 
-    // Read - Others ---
+	// Read - Others ---
 
-    // Create -------------
+	// Create -------------
 
-    // Update -------------
+	// Update -------------
 
-    // Delete -------------
+	// Delete -------------
 
-    // Static Methods ----------------------------------------------
+	// Static Methods ----------------------------------------------
 
-    // CMG parent classes --------------------
+	// CMG parent classes --------------------
 
-    // EventService -------------------
+	// EventService -------------------
 
-    // Data Provider ------
+	// Data Provider ------
 
-    // Read ---------------
+	// Read ---------------
 
-    // Read - Models ---
+	// Read - Models ---
 
-    // Read - Lists ----
+	// Read - Lists ----
 
-    // Read - Maps -----
+	// Read - Maps -----
 
-    // Read - Others ---
+	// Read - Others ---
 
-    // Create -------------
+	// Create -------------
 
-    // Update -------------
+	// Update -------------
 
-    // Delete -------------
+	// Delete -------------
 }

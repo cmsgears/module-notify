@@ -14,70 +14,70 @@ use cmsgears\notify\common\models\entities\Notification;
  */
 trait NotificationTrait {
 
-    // Instance methods --------------------------------------------
+	// Instance methods --------------------------------------------
 
-    // Yii interfaces ------------------------
+	// Yii interfaces ------------------------
 
-    // Yii classes ---------------------------
+	// Yii classes ---------------------------
 
-    // CMG interfaces ------------------------
+	// CMG interfaces ------------------------
 
-    // CMG classes ---------------------------
+	// CMG classes ---------------------------
 
-    // Validators ----------------------------
+	// Validators ----------------------------
 
-    // NotificationTrait ---------------------
+	// NotificationTrait ---------------------
 
-    public function getModelNotifications() {
+	public function getModelNotifications() {
 
-        return Notification::findByParent( $this->id, $this->mParentType );
-    }
+		return Notification::findByParent( $this->id, $this->mParentType );
+	}
 
-    public function getNotificationStatusCounts() {
+	public function getNotificationStatusCounts() {
 
-        $returnArr      = [ Notification::STATUS_NEW => 0, Notification::STATUS_CONSUMED => 0, Notification::STATUS_TRASH => 0 ];
+		$returnArr      = [ Notification::STATUS_NEW => 0, Notification::STATUS_CONSUMED => 0, Notification::STATUS_TRASH => 0 ];
 
-        $notifyTable   	= NotifyTables::TABLE_NOTIFICATION;
-        $query          = new Query();
+		$notifyTable   	= NotifyTables::TABLE_NOTIFICATION;
+		$query          = new Query();
 
-        $query->select( [ 'status', 'count(id) as total' ] )
-                ->from( $notifyTable )
-                ->where( [ 'parentId' => $this->id, 'parentType' => $this->mParentType ] )
-                ->groupBy( 'status' );
+		$query->select( [ 'status', 'count(id) as total' ] )
+				->from( $notifyTable )
+				->where( [ 'parentId' => $this->id, 'parentType' => $this->mParentType ] )
+				->groupBy( 'status' );
 
-        $counts     = $query->all();
-        $counter    = 0;
+		$counts     = $query->all();
+		$counter    = 0;
 
-        foreach ( $counts as $count ) {
+		foreach ( $counts as $count ) {
 
-            $returnArr[ $count[ 'status' ] ] = $count[ 'total' ];
-        }
+			$returnArr[ $count[ 'status' ] ] = $count[ 'total' ];
+		}
 
-        foreach( $returnArr as $val ) {
+		foreach( $returnArr as $val ) {
 
-            $counter    += $val;
-        }
+			$counter    += $val;
+		}
 
-        $returnArr[ 'all' ] = $counter;
+		$returnArr[ 'all' ] = $counter;
 
-        return $returnArr;
-    }
+		return $returnArr;
+	}
 
-    // Static Methods ----------------------------------------------
+	// Static Methods ----------------------------------------------
 
-    // Yii classes ---------------------------
+	// Yii classes ---------------------------
 
-    // CMG classes ---------------------------
+	// CMG classes ---------------------------
 
-    // NotificationTrait ---------------------
+	// NotificationTrait ---------------------
 
-    // Read - Query -----------
+	// Read - Query -----------
 
-    // Read - Find ------------
+	// Read - Find ------------
 
-    // Create -----------------
+	// Create -----------------
 
-    // Update -----------------
+	// Update -----------------
 
-    // Delete -----------------
+	// Delete -----------------
 }

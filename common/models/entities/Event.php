@@ -53,207 +53,211 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  */
 class Event extends \cmsgears\core\common\models\base\Entity {
 
-    // Variables ---------------------------------------------------
+	// Variables ---------------------------------------------------
 
-    // Globals -------------------------------
+	// Globals -------------------------------
 
-    const STATUS_NEW	= 	  0;
-    const STATUS_TRASH	= 20000;
+	const STATUS_NEW	= 	  0;
+	const STATUS_TRASH	= 20000;
 
-    // Interval Units ---------
-    const UNIT_YEAR		= 0;
-    const UNIT_MONTH	= 1;
-    const UNIT_DAY		= 2;
-    const UNIT_HOUR		= 3;
-    const UNIT_MINUTE	= 4;
-    const UNIT_SECOND	= 5;
+	// Interval Units ---------
+	const UNIT_YEAR		= 0;
+	const UNIT_MONTH	= 1;
+	const UNIT_DAY		= 2;
+	const UNIT_HOUR		= 3;
+	const UNIT_MINUTE	= 4;
+	const UNIT_SECOND	= 5;
 
-    // Constants --------------
+	// Constants --------------
 
-    public static $statusMap = [
-        self::STATUS_NEW => 'New',
-        self::STATUS_TRASH => 'Trash'
-    ];
+	public static $statusMap = [
+		self::STATUS_NEW => 'New',
+		self::STATUS_TRASH => 'Trash'
+	];
 
-    public static $unitMap = [
-        self::UNIT_YEAR => 'year',
-        self::UNIT_MONTH => 'month',
-        self::UNIT_DAY => 'days',
-        self::UNIT_HOUR => 'hours',
-        self::UNIT_MINUTE => 'minute',
-        self::UNIT_SECOND => 'seconds'
-    ];
+	public static $unitMap = [
+		self::UNIT_YEAR => 'year',
+		self::UNIT_MONTH => 'month',
+		self::UNIT_DAY => 'days',
+		self::UNIT_HOUR => 'hours',
+		self::UNIT_MINUTE => 'minute',
+		self::UNIT_SECOND => 'seconds'
+	];
 
-    // Public -----------------
+	// Public -----------------
 
-    // Protected --------------
+	// Protected --------------
 
-    public static $multiSite = true;
+	public static $multiSite = true;
 
-    // Variables -----------------------------
+	// Variables -----------------------------
 
-    // Public -----------------
+	// Public -----------------
 
-    public $mParentType	= NotifyGlobal::TYPE_EVENT;
+	public $mParentType	= NotifyGlobal::TYPE_EVENT;
 
-    // Protected --------------
+	// Protected --------------
 
-    // Private ----------------
+	// Private ----------------
 
-    // Traits ------------------------------------------------------
+	// Traits ------------------------------------------------------
 
-    use CreateModifyTrait;
-    use DataTrait;
-    use NameTypeTrait;
-    use ResourceTrait;
-    use SlugTypeTrait;
+	use CreateModifyTrait;
+	use DataTrait;
+	use NameTypeTrait;
+	use ResourceTrait;
+	use SlugTypeTrait;
 
-    // Constructor and Initialisation ------------------------------
+	// Constructor and Initialisation ------------------------------
 
-    // Instance methods --------------------------------------------
+	// Instance methods --------------------------------------------
 
-    // Yii interfaces ------------------------
+	// Yii interfaces ------------------------
 
-    // Yii parent classes --------------------
+	// Yii parent classes --------------------
 
-    // yii\base\Component -----
+	// yii\base\Component -----
 
-    /**
-     * @inheritdoc
-     */
-    public function behaviors() {
+	/**
+	 * @inheritdoc
+	 */
+	public function behaviors() {
 
-        return [
-            'timestampBehavior' => [
-                'class' => TimestampBehavior::className(),
-                'createdAtAttribute' => 'createdAt',
-                'updatedAtAttribute' => 'modifiedAt',
-                'value' => new Expression('NOW()')
-            ]
-        ];
-    }
+		return [
+			'timestampBehavior' => [
+				'class' => TimestampBehavior::className(),
+				'createdAtAttribute' => 'createdAt',
+				'updatedAtAttribute' => 'modifiedAt',
+				'value' => new Expression('NOW()')
+			]
+		];
+	}
 
-    // yii\base\Model ---------
+	// yii\base\Model ---------
 
-    /**
-     * @inheritdoc
-     */
-    public function rules() {
+	/**
+	 * @inheritdoc
+	 */
+	public function rules() {
 
-        $rules = [
-            [ [ 'siteId', 'name' ], 'safe' ],
-            [ [ 'id', 'content', 'data' ], 'safe' ],
-            [ [ 'parentType', 'type', 'icon' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
-            [ 'name', 'string', 'min' => 1, 'max' => Yii::$app->core->largeText ],
-            [ 'slug', 'string', 'min' => 1, 'max' => Yii::$app->core->xLargeText ],
-            [ [ 'description' ], 'string', 'min' => 0, 'max' => Yii::$app->core->xLargeText ],
-            [ [ 'name', 'type' ], 'unique', 'targetAttribute' => [ 'name', 'type' ] ],
-            [ [ 'slug', 'type' ], 'unique', 'targetAttribute' => [ 'slug', 'type' ] ],
-            [ [ 'preReminderCount', 'preReminderInterval', 'postReminderCount', 'postReminderInterval', 'preIntervalUnit', 'postIntervalUnit', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-            [ 'multiUser', 'boolean' ],
-            [ [ 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
-            [ [ 'createdAt', 'modifiedAt', 'scheduledAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
-        ];
+		$rules = [
+			// Required, Safe
+			[ [ 'siteId', 'name' ], 'safe' ],
+			[ [ 'id', 'content', 'data' ], 'safe' ],
+			// Unique
+			[ [ 'name', 'type' ], 'unique', 'targetAttribute' => [ 'name', 'type' ] ],
+			[ [ 'slug', 'type' ], 'unique', 'targetAttribute' => [ 'slug', 'type' ] ],
+			// Text Limit
+			[ [ 'parentType', 'type' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
+			[ 'icon', 'string', 'min' => 1, 'max' => Yii::$app->core->largeText ],
+			[ 'name', 'string', 'min' => 1, 'max' => Yii::$app->core->xLargeText ],
+			[ [ 'slug', 'description' ], 'string', 'min' => 0, 'max' => Yii::$app->core->xxLargeText ],
+			// Other
+			[ [ 'preReminderCount', 'preReminderInterval', 'postReminderCount', 'postReminderInterval', 'preIntervalUnit', 'postIntervalUnit', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ 'multiUser', 'boolean' ],
+			[ [ 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ [ 'createdAt', 'modifiedAt', 'scheduledAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
+		];
 
-        return $rules;
-    }
+		return $rules;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels() {
+	/**
+	 * @inheritdoc
+	 */
+	public function attributeLabels() {
 
-        return [
-            'siteId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_SITE ),
-            'parentId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
-            'parentType' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
-            'name' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_NAME ),
-            'type' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TYPE ),
-            'icon' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ICON ),
-            'description' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DESCRIPTION ),
-            'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
-            'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT ),
-            'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA )
-        ];
-    }
+		return [
+			'siteId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_SITE ),
+			'parentId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
+			'parentType' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
+			'name' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_NAME ),
+			'type' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TYPE ),
+			'icon' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ICON ),
+			'description' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DESCRIPTION ),
+			'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
+			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT ),
+			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA )
+		];
+	}
 
-    // CMG interfaces ------------------------
+	// CMG interfaces ------------------------
 
-    // CMG parent classes --------------------
+	// CMG parent classes --------------------
 
-    // Validators ----------------------------
+	// Validators ----------------------------
 
-    // Event ---------------------------------
+	// Event ---------------------------------
 
-    public function getSite() {
+	public function getSite() {
 
-        return $this->hasOne( Site::className(), [ 'id' => 'siteId' ] );
-    }
+		return $this->hasOne( Site::className(), [ 'id' => 'siteId' ] );
+	}
 
-    public function getMultiStr() {
+	public function getMultiStr() {
 
-        return Yii::$app->formatter->asBoolean( $this->multiUser );
-    }
+		return Yii::$app->formatter->asBoolean( $this->multiUser );
+	}
 
-    public function getStatusStr() {
+	public function getStatusStr() {
 
-        return self::$statusMap[ $this->status ];
-    }
+		return self::$statusMap[ $this->status ];
+	}
 
-    // Static Methods ----------------------------------------------
+	// Static Methods ----------------------------------------------
 
-    // Yii parent classes --------------------
+	// Yii parent classes --------------------
 
-    // yii\db\ActiveRecord ----
+	// yii\db\ActiveRecord ----
 
-    /**
-     * @inheritdoc
-     */
-    public static function tableName() {
+	/**
+	 * @inheritdoc
+	 */
+	public static function tableName() {
 
-        return NotifyTables::TABLE_EVENT;
-    }
+		return NotifyTables::TABLE_EVENT;
+	}
 
-    // CMG parent classes --------------------
+	// CMG parent classes --------------------
 
-    // Event ---------------------------------
+	// Event ---------------------------------
 
-    // Read - Query -----------
+	// Read - Query -----------
 
-    public static function queryWithHasOne( $config = [] ) {
+	public static function queryWithHasOne( $config = [] ) {
 
-        $relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'site', 'creator', 'modifier' ];
-        $config[ 'relations' ]	= $relations;
+		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'site', 'creator', 'modifier' ];
+		$config[ 'relations' ]	= $relations;
 
-        return parent::queryWithAll( $config );
-    }
+		return parent::queryWithAll( $config );
+	}
 
-    public static function queryWithSite( $config = [] ) {
+	public static function queryWithSite( $config = [] ) {
 
-        $config[ 'relations' ]	= [ 'site' ];
+		$config[ 'relations' ]	= [ 'site' ];
 
-        return parent::queryWithAll( $config );
-    }
+		return parent::queryWithAll( $config );
+	}
 
-    public static function findNewEvents() {
+	public static function findNewEvents() {
 
-        $events	= self::queryWithSite();
+		$events	= self::queryWithSite();
 
-        return $events->where( 'status='.self::STATUS_NEW )->all();
-    }
+		return $events->where( 'status='.self::STATUS_NEW )->all();
+	}
 
-    public static function findByParentId( $parentId ) {
+	public static function findByParentId( $parentId ) {
 
-        $events	= self::queryWithSite();
+		$events	= self::queryWithSite();
 
-        return $events->where( 'parentId='.$parentId )->one();
-    }
+		return $events->where( 'parentId='.$parentId )->one();
+	}
 
-    // Read - Find ------------
+	// Read - Find ------------
 
-    // Create -----------------
+	// Create -----------------
 
-    // Update -----------------
+	// Update -----------------
 
-    // Delete -----------------
+	// Delete -----------------
 }

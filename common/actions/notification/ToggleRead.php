@@ -13,70 +13,70 @@ use cmsgears\core\common\utilities\AjaxUtil;
 
 class ToggleRead extends \cmsgears\core\common\base\Action {
 
-    // Variables ---------------------------------------------------
+	// Variables ---------------------------------------------------
 
-    // Globals -------------------------------
+	// Globals -------------------------------
 
-    // Constants --------------
+	// Constants --------------
 
-    // Public -----------------
+	// Public -----------------
 
-    public $admin		= false;
+	public $admin		= false;
 
-    public $conditions	= [];
+	public $conditions	= [];
 
-    // Protected --------------
+	// Protected --------------
 
-    // Variables -----------------------------
+	// Variables -----------------------------
 
-    // Public -----------------
+	// Public -----------------
 
-    // Protected --------------
+	// Protected --------------
 
-    protected $notificationService;
+	protected $notificationService;
 
-    // Private ----------------
+	// Private ----------------
 
-    // Traits ------------------------------------------------------
+	// Traits ------------------------------------------------------
 
-    // Constructor and Initialisation ------------------------------
+	// Constructor and Initialisation ------------------------------
 
-    public function init() {
+	public function init() {
 
-        parent::init();
+		parent::init();
 
-        $this->notificationService	= Yii::$app->factory->get( 'notificationService' );
-    }
+		$this->notificationService	= Yii::$app->factory->get( 'notificationService' );
+	}
 
-    // Instance methods --------------------------------------------
+	// Instance methods --------------------------------------------
 
-    // Yii interfaces ------------------------
+	// Yii interfaces ------------------------
 
-    // Yii parent classes --------------------
+	// Yii parent classes --------------------
 
-    // CMG interfaces ------------------------
+	// CMG interfaces ------------------------
 
-    // CMG parent classes --------------------
+	// CMG parent classes --------------------
 
-    // ToggleRead ----------------------------
+	// ToggleRead ----------------------------
 
-    public function run( $id ) {
+	public function run( $id ) {
 
-        $notification	= $this->notificationService->getById( $id );
+		$notification	= $this->notificationService->getById( $id );
 
-        if( isset( $notification ) ) {
+		if( isset( $notification ) ) {
 
-            $notification	= $this->notificationService->toggleRead( $notification );
+			$notification	= $this->notificationService->toggleRead( $notification );
 
-            $counts			= $this->notificationService->getStatusCounts( $this->admin, $this->conditions );
+			$counts			= $this->notificationService->getStatusCounts( $this->admin, $this->conditions );
 
-            $data			= [ 'unread' => $counts[ Notification::STATUS_NEW ], 'consumed' => $notification->isConsumed() ];
+			$data			= [ 'unread' => $counts[ Notification::STATUS_NEW ], 'consumed' => $notification->isConsumed() ];
 
-            // Trigger Ajax Success
-            return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ), $data );
-        }
+			// Trigger Ajax Success
+			return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ), $data );
+		}
 
-        // Trigger Ajax Failure
-        return AjaxUtil::generateFailure( Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_REQUEST ) );
-    }
+		// Trigger Ajax Failure
+		return AjaxUtil::generateFailure( Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_REQUEST ) );
+	}
 }

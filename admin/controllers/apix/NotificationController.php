@@ -10,46 +10,46 @@ use cmsgears\core\common\config\CoreGlobal;
 
 class NotificationController extends \cmsgears\core\common\controllers\base\Controller {
 
-    // Constructor and Initialisation ------------------------------
+	// Constructor and Initialisation ------------------------------
 
-    // Instance Methods --------------------------------------------
+	// Instance Methods --------------------------------------------
 
-    // yii\base\Component ----------------
+	// yii\base\Component ----------------
 
-    public function behaviors() {
+	public function behaviors() {
 
-        return [
-            'rbac' => [
-                'class' => Yii::$app->core->getRbacFilterClass(),
-                'actions' => [
-                    'toggleRead' => [ 'permission' => CoreGlobal::PERM_CORE ],
-                    'trash' => [ 'permission' => CoreGlobal::PERM_CORE ],
-                    'delete' => [ 'permission' => CoreGlobal::PERM_CORE ]
-                ]
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'toggleRead' => [ 'post' ],
-                    'trash' => [ 'post' ],
-                    'delete' => [ 'post' ]
-                ]
-            ]
-        ];
-    }
+		return [
+			'rbac' => [
+				'class' => Yii::$app->core->getRbacFilterClass(),
+				'actions' => [
+					'toggleRead' => [ 'permission' => CoreGlobal::PERM_CORE ],
+					'trash' => [ 'permission' => CoreGlobal::PERM_CORE ],
+					'delete' => [ 'permission' => CoreGlobal::PERM_CORE ]
+				]
+			],
+			'verbs' => [
+				'class' => VerbFilter::className(),
+				'actions' => [
+					'toggleRead' => [ 'post' ],
+					'trash' => [ 'post' ],
+					'delete' => [ 'post' ]
+				]
+			]
+		];
+	}
 
-    // yii\base\Controller ----
+	// yii\base\Controller ----
 
-    public function actions() {
+	public function actions() {
 
-        return [
-            'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead', 'admin' => true ],
-            'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash', 'admin' => true ],
-            'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete', 'admin' => true ]
-        ];
-    }
+		return [
+			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead', 'admin' => true ],
+			'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash', 'admin' => true ],
+			'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete', 'admin' => true ]
+		];
+	}
 
-    // NotificationController ------------
+	// NotificationController ------------
 }
 
 ?>

@@ -22,264 +22,264 @@ use cmsgears\core\common\services\traits\ResourceTrait;
  */
 class NotificationService extends \cmsgears\core\common\services\base\EntityService implements INotificationService {
 
-    // Variables ---------------------------------------------------
+	// Variables ---------------------------------------------------
 
-    // Globals -------------------------------
+	// Globals -------------------------------
 
-    // Constants --------------
+	// Constants --------------
 
-    // Public -----------------
+	// Public -----------------
 
-    public static $modelClass	= '\cmsgears\notify\common\models\entities\Notification';
+	public static $modelClass	= '\cmsgears\notify\common\models\entities\Notification';
 
-    public static $modelTable	= NotifyTables::TABLE_NOTIFICATION;
+	public static $modelTable	= NotifyTables::TABLE_NOTIFICATION;
 
-    public static $parentType	= NotifyGlobal::TYPE_NOTIFICATION;
+	public static $parentType	= NotifyGlobal::TYPE_NOTIFICATION;
 
-    // Protected --------------
+	// Protected --------------
 
-    // Variables -----------------------------
+	// Variables -----------------------------
 
-    // Public -----------------
+	// Public -----------------
 
-    // Protected --------------
+	// Protected --------------
 
-    // Private ----------------
+	// Private ----------------
 
-    // Traits ------------------------------------------------------
+	// Traits ------------------------------------------------------
 
-    use ResourceTrait;
+	use ResourceTrait;
 
-    // Constructor and Initialisation ------------------------------
+	// Constructor and Initialisation ------------------------------
 
-    // Instance methods --------------------------------------------
+	// Instance methods --------------------------------------------
 
-    // Yii parent classes --------------------
+	// Yii parent classes --------------------
 
-    // yii\base\Component -----
+	// yii\base\Component -----
 
-    // CMG interfaces ------------------------
+	// CMG interfaces ------------------------
 
-    // CMG parent classes --------------------
+	// CMG parent classes --------------------
 
-    // NotificationService -------------------
+	// NotificationService -------------------
 
-    // Data Provider ------
+	// Data Provider ------
 
-    public function getPage( $config = [] ) {
+	public function getPage( $config = [] ) {
 
-        $modelTable	= self::$modelTable;
+		$modelTable	= self::$modelTable;
 
-        $sort = new Sort([
-            'attributes' => [
-                'title' => [
-                    'asc' => [ 'title' => SORT_ASC ],
-                    'desc' => ['title' => SORT_DESC ],
-                    'default' => SORT_DESC,
-                    'label' => 'Title'
-                ],
-                'status' => [
-                    'asc' => [ 'status' => SORT_ASC ],
-                    'desc' => ['status' => SORT_DESC ],
-                    'default' => SORT_DESC,
-                    'label' => 'Status'
-                ],
-                'agent' => [
-                    'asc' => [ 'agent' => SORT_ASC ],
-                    'desc' => ['agent' => SORT_DESC ],
-                    'default' => SORT_DESC,
-                    'label' => 'Agent'
-                ],
-                'cdate' => [
-                    'asc' => [ 'createdAt' => SORT_ASC ],
-                    'desc' => ['createdAt' => SORT_DESC ],
-                    'default' => SORT_DESC,
-                    'label' => 'Created At'
-                ],
-                'udate' => [
-                    'asc' => [ 'modifiedAt' => SORT_ASC ],
-                    'desc' => ['modifiedAt' => SORT_DESC ],
-                    'default' => SORT_DESC,
-                    'label' => 'Updated At'
-                ]
-            ],
-            'defaultOrder' => [ 'cdate' => 'SORT_ASC' ]
-        ]);
+		$sort = new Sort([
+			'attributes' => [
+				'title' => [
+					'asc' => [ 'title' => SORT_ASC ],
+					'desc' => ['title' => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Title'
+				],
+				'status' => [
+					'asc' => [ 'status' => SORT_ASC ],
+					'desc' => ['status' => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Status'
+				],
+				'agent' => [
+					'asc' => [ 'agent' => SORT_ASC ],
+					'desc' => ['agent' => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Agent'
+				],
+				'cdate' => [
+					'asc' => [ 'createdAt' => SORT_ASC ],
+					'desc' => ['createdAt' => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Created At'
+				],
+				'udate' => [
+					'asc' => [ 'modifiedAt' => SORT_ASC ],
+					'desc' => ['modifiedAt' => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Updated At'
+				]
+			],
+			'defaultOrder' => [ 'cdate' => 'SORT_ASC' ]
+		]);
 
-        if( !isset( $config[ 'sort' ] ) ) {
+		if( !isset( $config[ 'sort' ] ) ) {
 
-            $config[ 'sort' ] = $sort;
-        }
+			$config[ 'sort' ] = $sort;
+		}
 
-        // Params
-        $status 		= Yii::$app->request->getQueryParam( 'status' );
+		// Params
+		$status 		= Yii::$app->request->getQueryParam( 'status' );
 
-        // Filter by Status
-        if( isset( $status ) && isset( Notification::$revStatusMap[ $status ] ) ) {
+		// Filter by Status
+		if( isset( $status ) && isset( Notification::$revStatusMap[ $status ] ) ) {
 
-            $config[ 'conditions' ][ "$modelTable.status" ]	= Notification::$revStatusMap[ $status ];
-        }
+			$config[ 'conditions' ][ "$modelTable.status" ]	= Notification::$revStatusMap[ $status ];
+		}
 
-        return parent::findPage( $config );
-    }
+		return parent::findPage( $config );
+	}
 
-    public function getPageForAdmin() {
+	public function getPageForAdmin() {
 
-        $modelTable	= self::$modelTable;
+		$modelTable	= self::$modelTable;
 
-        return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
-    }
+		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
+	}
 
-    public function getPageByUserId( $userId ) {
+	public function getPageByUserId( $userId ) {
 
-        $modelTable	= self::$modelTable;
+		$modelTable	= self::$modelTable;
 
-        return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
-    }
+		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
+	}
 
-    public function getPageByParent( $parentId, $parentType ) {
+	public function getPageByParent( $parentId, $parentType ) {
 
-        $modelTable	= self::$modelTable;
+		$modelTable	= self::$modelTable;
 
-        return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => false, "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType ] ] );
-    }
+		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => false, "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType ] ] );
+	}
 
-    // Read ---------------
+	// Read ---------------
 
-    // Read - Models ---
+	// Read - Models ---
 
-    public function getByParentStatus( $parentId, $parentType, $status = Notification::STATUS_NEW ) {
+	public function getByParentStatus( $parentId, $parentType, $status = Notification::STATUS_NEW ) {
 
-        $modelTable	= self::$modelTable;
+		$modelTable	= self::$modelTable;
 
-        return Notification::queryByParent( $parentId, $parentType )->andWhere( [ "$modelTable.status" => $status ] )->all();
-    }
+		return Notification::queryByParent( $parentId, $parentType )->andWhere( [ "$modelTable.status" => $status ] )->all();
+	}
 
-    public function getRecent( $limit = 5, $config = [] ) {
+	public function getRecent( $limit = 5, $config = [] ) {
 
-        return Notification::find()->where( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt ASC' )->all();
-    }
+		return Notification::find()->where( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt ASC' )->all();
+	}
 
-    public function getStatusCounts( $config = [] ) {
+	public function getStatusCounts( $config = [] ) {
 
-        $returnArr      = [ Notification::STATUS_NEW => 0, Notification::STATUS_CONSUMED => 0, Notification::STATUS_TRASH => 0 ];
+		$returnArr      = [ Notification::STATUS_NEW => 0, Notification::STATUS_CONSUMED => 0, Notification::STATUS_TRASH => 0 ];
 
-        $notifyTable   = NotifyTables::TABLE_NOTIFICATION;
-        $query          = new Query();
+		$notifyTable   = NotifyTables::TABLE_NOTIFICATION;
+		$query          = new Query();
 
-        $query->select( [ 'status', 'count(id) as total' ] )
-                ->from( $notifyTable )
-                ->where( $config[ 'conditions' ] )
-                ->groupBy( 'status' );
+		$query->select( [ 'status', 'count(id) as total' ] )
+				->from( $notifyTable )
+				->where( $config[ 'conditions' ] )
+				->groupBy( 'status' );
 
-        $counts     = $query->all();
-        $counter    = 0;
+		$counts     = $query->all();
+		$counter    = 0;
 
-        foreach ( $counts as $count ) {
+		foreach ( $counts as $count ) {
 
-            $returnArr[ $count[ 'status' ] ] = intval( $count[ 'total' ] );
-        }
+			$returnArr[ $count[ 'status' ] ] = intval( $count[ 'total' ] );
+		}
 
-        foreach( $returnArr as $val ) {
+		foreach( $returnArr as $val ) {
 
-            $counter    += $val;
-        }
+			$counter    += $val;
+		}
 
-        $returnArr[ 'all' ] = $counter;
+		$returnArr[ 'all' ] = $counter;
 
-        return $returnArr;
-    }
+		return $returnArr;
+	}
 
-    public function getStatusCountsByParent( $parentId, $parentType ) {
+	public function getStatusCountsByParent( $parentId, $parentType ) {
 
-        return $this->getStatusCounts( [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
-    }
+		return $this->getStatusCounts( [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
+	}
 
-    // Read - Lists ----
+	// Read - Lists ----
 
-    // Read - Maps -----
+	// Read - Maps -----
 
-    // Read - Others ---
+	// Read - Others ---
 
-    // Create -------------
+	// Create -------------
 
-    public function create( $model, $config = [] ) {
+	public function create( $model, $config = [] ) {
 
-        $model->agent	= Yii::$app->request->userAgent;
-        $model->ip		= Yii::$app->request->userIP;
+		$model->agent	= Yii::$app->request->userAgent;
+		$model->ip		= Yii::$app->request->userIP;
 
-        return parent::create( $model, $config );
-    }
+		return parent::create( $model, $config );
+	}
 
-    // Update -------------
+	// Update -------------
 
-    public function update( $model, $config = [] ) {
+	public function update( $model, $config = [] ) {
 
-        return parent::update( $model, [
-            'attributes' => [ 'name', 'email', 'avatarUrl', 'websiteUrl', 'rating', 'content' ]
-        ]);
-    }
+		return parent::update( $model, [
+			'attributes' => [ 'name', 'email', 'avatarUrl', 'websiteUrl', 'rating', 'content' ]
+		]);
+	}
 
-    public function toggleRead( $model ) {
+	public function toggleRead( $model ) {
 
-        if( $model->isConsumed() ) {
+		if( $model->isConsumed() ) {
 
-            return $this->markNew( $model );
-        }
+			return $this->markNew( $model );
+		}
 
-        return $this->markConsumed( $model );
-    }
+		return $this->markConsumed( $model );
+	}
 
-    public function markNew( $model ) {
+	public function markNew( $model ) {
 
-        $model->status	= Notification::STATUS_NEW;
+		$model->status	= Notification::STATUS_NEW;
 
-        return parent::update( $model, [
-            'attributes' => [ 'status' ]
-        ]);
-    }
+		return parent::update( $model, [
+			'attributes' => [ 'status' ]
+		]);
+	}
 
-    public function markConsumed( $model ) {
+	public function markConsumed( $model ) {
 
-        $model->status	= Notification::STATUS_CONSUMED;
+		$model->status	= Notification::STATUS_CONSUMED;
 
-        return parent::update( $model, [
-            'attributes' => [ 'status' ]
-        ]);
-    }
+		return parent::update( $model, [
+			'attributes' => [ 'status' ]
+		]);
+	}
 
-    public function markTrash( $model ) {
+	public function markTrash( $model ) {
 
-        $model->status	= Notification::STATUS_TRASH;
+		$model->status	= Notification::STATUS_TRASH;
 
-        return parent::update( $model, [
-            'attributes' => [ 'status' ]
-        ]);
-    }
+		return parent::update( $model, [
+			'attributes' => [ 'status' ]
+		]);
+	}
 
-    // Delete -------------
+	// Delete -------------
 
-    // Static Methods ----------------------------------------------
+	// Static Methods ----------------------------------------------
 
-    // CMG parent classes --------------------
+	// CMG parent classes --------------------
 
-    // NotificationService -------------------
+	// NotificationService -------------------
 
-    // Data Provider ------
+	// Data Provider ------
 
-    // Read ---------------
+	// Read ---------------
 
-    // Read - Models ---
+	// Read - Models ---
 
-    // Read - Lists ----
+	// Read - Lists ----
 
-    // Read - Maps -----
+	// Read - Maps -----
 
-    // Read - Others ---
+	// Read - Others ---
 
-    // Create -------------
+	// Create -------------
 
-    // Update -------------
+	// Update -------------
 
-    // Delete -------------
+	// Delete -------------
 }

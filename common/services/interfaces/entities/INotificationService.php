@@ -11,42 +11,42 @@ use cmsgears\notify\common\models\entities\Notification;
 
 interface INotificationService extends \cmsgears\core\common\services\interfaces\base\IResourceService {
 
-    // Data Provider ------
+	// Data Provider ------
 
-    public function getPageForAdmin();
+	public function getPageForAdmin();
 
-    public function getPageByUserId( $userId );
+	public function getPageByUserId( $userId );
 
-    public function getPageByParent( $parentId, $parentType );
+	public function getPageByParent( $parentId, $parentType );
 
-    // Read ---------------
+	// Read ---------------
 
-    // Read - Models ---
+	// Read - Models ---
 
-    public function getByParentStatus( $parentId, $parentType, $status = Notification::STATUS_NEW );
+	public function getByParentStatus( $parentId, $parentType, $status = Notification::STATUS_NEW );
 
-    public function getRecent( $limit = 5, $config = [] );
+	public function getRecent( $limit = 5, $config = [] );
 
-    public function getStatusCounts( $config = [] );
+	public function getStatusCounts( $config = [] );
 
-    public function getStatusCountsByParent( $parentId, $parentType );
+	public function getStatusCountsByParent( $parentId, $parentType );
 
-    // Read - Lists ----
+	// Read - Lists ----
 
-    // Read - Maps -----
+	// Read - Maps -----
 
-    // Create -------------
+	// Create -------------
 
-    // Update -------------
+	// Update -------------
 
-    public function toggleRead( $notification );
+	public function toggleRead( $notification );
 
-    public function markNew( $notification );
+	public function markNew( $notification );
 
-    public function markConsumed( $notification );
+	public function markConsumed( $notification );
 
-    public function markTrash( $notification );
+	public function markTrash( $notification );
 
-    // Delete -------------
+	// Delete -------------
 
 }
