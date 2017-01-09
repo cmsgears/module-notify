@@ -30,12 +30,12 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 		parent::init();
 
 		$this->crudPermission 	= CoreGlobal::PERM_CORE;
-		$this->modelService 	= Yii::$app->factory->get( 'notificationService' );
+		$this->modelService		= Yii::$app->factory->get( 'notificationService' );
 
-		$this->sidebar 		= [ 'parent' => 'sidebar-notify', 'child' => 'notification' ];
+		$this->sidebar 			= [ 'parent' => 'sidebar-notify', 'child' => 'notification' ];
 
-		$this->returnUrl 	= Url::previous( 'notifications' );
-		$this->returnUrl 	= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/all' ], true );
+		$this->returnUrl		= Url::previous( 'notifications' );
+		$this->returnUrl		= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/all' ], true );
 	}
 
 	// Instance methods --------------------------------------------
@@ -49,21 +49,21 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 	public function behaviors() {
 
 		return [
-				'rbac' => [
-					'class' => Yii::$app->core->getRbacFilterClass(),
-					'actions' => [
-						'index' => [ 'permission' => $this->crudPermission ],
-						'all' => [ 'permission' => $this->crudPermission ]
-					]
-				],
-				'verbs' => [
-					'class' => VerbFilter::className(),
-					'actions' => [
-						'index' => [ 'get' ],
-						'all' => [ 'get' ]
-					]
+			'rbac' => [
+				'class' => Yii::$app->core->getRbacFilterClass(),
+				'actions' => [
+					'index'  => [ 'permission' => $this->crudPermission ],
+					'all'    => [ 'permission' => $this->crudPermission ]
 				]
-			];
+			],
+			'verbs' => [
+				'class' => VerbFilter::className(),
+				'actions' => [
+					'index'  => [ 'get' ],
+					'all'   => [ 'get' ]
+				]
+			]
+		];
 	}
 
 	// yii\base\Controller ----
@@ -85,6 +85,8 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 
 		$dataProvider = $this->modelService->getPageForAdmin();
 
-		return $this->render( 'all', [ 'dataProvider' => $dataProvider ] );
+		return $this->render( 'all', [
+			 'dataProvider' => $dataProvider
+		]);
 	}
 }

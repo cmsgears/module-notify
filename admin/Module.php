@@ -15,13 +15,15 @@ class Module extends \cmsgears\core\common\base\Module {
 
 		parent::init();
 
-		$this -> setViewPath('@cmsgears/module-notify/admin/views');
+		$this->setViewPath( '@cmsgears/module-notify/admin/views' );
 	}
 
 	public function getSidebarHtml() {
 
-		$path = Yii::getAlias("@cmsgears") . "/module-notify/admin/views/sidebar.php";
+		$path	= Yii::getAlias( "@cmsgears" ) . "/module-notify/admin/views/sidebar.php";
 
 		return $path;
 	}
 }
+
+?>

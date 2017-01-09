@@ -17,3 +17,5 @@ class NotifyTables {
 
 	const TABLE_EVENT_PARTICIPANT	= 'cmg_notify_event_participant';
 }
+
+?>

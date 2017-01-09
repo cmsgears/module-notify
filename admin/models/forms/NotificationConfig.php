@@ -17,13 +17,13 @@ class NotificationConfig extends \cmsgears\core\common\models\forms\JsonModel {
 
 	// Public -----------------
 
-	public $admin = false;
+	public $admin		= false;
 
-	public $user = false;
+	public $user		= false;
 
-	public $adminEmail = false;
+	public $adminEmail	= false;
 
-	public $userEmail = false;
+	public $userEmail	= false;
 
 	// Protected --------------
 
@@ -52,16 +52,21 @@ class NotificationConfig extends \cmsgears\core\common\models\forms\JsonModel {
 	public function rules() {
 
 		$rules = [
-					[ ['admin', 'user', 'adminEmail', 'userEmail' ], 'required' ],
-					[ ['admin', 'user', 'adminEmail', 'userEmail' ], 'boolean' ]
-				];
+			[ [ 'admin', 'user', 'adminEmail', 'userEmail' ], 'required' ],
+			[ [ 'admin', 'user', 'adminEmail', 'userEmail' ], 'boolean' ]
+		];
 
 		return $rules;
 	}
 
 	public function attributeLabels() {
 
-		return ['admin' => 'Admin', 'user' => 'User', 'adminEmail' => 'Admin Email', 'userEmail' => 'User Email'];
+		return [
+			'admin' => 'Admin',
+			'user' => 'User',
+			'adminEmail' => 'Admin Email',
+			'userEmail' => 'User Email'
+		];
 	}
 
 	// CMG interfaces ------------------------
