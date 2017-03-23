@@ -54,13 +54,13 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 	public function getAdminStats() {
 
 		// Query
-		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
-		$notificationCounts	= $this->notificationService->getStatusCounts( [ 'conditions' => [ 'admin' => true ] ] );
+		$notifications	= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
+		$new			= $this->notificationService->getCount( false, true );
 
 		// Results
 		$stats							= parent::getAdminStats();
 		$stats[ 'notifications' ]		= $notifications;
-		$stats[ 'notificationCount' ]	= $notificationCounts[ Notification::STATUS_NEW ];
+		$stats[ 'notificationCount' ]	= $new;
 
 		return $stats;
 	}
@@ -68,14 +68,14 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 	public function getUserStats() {
 
 		// Query
-		$user				= Yii::$app->user->getIdentity();
-		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
-		$notificationCounts	= $this->notificationService->getStatusCounts( [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
+		$user			= Yii::$app->user->getIdentity();
+		$notifications	= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
+		$new			= $this->notificationService->getUserCount( $user->id, false, false );
 
 		// Results
 		$stats							= parent::getAdminStats();
 		$stats[ 'notifications' ]		= $notifications;
-		$stats[ 'notificationCount' ]	= $notificationCounts[ Notification::STATUS_NEW ];
+		$stats[ 'notificationCount' ]	= $new;
 
 		return $stats;
 	}
@@ -115,7 +115,8 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		$templateConfig			= $template->getDataMeta( CoreGlobal::DATA_CONFIG );
 
 		$notification			= new Notification();
-		$notification->status	= Notification::STATUS_NEW;
+		$notification->consumed	= false;
+		$notification->trash	= false;
 		$notification->content	= $message;
 
 		if( isset( $config[ 'parentId' ] ) ) {
@@ -171,7 +172,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 				$userNotification			= new Notification();
 
-				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'title', 'status', 'link', 'content' ] );
+				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'title', 'consumed', 'trash', 'link', 'content' ] );
 
 				$userNotification->userId	= $userId;
 				$userNotification->admin	= false;

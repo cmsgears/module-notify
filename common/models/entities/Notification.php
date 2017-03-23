@@ -38,7 +38,8 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  * @property string $link
  * @property boolean $admin
  * @property string $adminLink
- * @property boolean $status
+ * @property boolean $consumed
+ * @property boolean $trash
  * @property datetime $createdAt
  * @property datetime $modifiedAt
  * @property string $content
@@ -52,23 +53,7 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
 
 	// Constants --------------
 
-	const STATUS_NEW		=   0;
-	const STATUS_CONSUMED	= 100;
-	const STATUS_TRASH		= 200;
-
 	// Public -----------------
-
-	public static $statusMap = [
-		self::STATUS_NEW => 'New',
-		self::STATUS_CONSUMED => 'Consumed',
-		self::STATUS_TRASH => 'Trash'
-	];
-
-	public static $revStatusMap = [
-		'new' => self::STATUS_NEW,
-		'consumed' => self::STATUS_CONSUMED,
-		'trash' => self::STATUS_TRASH
-	];
 
 	// Protected --------------
 
@@ -130,7 +115,7 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
 			[ [ 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
 			// Other
 			[ [ 'admin' ], 'boolean' ],
-			[ [ 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ [ 'consumed', 'trash' ], 'boolean' ],
 			[ [ 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
@@ -154,7 +139,8 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
 			'link' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
 			'admin' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
 			'adminLink' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW_ADMIN ),
-			'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
+			'consumed' => 'Consumed',
+			'trash' => 'Trash',
 			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT )
 		];
 	}
@@ -196,22 +182,27 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
 
 	public function isNew() {
 
-		return $this->status == self::STATUS_NEW;
+		return !$this->consumed;
 	}
 
-	public function isConsumed( $strict = false ) {
+	public function isConsumed() {
 
-		if( $strict ) {
+		return $this->consumed;
+	}
 
-			return $this->status == self::STATUS_CONSUMED;
-		}
+	public function getConsumedStr() {
 
-		return $this->status >= self::STATUS_CONSUMED;
+		return Yii::$app->formatter->asBoolean( $this->consumed );
 	}
 
 	public function isTrash() {
 
-		return $this->status == self::STATUS_TRASH;
+		return $this->trash;
+	}
+
+	public function getTrashStr() {
+
+		return Yii::$app->formatter->asBoolean( $this->trash );
 	}
 
 	public function toHtml() {
@@ -274,6 +265,11 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
 		$config[ 'relations' ]	= [ 'user' ];
 
 		return parent::queryWithAll( $config );
+	}
+
+	public static function queryByUserId( $userId ) {
+
+		return static::find()->where( 'userId=:uid', [ ':uid' => $userId ] );
 	}
 
 	// Read - Find ------------

@@ -16,7 +16,7 @@ $pagination		= $dataProvider->getPagination();
 $models			= $dataProvider->getModels();
 
 // Searching
-$searchTerms	= Yii::$app->request->getQueryParam( 'search' );
+$keywords		= Yii::$app->request->getQueryParam( 'keywords' );
 
 // Sorting
 $sortOrder		= Yii::$app->request->getQueryParam( 'sort' );
@@ -29,20 +29,23 @@ if( !isset( $sortOrder ) ) {
 // Filters
 $statusFilter	= Yii::$app->request->getQueryParam( 'status' );
 ?>
-<div class="header-content clearfix">
-	<div class="header-actions col15x10">
-		<h5>Notifications</h5>
+<div class="row header-content">
+	<div class="col-small col15x10 header-actions">
+		<span class="frm-icon-element element-small">
+			<i class="cmti cmti-plus"></i>
+			<?= Html::a( 'Add', [ 'create' ], [ 'class' => 'btn' ] ) ?>
+		</span>
 	</div>
-	<div class="header-search col15x5">
-		<input id="search-terms" class="element-large" type="text" name="search" value="<?= $searchTerms ?>">
+	<div class="col-small col15x5 header-search">
+		<input id="search-terms" class="element-large" type="text" name="search" value="<?= $keywords ?>">
 		<span class="frm-icon-element element-medium">
 			<i class="cmti cmti-search"></i>
 			<button id="btn-search">Search</button>
 		</span>
 	</div>
 </div>
-<div class="header-content clearfix">
-	<div class="header-actions col12x6">
+<div class="row header-content">
+	<div class="col col12x8 header-actions">
 		<span class="bold">Sort By:</span>
 		<span class="wrap-sort">
 			<?= $dataProvider->sort->link( 'title', [ 'class' => 'sort btn btn-medium' ] ) ?>
@@ -50,26 +53,19 @@ $statusFilter	= Yii::$app->request->getQueryParam( 'status' );
 			<?= $dataProvider->sort->link( 'udate', [ 'class' => 'sort btn btn-medium' ] ) ?>
 		</span>
 	</div>
-	<div class="header-actions col12x6 align align-right">
-		<span class="wrap-filters">
-			<span class="filter filter-text cmti cmti-listing <?= strcmp( $statusFilter, 'all' ) == 0 ? 'active' : '' ?>" column="status" filter="all" title="All"></span>
-			<span class="filter filter-text cmti cmti-envelope <?= strcmp( $statusFilter, 'new' ) == 0 ? 'active' : '' ?>" column="status" filter="new" title="New"></span>
-			<span class="filter filter-text cmti cmti-envelope-o <?= strcmp( $statusFilter, 'consumed' ) == 0 ? 'active' : '' ?>" column="status" filter="consumed" title="Consumed"></span>
-			<span class="filter filter-text cmti cmti-bin <?= strcmp( $statusFilter, 'trash' ) == 0 ? 'active' : '' ?>" column="status" filter="trash" title="Trash"></span>
-		</span>
+	<div class="col col12x4 header-actions align align-right">
+		<span class="wrap-filters"></span>
 	</div>
 </div>
-
 <div class="data-grid">
-	<div class="grid-header clearfix">
-		<div class="col12x6 info">
+	<div class="row grid-header">
+		<div class="col col12x6 info">
 			<?=CodeGenUtil::getPaginationDetail( $dataProvider ) ?>
 		</div>
-		<div class="col12x6 pagination">
+		<div class="col col12x6 pagination">
 			<?= LinkPager::widget( [ 'pagination' => $pagination, 'options' => [ 'class' => 'pagination-basic' ] ] ); ?>
 		</div>
 	</div>
-
 	<div class="grid-content">
 		<table>
 			<thead>
@@ -77,7 +73,8 @@ $statusFilter	= Yii::$app->request->getQueryParam( 'status' );
 					<th>Title</th>
 					<th>Message</th>
 					<th>Follow</th>
-					<th>Status</th>
+					<th>Consumed</th>
+					<th>Trash</th>
 					<th>Created At</th>
 					<th>Updated At</th>
 					<th>Actions</th>
@@ -103,7 +100,8 @@ $statusFilter	= Yii::$app->request->getQueryParam( 'status' );
 								<a href="<?= Url::toRoute( [ $notification->adminLink ], true ) ?>">Follow</a>
 							<?php } ?>
 						</td>
-						<td><?= $notification->getStatusStr() ?></td>
+						<td><?= $notification->getConsumedStr() ?></td>
+						<td><?= $notification->getTrashStr() ?></td>
 						<td><?= $notification->createdAt ?></td>
 						<td><?= $notification->modifiedAt ?></td>
 						<td class="actions">
@@ -134,11 +132,11 @@ $statusFilter	= Yii::$app->request->getQueryParam( 'status' );
 			</tbody>
 		</table>
 	</div>
-	<div class="grid-footer clearfix">
-		<div class="col12x6 info">
+	<div class="row grid-header">
+		<div class="col col12x6 info">
 			<?=CodeGenUtil::getPaginationDetail( $dataProvider ) ?>
 		</div>
-		<div class="col12x6 pagination">
+		<div class="col col12x6 pagination">
 			<?= LinkPager::widget( [ 'pagination' => $pagination, 'options' => [ 'class' => 'pagination-basic' ] ] ); ?>
 		</div>
 	</div>

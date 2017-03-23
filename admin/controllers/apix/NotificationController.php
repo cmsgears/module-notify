@@ -50,6 +50,5 @@ class NotificationController extends \cmsgears\core\common\controllers\base\Cont
 	}
 
 	// NotificationController ------------
-}
 
-?>
+}

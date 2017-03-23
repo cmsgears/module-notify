@@ -17,19 +17,21 @@ interface INotificationService extends \cmsgears\core\common\services\interfaces
 
 	public function getPageByUserId( $userId );
 
-	public function getPageByParent( $parentId, $parentType );
+	public function getPageByParent( $parentId, $parentType, $admin = false );
 
 	// Read ---------------
 
 	// Read - Models ---
 
-	public function getByParentStatus( $parentId, $parentType, $status = Notification::STATUS_NEW );
-
 	public function getRecent( $limit = 5, $config = [] );
 
-	public function getStatusCounts( $config = [] );
+	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] );
 
-	public function getStatusCountsByParent( $parentId, $parentType );
+	public function getCount( $consumed = false );
+
+	public function getUserCount( $userId, $consumed = false, $admin = false );
+
+	public function getCountByParent( $parentId, $parentType, $consumed = false );
 
 	// Read - Lists ----
 
@@ -46,6 +48,12 @@ interface INotificationService extends \cmsgears\core\common\services\interfaces
 	public function markConsumed( $notification );
 
 	public function markTrash( $notification );
+
+	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType );
+
+	public function applyBulkByUserId( $column, $action, $target, $userId );
+
+	public function applyBulkByAdmin( $column, $action, $target );
 
 	// Delete -------------
 

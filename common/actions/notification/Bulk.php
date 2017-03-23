@@ -11,7 +11,7 @@ use cmsgears\notify\common\models\entities\Notification;
 
 use cmsgears\core\common\utilities\AjaxUtil;
 
-class Delete extends \cmsgears\core\common\base\Action {
+class Bulk extends \cmsgears\core\common\base\Action {
 
 	// Variables ---------------------------------------------------
 
@@ -64,44 +64,36 @@ class Delete extends \cmsgears\core\common\base\Action {
 
 	// Delete --------------------------------
 
-	public function run( $id ) {
+	public function run() {
 
-		$notification	= $this->notificationService->getById( $id );
+		$action	= Yii::$app->request->post( 'action' );
+		$column	= Yii::$app->request->post( 'column' );
+		$target	= Yii::$app->request->post( 'target' );
 
-		if( isset( $notification ) ) {
-
-			$new	= 0;
+		if( isset( $action ) && isset( $column ) && isset( $target ) ) {
 
 			if( isset( $this->parentType ) && isset( $this->parentId ) ) {
 
-				if( $notification->parentType == $this->parentType && $notification->parentId == $this->parentId ) {
+				$target	= preg_split( '/,/', $target );
 
-					$notification	= $this->notificationService->delete( $notification );
-				}
-
-				$new 	= $this->notificationService->getCountByParent( $this->parentId, $this->parentType, false, false );
+				$this->notificationService->applyBulkByParent( $column, $action, $target, $this->parentId, $this->parentType );
 			}
 			else if( $this->admin ) {
 
-				$notification	= $this->notificationService->delete( $notification );
-				$new 			= $this->notificationService->getCount( false, $this->admin );
+				$target	= preg_split( '/,/', $target );
+
+				$this->notificationService->applyBulkByAdmin( $column, $action, $target );
 			}
 			else if( $this->user ) {
 
 				$user	= Yii::$app->user->getIdentity();
+				$target	= preg_split( '/,/', $target );
 
-				if( $notification->userId == $user->id ) {
-
-					$notification	= $this->notificationService->delete( $notification );
-				}
-
-				$new 	= $this->notificationService->getUserCount( $user->id, false, false );
+				$this->notificationService->applyBulkByUserId( $column, $action, $target, $user->id );
 			}
 
-			$data	= [ 'unread' => $new ];
-
 			// Trigger Ajax Success
-			return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ), $data );
+			return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ) );
 		}
 
 		// Trigger Ajax Failure
