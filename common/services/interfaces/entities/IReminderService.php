@@ -1,9 +1,6 @@
 <?php
 namespace cmsgears\notify\common\services\interfaces\entities;
 
-// Yii Imports
-use \Yii;
-
 // CMG Imports
 use cmsgears\core\common\services\interfaces\base\IEntityService;
 

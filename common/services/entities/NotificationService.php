@@ -4,10 +4,8 @@ namespace cmsgears\notify\common\services\entities;
 // Yii Imports
 use \Yii;
 use yii\data\Sort;
-use yii\db\Query;
 
 // CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\models\base\NotifyTables;
@@ -372,4 +370,5 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 	// Update -------------
 
 	// Delete -------------
+
 }

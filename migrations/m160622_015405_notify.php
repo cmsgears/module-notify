@@ -1,6 +1,4 @@
 <?php
-// CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
 
 class m160622_015405_notify extends \yii\db\Migration {
 

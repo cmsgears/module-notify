@@ -1,9 +1,6 @@
 <?php
 namespace cmsgears\notify\common\services\entities;
 
-// Yii Imports
-use \Yii;
-
 // CMG Imports
 use cmsgears\notify\common\models\base\NotifyTables;
 
@@ -106,4 +103,5 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 	// Update -------------
 
 	// Delete -------------
+
 }

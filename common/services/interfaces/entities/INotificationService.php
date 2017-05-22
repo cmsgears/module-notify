@@ -1,12 +1,6 @@
 <?php
 namespace cmsgears\notify\common\services\interfaces\entities;
 
-// Yii Imports
-use \Yii;
-
-// CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
-
 use cmsgears\notify\common\models\entities\Notification;
 
 interface INotificationService extends \cmsgears\core\common\services\interfaces\base\IResourceService {
