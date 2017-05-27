@@ -24,6 +24,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 	protected $userService;
 	protected $notificationService;
+	protected $reminderService;
 
 	protected $templateService;
 
@@ -37,6 +38,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 		$this->userService				= Yii::$app->factory->get( 'userService' );
 		$this->notificationService		= Yii::$app->factory->get( 'notificationService' );
+		$this->reminderService			= Yii::$app->factory->get( 'reminderService' );
 
 		$this->templateService			= Yii::$app->factory->get( 'templateService' );
 	}
@@ -54,13 +56,18 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 	public function getAdminStats() {
 
 		// Query
-		$notifications	= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
-		$new			= $this->notificationService->getCount( false, true );
+		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
+		$newNotifications	= $this->notificationService->getCount( false, true );
+
+		$reminders			= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
+		$newReminders		= $this->reminderService->getCount( false, true );
 
 		// Results
 		$stats							= parent::getAdminStats();
 		$stats[ 'notifications' ]		= $notifications;
-		$stats[ 'notificationCount' ]	= $new;
+		$stats[ 'notificationCount' ]	= $newNotifications;
+		$stats[ 'reminders' ]			= $reminders;
+		$stats[ 'reminderCount' ]		= $newReminders;
 
 		return $stats;
 	}

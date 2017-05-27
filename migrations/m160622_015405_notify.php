@@ -51,6 +51,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 		$this->createTable( $this->prefix . 'notify_event', [
 			'id' => $this->bigPrimaryKey( 20 ),
 			'siteId' => $this->bigInteger( 20 )->notNull(),
+			'userId' => $this->bigInteger( 20 ),
 			'createdBy' => $this->bigInteger( 20 )->notNull(),
 			'modifiedBy' => $this->bigInteger( 20 ),
 			'parentId' => $this->bigInteger( 20 ),
@@ -66,6 +67,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 			'postIntervalUnit' => $this->smallInteger( 6 )->defaultValue( 2 ),
 			'postReminderCount' => $this->smallInteger( 6 )->defaultValue( 0 ),
 			'postReminderInterval' => $this->smallInteger( 6 )->defaultValue( 0 ),
+			'admin' => $this->boolean()->notNull()->defaultValue( false ),
 			'multiUser' => $this->boolean()->notNull()->defaultValue( false ),
 			'status' => $this->smallInteger( 6 )->defaultValue( 0 ),
 			'createdAt' => $this->dateTime()->notNull(),
@@ -77,6 +79,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 
 		// Index for columns site, creator and modifier
 		$this->createIndex( 'idx_' . $this->prefix . 'event_site', $this->prefix . 'notify_event', 'siteId' );
+		$this->createIndex( 'idx_' . $this->prefix . 'event_user', $this->prefix . 'notify_event', 'userId' );
 		$this->createIndex( 'idx_' . $this->prefix . 'event_creator', $this->prefix . 'notify_event', 'createdBy' );
 		$this->createIndex( 'idx_' . $this->prefix . 'event_modifier', $this->prefix . 'notify_event', 'modifiedBy' );
 	}
@@ -100,9 +103,16 @@ class m160622_015405_notify extends \yii\db\Migration {
 		$this->createTable( $this->prefix . 'notify_event_reminder', [
 			'id' => $this->bigPrimaryKey( 20 ),
 			'eventId' => $this->bigInteger( 20 )->notNull(),
-			'userId' => $this->bigInteger( 20 )->notNull(),
+			'userId' => $this->bigInteger( 20 ),
+			'title' => $this->string( Yii::$app->core->xxLargeText )->notNull(),
+			'link' => $this->string( Yii::$app->core->xxLargeText )->defaultValue( null ),
+			'admin' => $this->boolean()->notNull()->defaultValue( false ),
+			'adminLink' => $this->string( Yii::$app->core->xxLargeText )->defaultValue( null ),
+			'consumed' => $this->boolean()->notNull()->defaultValue( false ),
+			'trash' => $this->boolean()->notNull()->defaultValue( false ),
 			'scheduledAt' => $this->dateTime(),
-			'status' => $this->smallInteger( 6 )->defaultValue( 0 ),
+			'content' => $this->text(),
+			'data' => $this->text()
 		], $this->options );
 
 		// Index for columns user
@@ -119,7 +129,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 			'modifiedBy' => $this->bigInteger( 20 ),
 			'parentId' => $this->bigInteger( 20 ),
 			'parentType' => $this->string( Yii::$app->core->mediumText ),
-			'title' => $this->string( Yii::$app->core->xLargeText )->notNull(),
+			'title' => $this->string( Yii::$app->core->xxLargeText )->notNull(),
 			'type' => $this->string( Yii::$app->core->mediumText )->notNull()->defaultValue( 'default' ),
 			'ip' => $this->string( Yii::$app->core->mediumText )->defaultValue( null ),
 			'agent' => $this->string( Yii::$app->core->xLargeText )->defaultValue( null ),
@@ -147,6 +157,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 			'userId' => $this->bigInteger( 20 )->notNull(),
 			'parentId' => $this->bigInteger( 20 ),
 			'parentType' => $this->string( Yii::$app->core->mediumText ),
+			'title' => $this->string( Yii::$app->core->xxLargeText )->notNull(),
 			'type' => $this->string( Yii::$app->core->mediumText )->notNull()->defaultValue( 'default' ),
 			'ip' => $this->string( Yii::$app->core->mediumText )->defaultValue( null ),
 			'agent' => $this->string( Yii::$app->core->xLargeText )->defaultValue( null ),
@@ -164,6 +175,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 
 		// Event
 		$this->addForeignKey( 'fk_' . $this->prefix . 'event_site', $this->prefix . 'notify_event', 'siteId', $this->prefix . 'core_site', 'id', 'CASCADE' );
+		$this->addForeignKey( 'fk_' . $this->prefix . 'event_user', $this->prefix . 'notify_event', 'userId', $this->prefix . 'core_user', 'id', 'CASCADE' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'event_creator', $this->prefix . 'notify_event', 'createdBy', $this->prefix . 'core_user', 'id', 'RESTRICT' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'event_modifier', $this->prefix . 'notify_event', 'modifiedBy', $this->prefix . 'core_user', 'id', 'SET NULL' );
 
@@ -204,6 +216,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 
 		// Event
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'event_site', $this->prefix . 'notify_event' );
+		$this->dropForeignKey( 'fk_' . $this->prefix . 'event_user', $this->prefix . 'notify_event' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'event_creator', $this->prefix . 'notify_event' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'event_modifier', $this->prefix . 'notify_event' );
 

@@ -111,11 +111,10 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
 			[ [ 'id', 'content', 'data' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
-			[ [ 'title', 'agent' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xLargeText ],
-			[ [ 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
+			[ 'agent', 'string', 'min' => 1, 'max' => Yii::$app->core->xLargeText ],
+			[ [ 'title', 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
 			// Other
-			[ [ 'admin' ], 'boolean' ],
-			[ [ 'consumed', 'trash' ], 'boolean' ],
+			[ [ 'admin', 'consumed', 'trash' ], 'boolean' ],
 			[ [ 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
@@ -173,11 +172,6 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
 	public function getUser() {
 
 		return $this->hasOne( User::className(), [ 'id' => 'userId' ] );
-	}
-
-	public function getStatusStr() {
-
-		return self::$statusMap[ $this->status ];
 	}
 
 	public function isNew() {

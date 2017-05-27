@@ -56,6 +56,7 @@ class Notify extends \yii\base\Component {
 
 		$factory = Yii::$app->factory->getContainer();
 
+		$factory->set( 'cmsgears\notify\common\services\interfaces\entities\IActivityService', 'cmsgears\notify\common\services\entities\ActivityService' );
 		$factory->set( 'cmsgears\notify\common\services\interfaces\entities\INotificationService', 'cmsgears\notify\common\services\entities\NotificationService' );
 		$factory->set( 'cmsgears\notify\common\services\interfaces\entities\IEventService', 'cmsgears\notify\common\services\entities\EventService' );
 		$factory->set( 'cmsgears\notify\common\services\interfaces\entities\IReminderService', 'cmsgears\notify\common\services\entities\ReminderService' );
@@ -65,6 +66,7 @@ class Notify extends \yii\base\Component {
 
 		$factory = Yii::$app->factory->getContainer();
 
+		$factory->set( 'activityService', 'cmsgears\notify\common\services\entities\ActivityService' );
 		$factory->set( 'notificationService', 'cmsgears\notify\common\services\entities\NotificationService' );
 		$factory->set( 'eventService', 'cmsgears\notify\common\services\entities\EventService' );
 		$factory->set( 'reminderService', 'cmsgears\notify\common\services\entities\ReminderService' );

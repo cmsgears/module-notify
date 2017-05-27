@@ -148,7 +148,7 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 		// Reporting --------
 
-		$config[ 'report-col' ]	= [ 'content', 'createdAt' ];
+		$config[ 'report-col' ]	= [ 'title', 'content', 'createdAt' ];
 
 		// Result -----------
 
@@ -226,7 +226,7 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 	public function update( $model, $config = [] ) {
 
 		return parent::update( $model, [
-			'attributes' => [ 'name', 'email', 'avatarUrl', 'websiteUrl', 'rating', 'content' ]
+			'attributes' => [ 'title', 'content' ]
 		]);
 	}
 

@@ -9,15 +9,16 @@ use yii\data\Sort;
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\models\base\NotifyTables;
+use cmsgears\notify\common\models\entities\Activity;
 
-use cmsgears\notify\common\services\interfaces\entities\IEventService;
+use cmsgears\notify\common\services\interfaces\entities\IActivityService;
 
 use cmsgears\core\common\services\traits\ResourceTrait;
 
 /**
- * The class EventService is base class to perform database activities for Event Entity.
+ * The class ActivityService is base class to perform database activities for Activity Entity.
  */
-class EventService extends \cmsgears\core\common\services\base\EntityService implements IEventService {
+class ActivityService extends \cmsgears\core\common\services\base\EntityService implements IActivityService {
 
 	// Variables ---------------------------------------------------
 
@@ -27,11 +28,11 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\entities\Event';
+	public static $modelClass	= '\cmsgears\notify\common\models\entities\Activity';
 
-	public static $modelTable	= NotifyTables::TABLE_EVENT;
+	public static $modelTable	= NotifyTables::TABLE_ACTIVITY;
 
-	public static $parentType	= NotifyGlobal::TYPE_EVENT;
+	public static $parentType	= null;
 
 	// Protected --------------
 
@@ -59,7 +60,7 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 
 	// CMG parent classes --------------------
 
-	// EventService -------------------
+	// NotificationService -------------------
 
 	// Data Provider ------
 
@@ -77,17 +78,23 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 					'default' => SORT_DESC,
 					'label' => 'User'
 				],
-				'name' => [
-					'asc' => [ 'name' => SORT_ASC ],
-					'desc' => [ 'name' => SORT_DESC ],
+				'title' => [
+					'asc' => [ 'title' => SORT_ASC ],
+					'desc' => [ 'title' => SORT_DESC ],
 					'default' => SORT_DESC,
-					'label' => 'Name'
+					'label' => 'Title'
 				],
 				'type' => [
 					'asc' => [ 'type' => SORT_ASC ],
 					'desc' => [ 'type' => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Type'
+				],
+				'agent' => [
+					'asc' => [ 'agent' => SORT_ASC ],
+					'desc' => [ 'agent' => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Agent'
 				],
 				'cdate' => [
 					'asc' => [ 'createdAt' => SORT_ASC ],
@@ -123,18 +130,11 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 
 		// Reporting --------
 
-		$config[ 'report-col' ]	= [ 'name', 'content', 'createdAt' ];
+		$config[ 'report-col' ]	= [ 'title', 'content', 'createdAt' ];
 
 		// Result -----------
 
 		return parent::findPage( $config );
-	}
-
-	public function getPageForAdmin() {
-
-		$modelTable	= self::$modelTable;
-
-		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
 	}
 
 	public function getPageByUserId( $userId ) {
@@ -144,29 +144,9 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
 	}
 
-	public function getPageByParent( $parentId, $parentType, $admin = false ) {
-
-		$modelTable	= self::$modelTable;
-
-		return $this->getPage( [ 'conditions' => [ "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType, "$modelTable.admin" => $admin ] ] );
-	}
-
 	// Read ---------------
 
 	// Read - Models ---
-	public function getNewEvents() {
-
-		$modelClass	= static::$modelClass;
-
-		return $modelClass::findNewEvents();
-	}
-
-	public function getByParentId( $parentId ) {
-
-		$modelClass	= static::$modelClass;
-
-		return $modelClass::findByParentId( $parentId );
-	}
 
 	// Read - Lists ----
 
@@ -176,7 +156,61 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 
 	// Create -------------
 
+	public function create( $model, $config = [] ) {
+
+		$model->agent	= Yii::$app->request->userAgent;
+		$model->ip		= Yii::$app->request->userIP;
+
+		return parent::create( $model, $config );
+	}
+
 	// Update -------------
+
+	public function update( $model, $config = [] ) {
+
+		return parent::update( $model, [
+			'attributes' => [ 'title', 'content' ]
+		]);
+	}
+
+	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType ) {
+
+		foreach ( $target as $id ) {
+
+			$notification = $this->getById( $id );
+
+			if( isset( $notification ) && $notification->parentId == $parentId && $notification->parentType == $parentType ) {
+
+				$this->applyBulk( $notification, $column, $action, $target );
+			}
+		}
+	}
+
+	public function applyBulkByUserId( $column, $action, $target, $userId ) {
+
+		foreach ( $target as $id ) {
+
+			$notification = $this->getById( $id );
+
+			if( isset( $notification ) && $notification->userId == $userId ) {
+
+				$this->applyBulk( $notification, $column, $action, $target );
+			}
+		}
+	}
+
+	protected function applyBulk( $model, $column, $action, $target ) {
+
+		switch( $column ) {
+
+			case 'id': {
+
+				$this->delete( $model );
+
+				break;
+			}
+		}
+	}
 
 	// Delete -------------
 
@@ -184,7 +218,7 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 
 	// CMG parent classes --------------------
 
-	// EventService -------------------
+	// NotificationService -------------------
 
 	// Data Provider ------
 
