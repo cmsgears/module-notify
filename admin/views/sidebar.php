@@ -61,7 +61,7 @@ $reminderCount2	= "<span class='upd-count upd-count-notification-all upd-count-$
 <?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
 	<div id="sidebar-reminder" class="collapsible-tab has-children <?php if( strcmp( $parent, 'sidebar-reminder' ) == 0 ) echo 'active'; ?>">
 		<div class="row tab-header">
-			<div class="tab-icon"><span class="cmti cmti-alarm"></span></div>
+			<div class="tab-icon"><span class="cmti cmti-bell"></span></div>
 			<div class="tab-title">Reminders <?= $reminderCount1 ?></div>
 		</div>
 		<div class="tab-content clear <?php if( strcmp( $parent, 'sidebar-reminder' ) == 0 ) echo 'expanded visible';?>">
