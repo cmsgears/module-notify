@@ -162,7 +162,7 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
 	}
 
-	public function getPageByUserId( $userId ) {
+	public function getPageByUserId( $userId, $admin = false ) {
 
 		$modelTable	= self::$modelTable;
 
@@ -219,6 +219,14 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 		$model->ip		= Yii::$app->request->userIP;
 
 		return parent::create( $model, $config );
+	}
+
+	public function createByParams( $params = [], $config = [] ) {
+
+		$params[ 'admin' ]		= isset( $params[ 'admin' ] ) ? $params[ 'admin' ] : false;
+		$params[ 'adminLink' ]	= isset( $params[ 'adminLink' ] ) ? $params[ 'adminLink' ] : null;
+
+		return parent::createByParams( $params, $config );
 	}
 
 	// Update -------------
