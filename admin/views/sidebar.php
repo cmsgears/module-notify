@@ -10,18 +10,18 @@ $user	= Yii::$app->user->getIdentity();
 
 $adminStats		= Yii::$app->eventManager->getAdminStats();
 $count			= $adminStats[ 'notificationCount' ];
-$notifCount1	= "<span class='right inline-block'>
-					<span class='upd-count upd-count-rounded upd-count-notification-all circled1 valign-center upd-count-$count'>$count</span>
-				</span>";
+$notifCount1	= "<span class=\"right inline-block\">
+					<span class=\"upd-count upd-count-rounded upd-count-notification-all circled1 valign-center upd-count-$count\">$count</span>
+					</span>";
 
-$notifCount2	= "<span class='upd-count upd-count-notification-all upd-count-$count right padding padding-medium-h'>$count</span>";
+$notifCount2	= "<span class=\"upd-count upd-count-notification-all upd-count-$count right padding padding-medium-h\">$count</span>";
 
 $count			= $adminStats[ 'reminderCount' ];
-$reminderCount1	= "<span class='right inline-block'>
-<span class='upd-count upd-count-rounded upd-count-notification-all circled1 valign-center upd-count-$count'>$count</span>
-</span>";
+$reminderCount1	= "<span class=\"right inline-block\">
+					<span class=\"upd-count upd-count-rounded upd-count-notification-all circled1 valign-center upd-count-$count\">$count</span>
+					</span>";
 
-$reminderCount2	= "<span class='upd-count upd-count-notification-all upd-count-$count right padding padding-medium-h'>$count</span>";
+$reminderCount2	= "<span class=\"upd-count upd-count-notification-all upd-count-$count right padding padding-medium-h\">$count</span>";
 ?>
 
 <?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
