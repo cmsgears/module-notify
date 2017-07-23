@@ -19,6 +19,10 @@ interface IActivityService extends \cmsgears\core\common\services\interfaces\bas
 
 	// Update -------------
 
+	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType );
+
+	public function applyBulkByUserId( $column, $action, $target, $userId );
+
 	// Delete -------------
 
 }

@@ -2,14 +2,12 @@
 namespace cmsgears\notify\common\services\entities;
 
 // Yii Imports
-use \Yii;
+use Yii;
 use yii\data\Sort;
 
 // CMG Imports
-use cmsgears\notify\common\config\NotifyGlobal;
-
+use cmsgears\core\common\models\base\CoreTables;
 use cmsgears\notify\common\models\base\NotifyTables;
-use cmsgears\notify\common\models\entities\Activity;
 
 use cmsgears\notify\common\services\interfaces\entities\IActivityService;
 
@@ -60,24 +58,26 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 
 	// CMG parent classes --------------------
 
-	// NotificationService -------------------
+	// ActivityService -----------------------
 
 	// Data Provider ------
 
 	public function getPage( $config = [] ) {
 
-		$modelTable	= self::$modelTable;
+		$modelClass		= static::$modelClass;
+		$modelTable		= static::$modelTable;
+		$userTable		= CoreTables::TABLE_USER;
 
 		// Sorting ----------
 
 		$sort = new Sort([
 			'attributes' => [
-				'user' => [
-					'asc' => [ 'user' => SORT_ASC ],
-					'desc' => [ 'user' => SORT_DESC ],
+	            'user' => [
+					'asc' => [ "`$userTable`.`firstName`" => SORT_ASC, "`$userTable`.`lastName`" => SORT_ASC ],
+					'desc' => [ "`$userTable`.`firstName`" => SORT_DESC, "`$userTable`.`lastName`" => SORT_DESC ],
 					'default' => SORT_DESC,
-					'label' => 'User'
-				],
+	                'label' => 'User'
+	            ],
 				'title' => [
 					'asc' => [ 'title' => SORT_ASC ],
 					'desc' => [ 'title' => SORT_DESC ],
@@ -117,7 +117,23 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 			$config[ 'sort' ] = $sort;
 		}
 
+		// Query ------------
+
+		if( !isset( $config[ 'query' ] ) ) {
+
+			$config[ 'hasOne' ] = true;
+		}
+
 		// Filters ----------
+
+		// Params
+		$type 	= Yii::$app->request->getQueryParam( 'type' );
+
+		// Filter - Type
+		if( isset( $type ) ) {
+
+			$config[ 'conditions' ][ "$modelTable.type" ]	= $type;
+		}
 
 		// Searching --------
 
@@ -125,16 +141,21 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 
 		if( isset( $searchCol ) ) {
 
-			$config[ 'search-col' ] = $searchCol;
+			$search = [ 'title' => "$modelTable.title", 'content' => "$modelTable.content" ];
+
+			$config[ 'search-col' ] = $search[ $searchCol ];
 		}
 
 		// Reporting --------
 
-		$config[ 'report-col' ]	= [ 'title', 'content', 'createdAt' ];
+		$config[ 'report-col' ]	= [
+			'title' => "$modelTable.title", 'content' => "$modelTable.content",
+			'type' => "$modelTable.type"
+		];
 
 		// Result -----------
 
-		return parent::findPage( $config );
+		return parent::getPage( $config );
 	}
 
 	public function getPageByUserId( $userId ) {
@@ -203,9 +224,17 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 
 		switch( $column ) {
 
-			case 'id': {
+			case 'model': {
 
-				$this->delete( $model );
+				switch( $action ) {
+
+					case 'delete': {
+
+						$this->delete( $model );
+
+						break;
+					}
+				}
 
 				break;
 			}
@@ -218,7 +247,7 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 
 	// CMG parent classes --------------------
 
-	// NotificationService -------------------
+	// ActivityService -----------------------
 
 	// Data Provider ------
 

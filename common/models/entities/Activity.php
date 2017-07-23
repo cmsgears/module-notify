@@ -115,7 +115,7 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
 	 */
 	public function getUser() {
 
-		return $this->hasOne( Activity::className(), [ 'id' => 'userId' ] );
+		return $this->hasOne( User::className(), [ 'id' => 'userId' ] );
 	}
 
 	// Static Methods ----------------------------------------------

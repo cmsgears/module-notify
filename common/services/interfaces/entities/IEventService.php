@@ -4,9 +4,15 @@ namespace cmsgears\notify\common\services\interfaces\entities;
 // CMG Imports
 use cmsgears\core\common\services\interfaces\base\IEntityService;
 
-interface IEventService extends \cmsgears\core\common\services\interfaces\base\IEntityService {
+interface IEventService extends IEntityService {
 
 	// Data Provider ------
+
+	public function getPageForAdmin();
+
+	public function getPageByUserId( $userId );
+
+	public function getPageByParent( $parentId, $parentType, $admin = false );
 
 	// Read ---------------
 
@@ -23,6 +29,10 @@ interface IEventService extends \cmsgears\core\common\services\interfaces\base\I
 	// Create -------------
 
 	// Update -------------
+
+	public function updateStatus( $model, $status );
+
+	public function trash( $model );
 
 	// Delete -------------
 

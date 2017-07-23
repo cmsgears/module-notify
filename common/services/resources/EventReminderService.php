@@ -1,22 +1,22 @@
 <?php
-namespace cmsgears\notify\common\services\entities;
+namespace cmsgears\notify\common\services\resources;
 
 // Yii Imports
-use \Yii;
+use Yii;
 use yii\data\Sort;
 
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\models\base\NotifyTables;
-use cmsgears\notify\common\models\entities\Reminder;
+use cmsgears\notify\common\models\resources\EventReminder;
 
-use cmsgears\notify\common\services\interfaces\entities\IReminderService;
+use cmsgears\notify\common\services\interfaces\resources\IEventReminderService;
 
 /**
- * The class ReminderService is base class to perform database activities for Reminder Entity.
+ * The class EventReminderService is base class to perform database activities for EventReminder Entity.
  */
-class ReminderService extends \cmsgears\core\common\services\base\EntityService implements IReminderService {
+class EventReminderService extends \cmsgears\core\common\services\base\EntityService implements IEventReminderService {
 
 	// Variables ---------------------------------------------------
 
@@ -26,7 +26,7 @@ class ReminderService extends \cmsgears\core\common\services\base\EntityService 
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\entities\Reminder';
+	public static $modelClass	= '\cmsgears\notify\common\models\resources\EventReminder';
 
 	public static $modelTable	= NotifyTables::TABLE_EVENT_REMINDER;
 
@@ -56,7 +56,7 @@ class ReminderService extends \cmsgears\core\common\services\base\EntityService 
 
 	// CMG parent classes --------------------
 
-	// ReminderService -----------------------
+	// EventReminderService ------------------
 
 	// Data Provider ------
 
@@ -165,17 +165,17 @@ class ReminderService extends \cmsgears\core\common\services\base\EntityService 
 
 	public function getRecent( $limit = 5, $config = [] ) {
 
-		return Reminder::find()->where( $config[ 'conditions' ] )->andWhere( "scheduledAt <= NOW()" )->limit( $limit )->orderBy( 'scheduledAt ASC' )->all();
+		return EventReminder::find()->where( $config[ 'conditions' ] )->andWhere( "scheduledAt <= NOW()" )->limit( $limit )->orderBy( 'scheduledAt ASC' )->all();
 	}
 
 	public function getCount( $consumed = false, $admin = false ) {
 
-		return Reminder::find()->where( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+		return EventReminder::find()->where( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
 	}
 
 	public function getUserCount( $userId, $consumed = false, $admin = false ) {
 
-		return Reminder::queryByUserId( $userId )->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+		return EventReminder::queryByUserId( $userId )->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
 	}
 
 	// Read - Lists ----
@@ -303,7 +303,7 @@ class ReminderService extends \cmsgears\core\common\services\base\EntityService 
 
 	// CMG parent classes --------------------
 
-	// ReminderService -------------------
+	// EventReminderService ------------------
 
 	// Data Provider ------
 

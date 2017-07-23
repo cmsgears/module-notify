@@ -2,14 +2,13 @@
 namespace cmsgears\notify\admin\controllers;
 
 // Yii Imports
-use \Yii;
-use yii\filters\VerbFilter;
+use Yii;
 use yii\helpers\Url;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-class EventController extends \cmsgears\core\admin\controllers\base\Controller {
+class EventController extends \cmsgears\core\admin\controllers\base\CrudController {
 
 	// Variables ---------------------------------------------------
 
@@ -29,13 +28,26 @@ class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 
 		parent::init();
 
+		// Permission
 		$this->crudPermission 	= CoreGlobal::PERM_CORE;
+
+		// Services
 		$this->modelService		= Yii::$app->factory->get( 'eventService' );
 
+		// Sidebar
 		$this->sidebar 			= [ 'parent' => 'sidebar-reminder', 'child' => 'event' ];
 
+		// Return Url
 		$this->returnUrl		= Url::previous( 'events' );
 		$this->returnUrl		= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/event/all' ], true );
+
+		// Breadcrumbs
+		$this->breadcrumbs		= [
+			'all' => [ [ 'label' => 'Events' ] ],
+			'create' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Add' ] ],
+			'update' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Update' ] ],
+			'delete' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Delete' ] ]
+		];
 	}
 
 	// Instance methods --------------------------------------------
@@ -45,26 +57,6 @@ class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 	// Yii parent classes --------------------
 
 	// yii\base\Component -----
-
-	public function behaviors() {
-
-		return [
-			'rbac' => [
-				'class' => Yii::$app->core->getRbacFilterClass(),
-				'actions' => [
-					'index'  => [ 'permission' => $this->crudPermission ],
-					'all'    => [ 'permission' => $this->crudPermission ]
-				]
-			],
-			'verbs' => [
-				'class' => VerbFilter::className(),
-				'actions' => [
-					'index'  => [ 'get' ],
-					'all'   => [ 'get' ]
-				]
-			]
-		];
-	}
 
 	// yii\base\Controller ----
 
@@ -81,7 +73,7 @@ class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 
 	public function actionAll() {
 
-		Url::remember( [ 'event/all' ], 'events' );
+		Url::remember( Yii::$app->request->getUrl(), 'events' );
 
 		$dataProvider = $this->modelService->getPageForAdmin();
 

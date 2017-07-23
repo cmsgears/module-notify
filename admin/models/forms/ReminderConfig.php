@@ -1,7 +1,7 @@
 <?php
 namespace cmsgears\notify\admin\models\forms;
 
-class NotificationConfig extends \cmsgears\core\common\models\forms\JsonModel {
+class ReminderConfig extends \cmsgears\core\common\models\forms\JsonModel {
 
 	// Variables ---------------------------------------------------
 
@@ -69,5 +69,6 @@ class NotificationConfig extends \cmsgears\core\common\models\forms\JsonModel {
 
 	// Validators ----------------------------
 
-	// NotificationConfig --------------------
+	// ReminderConfig ------------------------
+
 }

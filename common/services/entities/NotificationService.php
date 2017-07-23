@@ -66,7 +66,8 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 	public function getPage( $config = [] ) {
 
-		$modelTable	= self::$modelTable;
+		$modelClass		= static::$modelClass;
+		$modelTable		= static::$modelTable;
 
 		// Sorting ----------
 
@@ -77,6 +78,30 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 					'desc' => ['title' => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Title'
+				],
+				'type' => [
+					'asc' => [ 'type' => SORT_ASC ],
+					'desc' => ['type' => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Type'
+				],
+				'ip' => [
+					'asc' => [ 'ip' => SORT_ASC ],
+					'desc' => ['ip' => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'IP'
+				],
+				'agent' => [
+					'asc' => [ 'agent' => SORT_ASC ],
+					'desc' => ['agent' => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Agent'
+				],
+				'admin' => [
+					'asc' => [ 'admin' => SORT_ASC ],
+					'desc' => ['admin' => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Admin'
 				],
 				'consumed' => [
 					'asc' => [ 'consumed' => SORT_ASC ],
@@ -89,12 +114,6 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 					'desc' => ['trash' => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Trash'
-				],
-				'agent' => [
-					'asc' => [ 'agent' => SORT_ASC ],
-					'desc' => ['agent' => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'Agent'
 				],
 				'cdate' => [
 					'asc' => [ 'createdAt' => SORT_ASC ],
@@ -115,6 +134,13 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 		if( !isset( $config[ 'sort' ] ) ) {
 
 			$config[ 'sort' ] = $sort;
+		}
+
+		// Query ------------
+
+		if( !isset( $config[ 'query' ] ) ) {
+
+			$config[ 'hasOne' ] = true;
 		}
 
 		// Filters ----------
@@ -143,16 +169,21 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 		if( isset( $searchCol ) ) {
 
-			$config[ 'search-col' ] = $searchCol;
+			$search = [ 'title' => "$modelTable.title", 'content' => "$modelTable.content" ];
+
+			$config[ 'search-col' ] = $search[ $searchCol ];
 		}
 
 		// Reporting --------
 
-		$config[ 'report-col' ]	= [ 'title', 'content', 'createdAt' ];
+		$config[ 'report-col' ]	= [
+			'title' => "$modelTable.title", 'content' => "$modelTable.content",
+			'consumed' => "$modelTable.consumed", 'trash' => "$modelTable.trash"
+		];
 
 		// Result -----------
 
-		return parent::findPage( $config );
+		return parent::getPage( $config );
 	}
 
 	public function getPageForAdmin() {
@@ -347,6 +378,20 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 			case 'trash': {
 
 				$this->markTrash( $model );
+
+				break;
+			}
+			case 'model': {
+
+				switch( $action ) {
+
+					case 'delete': {
+
+						$this->delete( $model );
+
+						break;
+					}
+				}
 
 				break;
 			}

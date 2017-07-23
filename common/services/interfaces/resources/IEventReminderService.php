@@ -1,10 +1,10 @@
 <?php
-namespace cmsgears\notify\common\services\interfaces\entities;
+namespace cmsgears\notify\common\services\interfaces\resources;
 
 // CMG Imports
 use cmsgears\core\common\services\interfaces\base\IEntityService;
 
-interface IReminderService extends \cmsgears\core\common\services\interfaces\base\IEntityService {
+interface IEventReminderService extends IEntityService {
 
 	// Data Provider ------
 

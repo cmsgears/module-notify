@@ -1,119 +1,71 @@
 <?php
 // Yii Imports
-use yii\helpers\Html;
-use yii\widgets\LinkPager;
 use yii\helpers\Url;
 
 // CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
-use cmsgears\core\common\utilities\CodeGenUtil;
+use cmsgears\notify\common\models\entities\Event;
+
+use cmsgears\widgets\popup\Popup;
+
+use cmsgears\widgets\grid\DataGrid;
 
 $coreProperties = $this->context->getCoreProperties();
-$this->title 	= 'All Events | ' . $coreProperties->getSiteTitle();
+$this->title	= 'Events | ' . $coreProperties->getSiteTitle();
 
-// Data
-$pagination		= $dataProvider->getPagination();
-$models			= $dataProvider->getModels();
-
-// Searching
-$keywords		= Yii::$app->request->getQueryParam( 'keywords' );
-
-// Sorting
-$sortOrder		= Yii::$app->request->getQueryParam( 'sort' );
-
-if( !isset( $sortOrder ) ) {
-
-	$sortOrder	= '';
-}
+// Templates
+$moduleTemplates	= '@cmsgears/module-notify/admin/views/templates';
 ?>
-<div class="row header-content">
-	<div class="col-small col15x10 header-actions">
-		<span class="frm-icon-element element-small">
-			<i class="cmti cmti-plus"></i>
-			<?= Html::a( 'Add', [ 'create' ], [ 'class' => 'btn' ] ) ?>
-		</span>
-	</div>
-	<div class="col-small col15x5 header-search">
-		<input id="search-terms" class="element-large" type="text" name="search" value="<?= $keywords ?>">
-		<span class="frm-icon-element element-medium">
-			<i class="cmti cmti-search"></i>
-			<button id="btn-search">Search</button>
-		</span>
-	</div>
-</div>
-<div class="row header-content">
-	<div class="col col12x8 header-actions">
-		<span class="bold">Sort By:</span>
-		<span class="wrap-sort">
-			<?= $dataProvider->sort->link( 'name', [ 'class' => 'sort btn btn-medium' ] ) ?>
-			<?= $dataProvider->sort->link( 'cdate', [ 'class' => 'sort btn btn-medium' ] ) ?>
-			<?= $dataProvider->sort->link( 'udate', [ 'class' => 'sort btn btn-medium' ] ) ?>
-		</span>
-	</div>
-	<div class="col col12x4 header-actions align align-right">
-		<span class="wrap-filters"></span>
-	</div>
-</div>
-<div class="data-grid">
-	<div class="row grid-header">
-		<div class="col col12x6 info">
-			<?=CodeGenUtil::getPaginationDetail( $dataProvider ) ?>
-		</div>
-		<div class="col col12x6 pagination">
-			<?= LinkPager::widget( [ 'pagination' => $pagination, 'options' => [ 'class' => 'pagination-basic' ] ] ); ?>
-		</div>
-	</div>
-	<div class="grid-content">
-		<table>
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Status</th>
-					<th>Type</th>
-					<th>Multi</th>
-					<th>Pre Count</th>
-					<th>Pre Interval</th>
-					<th>Post Count</th>
-					<th>Post Interval</th>
-					<th>Pre Unit</th>
-					<th>Post Unit</th>
-					<th>Created At</th>
-					<th>Updated At</th>
-					<th>Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-				<?php
+<?= DataGrid::widget([
+	'dataProvider' => $dataProvider, 'add' => false, 'addUrl' => 'create', 'data' => [ ],
+	'title' => 'Events', 'options' => [ 'class' => 'grid-data grid-data-admin' ],
+	'searchColumns' => [ 'name' => 'Name', 'content' => 'Content' ],
+	'sortColumns' => [
+		'name' => 'Name', 'slug' => 'Slug', 'status' => 'Status', 'multi' => 'Multi Users',
+		'cdate' => 'Created At', 'udate' => 'Updated At', 'sdate' => 'Scheduled At'
+	],
+	'filters' => [ 'status' => [ 'new' => 'New', 'trash' => 'Trash' ], 'multi' => [ 'multi' => 'Multi Users' ] ],
+	'reportColumns' => [
+		'name' => [ 'title' => 'Name', 'type' => 'text' ],
+		'slug' => [ 'title' => 'Slug', 'type' => 'text' ],
+		'content' => [ 'title' => 'Content', 'type' => 'text' ],
+		'status' => [ 'title' => 'Status', 'type' => 'select', 'options' => Event::$statusMap ],
+		'multi' => [ 'title' => 'Multi Users', 'type' => 'flag' ]
+	],
+	'bulkPopup' => 'popup-grid-bulk',
+	'bulkActions' => [
+		'status' => [ 'trash' => 'Trash' ],
+		'model' => [ 'delete' => 'Delete' ]
+	],
+	'header' => false, 'footer' => true,
+	'grid' => true, 'columns' => [ 'root' => 'colf colf15', 'factor' => [ null, 'x3', 'x3', null, null, null, null, null, null, null, null ] ],
+	'gridColumns' => [
+		'bulk' => 'Action',
+		'name' => 'Name',
+		'user' => [ 'title' => 'User', 'generate' => function( $model ) { return isset( $model->user ) ? $model->user->getName() : null; } ],
+		'type' => 'Type',
+		'multi' => [ 'title' => 'Old', 'generate' => function( $model ) { return $model->getMultiStr(); } ],
+		'status' => [ 'title' => 'Trash', 'generate' => function( $model ) { return $model->getStatusStr(); } ],
+		'preReminderCount' => 'Pre Count',
+		'preReminderInterval' => [ 'title' => 'Pre Interval', 'generate' => function( $model ) { return $model->getPreIntervalStr(); } ],
+		'postReminderCount' => 'Post Count',
+		'postReminderInterval' => [ 'title' => 'Post Interval', 'generate' => function( $model ) { return $model->getPostIntervalStr(); } ],
+		'actions' => 'Actions'
+	],
+	'gridCards' => [ 'root' => 'col col12', 'factor' => 'x3' ],
+	'templateDir' => '@themes/admin/views/templates/widget/grid',
+	//'dataView' => "$moduleTemplates/grid/data/event",
+	//'cardView' => "$moduleTemplates/grid/cards/event",
+	//'actionView' => "$moduleTemplates/grid/actions/event"
+]) ?>
 
-					foreach( $models as $event ) {
+<?= Popup::widget([
+	'title' => 'Update Events', 'size' => 'medium',
+	'templateDir' => Yii::getAlias( '@themes/admin/views/templates/widget/popup/grid' ), 'template' => 'bulk',
+	'data' => [ 'model' => 'Event', 'app' => 'main', 'controller' => 'crud', 'action' => 'bulk', 'url' => "notify/event/bulk" ]
+]) ?>
 
-						$id 	= $event->id;
-				?>
-					<tr>
-						<td><?= $event->name ?></td>
-						<td><?= $event->getStatusStr() ?></td>
-						<td><?= $event->type ?></td>
-						<td><?= $event->getMultiUserStr() ?></td>
-						<td><?= $event->preReminderCount ?></td>
-						<td><?= $event->preReminderInterval ?></td>
-						<td><?= $event->postReminderCount ?></td>
-						<td><?= $event->postReminderInterval ?></td>
-						<td><?= $event->preIntervalUnit ?></td>
-						<td><?= $event->postIntervalUnit ?></td>
-						<td><?= $event->createdAt ?></td>
-						<td><?= $event->modifiedAt ?></td>
-						<td class="actions"></td>
-					</tr>
-				<?php } ?>
-			</tbody>
-		</table>
-	</div>
-	<div class="row grid-header">
-		<div class="col col12x6 info">
-			<?=CodeGenUtil::getPaginationDetail( $dataProvider ) ?>
-		</div>
-		<div class="col col12x6 pagination">
-			<?= LinkPager::widget( [ 'pagination' => $pagination, 'options' => [ 'class' => 'pagination-basic' ] ] ); ?>
-		</div>
-	</div>
-</div>
+<?= Popup::widget([
+	'title' => 'Delete Event', 'size' => 'medium',
+	'templateDir' => Yii::getAlias( '@themes/admin/views/templates/widget/popup/grid' ), 'template' => 'delete',
+	'data' => [ 'model' => 'Event', 'app' => 'main', 'controller' => 'crud', 'action' => 'delete', 'url' => "notify/event/delete?id=" ]
+]) ?>

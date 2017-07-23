@@ -2,8 +2,7 @@
 namespace cmsgears\notify\common\models\entities;
 
 // Yii Imports
-use \Yii;
-use yii\helpers\Url;
+use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 
@@ -79,6 +78,16 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 		self::STATUS_TRASH => 'Trash'
 	];
 
+	public static $revStatusMap = [
+		'New' => self::STATUS_NEW,
+		'Trash' => self::STATUS_TRASH
+	];
+
+	public static $urlRevStatusMap = [
+		'new' => self::STATUS_NEW,
+		'trash' => self::STATUS_TRASH
+	];
+
 	public static $unitMap = [
 		self::UNIT_YEAR => 'year',
 		self::UNIT_MONTH => 'month',
@@ -128,6 +137,9 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 	public function behaviors() {
 
 		return [
+			'authorBehavior' => [
+				'class' => AuthorBehavior::className()
+			],
 			'timestampBehavior' => [
 				'class' => TimestampBehavior::className(),
 				'createdAtAttribute' => 'createdAt',
@@ -220,6 +232,16 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 	public function getStatusStr() {
 
 		return self::$statusMap[ $this->status ];
+	}
+
+	public function getPreIntervalStr() {
+
+		return $this->preReminderInterval . self::$unitMap[ $this->preIntervalUnit ];
+	}
+
+	public function getPostIntervalStr() {
+
+		return $this->postReminderInterval . self::$unitMap[ $this->postIntervalUnit ];
 	}
 
 	// Static Methods ----------------------------------------------

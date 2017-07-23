@@ -5,7 +5,7 @@ namespace cmsgears\notify\admin\controllers\apix;
 use Yii;
 use yii\filters\VerbFilter;
 
-class NotificationController extends \cmsgears\core\admin\controllers\base\Controller {
+class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -27,7 +27,7 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 		$this->crudPermission 	= CoreGlobal::PERM_CORE;
 
 		// Services
-		$this->modelService		= Yii::$app->factory->get( 'notificationService' );
+		$this->modelService		= Yii::$app->factory->get( 'eventService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -44,19 +44,17 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'toggle-read' => [ 'permission' => $this->crudPermission ],
+					'bulk' => [ 'permission' => $this->crudPermission ],
 					'trash' => [ 'permission' => $this->crudPermission ],
-					'delete' => [ 'permission' => $this->crudPermission ],
-					'bulk' => [ 'permission' => $this->crudPermission ]
+					'delete' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
 				'class' => VerbFilter::className(),
 				'actions' => [
-					'toggle-read' => [ 'post' ],
+					'bulk' => [ 'post' ],
 					'trash' => [ 'post' ],
-					'delete' => [ 'post' ],
-					'bulk' => [ 'post' ]
+					'delete' => [ 'post' ]
 				]
 			]
 		];
@@ -67,10 +65,9 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 	public function actions() {
 
 		return [
-			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead', 'admin' => true ],
-			'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash', 'admin' => true ],
-			'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete', 'admin' => true ],
-			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\notification\Bulk', 'admin' => true ]
+			'bulk' => [ 'class' => 'cmsgears\core\common\actions\grid\Bulk' ],
+			'trash' => [ 'class' => 'cmsgears\core\common\actions\grid\Trash' ],
+			'delete' => [ 'class' => 'cmsgears\core\common\actions\grid\Delete' ]
 		];
 	}
 
@@ -78,6 +75,6 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 
 	// CMG parent classes --------------------
 
-	// NotificationController ----------------
+	// EventController -----------------------
 
 }

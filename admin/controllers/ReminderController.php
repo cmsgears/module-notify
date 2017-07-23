@@ -2,7 +2,7 @@
 namespace cmsgears\notify\admin\controllers;
 
 // Yii Imports
-use \Yii;
+use Yii;
 use yii\filters\VerbFilter;
 use yii\helpers\Url;
 
@@ -29,13 +29,24 @@ class ReminderController extends \cmsgears\core\admin\controllers\base\Controlle
 
 		parent::init();
 
+		// Permission
 		$this->crudPermission 	= CoreGlobal::PERM_CORE;
+
+		// Services
 		$this->modelService		= Yii::$app->factory->get( 'reminderService' );
 
+		// Sidebar
 		$this->sidebar 			= [ 'parent' => 'sidebar-reminder', 'child' => 'reminder' ];
 
+		// Return Url
 		$this->returnUrl		= Url::previous( 'reminders' );
 		$this->returnUrl		= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/reminder/all' ], true );
+
+		// Breadcrumbs
+		$this->breadcrumbs	= [
+			'base' => [ [ 'label' => 'Events', 'url' =>  [ '/notify/event/all' ] ] ],
+			'all' => [ [ 'label' => 'Reminders' ] ]
+		];
 	}
 
 	// Instance methods --------------------------------------------
@@ -52,15 +63,15 @@ class ReminderController extends \cmsgears\core\admin\controllers\base\Controlle
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'index'  => [ 'permission' => $this->crudPermission ],
-					'all'    => [ 'permission' => $this->crudPermission ]
+					'index' => [ 'permission' => $this->crudPermission ],
+					'all' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
 				'class' => VerbFilter::className(),
 				'actions' => [
-					'index'  => [ 'get' ],
-					'all'   => [ 'get' ]
+					'index' => [ 'get' ],
+					'all' => [ 'get' ]
 				]
 			]
 		];
@@ -81,7 +92,7 @@ class ReminderController extends \cmsgears\core\admin\controllers\base\Controlle
 
 	public function actionAll() {
 
-		Url::remember( [ 'reminder/all' ], 'reminders' );
+		Url::remember( Yii::$app->request->getUrl(), 'reminders' );
 
 		$dataProvider = $this->modelService->getPageForAdmin();
 

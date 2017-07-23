@@ -2,12 +2,10 @@
 namespace cmsgears\notify\common\actions\notification;
 
 // Yii Imports
-use \Yii;
+use Yii;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
-
-use cmsgears\notify\common\models\entities\Notification;
 
 use cmsgears\core\common\utilities\AjaxUtil;
 

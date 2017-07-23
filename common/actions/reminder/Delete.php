@@ -1,5 +1,5 @@
 <?php
-namespace cmsgears\notify\common\actions\notification;
+namespace cmsgears\notify\common\actions\reminder;
 
 // Yii Imports
 use Yii;
@@ -35,7 +35,7 @@ class Delete extends \cmsgears\core\common\base\Action {
 
 	// Protected --------------
 
-	protected $notificationService;
+	protected $reminderService;
 
 	// Private ----------------
 
@@ -47,7 +47,7 @@ class Delete extends \cmsgears\core\common\base\Action {
 
 		parent::init();
 
-		$this->notificationService	= Yii::$app->factory->get( 'notificationService' );
+		$this->reminderService	= Yii::$app->factory->get( 'reminderService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -64,36 +64,36 @@ class Delete extends \cmsgears\core\common\base\Action {
 
 	public function run( $id ) {
 
-		$notification	= $this->notificationService->getById( $id );
+		$reminder	= $this->reminderService->getById( $id );
 
-		if( isset( $notification ) ) {
+		if( isset( $reminder ) ) {
 
 			$new	= 0;
 
 			if( isset( $this->parentType ) && isset( $this->parentId ) ) {
 
-				if( $notification->parentType == $this->parentType && $notification->parentId == $this->parentId ) {
+				if( $reminder->parentType == $this->parentType && $reminder->parentId == $this->parentId ) {
 
-					$notification	= $this->notificationService->delete( $notification );
+					$reminder	= $this->reminderService->delete( $reminder );
 				}
 
-				$new 	= $this->notificationService->getCountByParent( $this->parentId, $this->parentType, false, false );
+				$new 	= $this->reminderService->getCountByParent( $this->parentId, $this->parentType, false, false );
 			}
 			else if( $this->admin ) {
 
-				$notification	= $this->notificationService->delete( $notification );
-				$new 			= $this->notificationService->getCount( false, $this->admin );
+				$reminder	= $this->reminderService->delete( $reminder );
+				$new 			= $this->reminderService->getCount( false, $this->admin );
 			}
 			else if( $this->user ) {
 
 				$user	= Yii::$app->user->getIdentity();
 
-				if( $notification->userId == $user->id ) {
+				if( $reminder->userId == $user->id ) {
 
-					$notification	= $this->notificationService->delete( $notification );
+					$reminder	= $this->reminderService->delete( $reminder );
 				}
 
-				$new 	= $this->notificationService->getUserCount( $user->id, false, false );
+				$new 	= $this->reminderService->getUserCount( $user->id, false, false );
 			}
 
 			$data	= [ 'unread' => $new ];
