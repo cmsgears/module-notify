@@ -5,6 +5,9 @@ namespace cmsgears\notify\admin\controllers\apix;
 use Yii;
 use yii\filters\VerbFilter;
 
+// CMG Imports
+use cmsgears\core\common\config\CoreGlobal;
+
 class NotificationController extends \cmsgears\core\admin\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
