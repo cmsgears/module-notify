@@ -258,7 +258,7 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 		}
 	}
 
-	protected function applyBulk( $model, $column, $action, $target ) {
+	protected function applyBulk( $model, $column, $action, $target, $config = [] ) {
 
 		switch( $column ) {
 

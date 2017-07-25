@@ -345,7 +345,7 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 		}
 	}
 
-	protected function applyBulk( $model, $column, $action, $target ) {
+	protected function applyBulk( $model, $column, $action, $target, $config = [] ) {
 
 		switch( $column ) {
 

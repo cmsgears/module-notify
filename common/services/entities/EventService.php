@@ -284,7 +284,7 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 		return $this->updateStatus( $model, Event::STATUS_TRASH );
 	}
 
-	protected function applyBulk( $model, $column, $action, $target ) {
+	protected function applyBulk( $model, $column, $action, $target, $config = [] ) {
 
 		switch( $column ) {
 
