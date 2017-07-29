@@ -213,7 +213,7 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 	public function getRecent( $limit = 5, $config = [] ) {
 
-		return Notification::find()->where( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt ASC' )->all();
+		return Notification::find()->where( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt DESC' )->all();
 	}
 
 	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
