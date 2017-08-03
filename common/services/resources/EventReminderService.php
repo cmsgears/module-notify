@@ -107,6 +107,13 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 			$config[ 'sort' ] = $sort;
 		}
 
+		// Query ------------
+
+		if( !isset( $config[ 'query' ] ) ) {
+
+			$config[ 'hasOne' ] = true;
+		}
+
 		// Filters ----------
 
 		// Params
@@ -133,30 +140,35 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 
 		if( isset( $searchCol ) ) {
 
-			$config[ 'search-col' ] = $searchCol;
+			$search = [ 'title' => "$modelTable.title", 'content' => "$modelTable.content" ];
+
+			$config[ 'search-col' ] = $search[ $searchCol ];
 		}
 
 		// Reporting --------
 
-		$config[ 'report-col' ]	= [ 'title', 'content', 'scheduledAt' ];
+		$config[ 'report-col' ]	= [
+			'title' => "$modelTable.title", 'content' => "$modelTable.content",
+			'scheduledAt' => "$modelTable.scheduledAt"
+		];
 
 		// Result -----------
 
-		return parent::findPage( $config );
+		return parent::getPage( $config );
 	}
 
 	public function getPageForAdmin() {
 
 		$modelTable	= self::$modelTable;
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
+		return $this->getPage( [ 'conditions' => [ 'NOW() > scheduledAt', "$modelTable.admin" => true ] ] );
 	}
 
 	public function getPageByUserId( $userId ) {
 
 		$modelTable	= self::$modelTable;
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
+		return $this->getPage( [ 'conditions' => [ 'NOW() > scheduledAt', "$modelTable.userId" => $userId ] ] );
 	}
 
 	// Read ---------------
