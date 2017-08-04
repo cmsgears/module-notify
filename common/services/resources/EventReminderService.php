@@ -69,32 +69,32 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 		$sort = new Sort([
 			'attributes' => [
 				'event' => [
-					'asc' => [ 'eventId' => SORT_ASC ],
-					'desc' => ['eventId' => SORT_DESC ],
+					'asc' => [ "$modelTable.eventId" => SORT_ASC ],
+					'desc' => [ "$modelTable.eventId" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Event'
 				],
 				'title' => [
-					'asc' => [ 'title' => SORT_ASC ],
-					'desc' => ['title' => SORT_DESC ],
+					'asc' => [ "$modelTable.title" => SORT_ASC ],
+					'desc' => [ "$modelTable.title" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Title'
 				],
 				'consumed' => [
-					'asc' => [ 'consumed' => SORT_ASC ],
-					'desc' => ['consumed' => SORT_DESC ],
+					'asc' => [ "$modelTable.consumed" => SORT_ASC ],
+					'desc' => [ "$modelTable.consumed" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Consumed'
 				],
 				'trash' => [
-					'asc' => [ 'trash' => SORT_ASC ],
-					'desc' => ['trash' => SORT_DESC ],
+					'asc' => [ "$modelTable.trash" => SORT_ASC ],
+					'desc' => [ "$modelTable.trash" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Trash'
 				],
 				'sdate' => [
-					'asc' => [ 'scheduledAt' => SORT_ASC ],
-					'desc' => ['scheduledAt' => SORT_DESC ],
+					'asc' => [ "$modelTable.scheduledAt" => SORT_ASC ],
+					'desc' => [ "$modelTable.scheduledAt" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Scheduled At'
 				]
@@ -161,14 +161,14 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 
 		$modelTable	= self::$modelTable;
 
-		return $this->getPage( [ 'conditions' => [ 'NOW() > scheduledAt', "$modelTable.admin" => true ] ] );
+		return $this->getPage( [ 'conditions' => [ "NOW() > $modelTable.scheduledAt", "$modelTable.admin" => true ] ] );
 	}
 
 	public function getPageByUserId( $userId ) {
 
 		$modelTable	= self::$modelTable;
 
-		return $this->getPage( [ 'conditions' => [ 'NOW() > scheduledAt', "$modelTable.userId" => $userId ] ] );
+		return $this->getPage( [ 'conditions' => [ "NOW() > $modelTable.scheduledAt", "$modelTable.userId" => $userId ] ] );
 	}
 
 	// Read ---------------

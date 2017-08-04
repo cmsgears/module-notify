@@ -1,7 +1,4 @@
 <?php
-// Yii Imports
-use yii\helpers\Url;
-
 // CMG Imports
 use cmsgears\widgets\popup\Popup;
 

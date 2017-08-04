@@ -10,6 +10,7 @@ use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\core\common\models\interfaces\IOwner;
 
 use cmsgears\core\common\models\entities\User;
+use cmsgears\notify\common\models\entities\Event;
 
 use cmsgears\core\common\models\traits\resources\DataTrait;
 

@@ -8,7 +8,7 @@ use yii\filters\VerbFilter;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-class NotificationController extends \cmsgears\core\common\controllers\base\Controller {
+class ReminderController extends \cmsgears\core\common\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -27,7 +27,7 @@ class NotificationController extends \cmsgears\core\common\controllers\base\Cont
 		parent::init();
 
 		$this->crudPermission	= CoreGlobal::PERM_USER;
-		$this->modelService 	= Yii::$app->factory->get( 'notificationService' );
+		$this->modelService 	= Yii::$app->factory->get( 'reminderService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -67,10 +67,10 @@ class NotificationController extends \cmsgears\core\common\controllers\base\Cont
 	public function actions() {
 
 		return [
-			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead' ],
-			'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash' ],
-			'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete' ],
-			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\notification\Bulk' ]
+			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\reminder\ToggleRead' ],
+			'trash' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Trash' ],
+			'delete' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Delete' ],
+			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Bulk' ]
 		];
 	}
 
@@ -78,6 +78,6 @@ class NotificationController extends \cmsgears\core\common\controllers\base\Cont
 
 	// CMG parent classes --------------------
 
-	// NotificationController ----------------
+	// ReminderController --------------------
 
 }
