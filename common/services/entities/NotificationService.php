@@ -2,7 +2,7 @@
 namespace cmsgears\notify\common\services\entities;
 
 // Yii Imports
-use \Yii;
+use Yii;
 use yii\data\Sort;
 
 // CMG Imports

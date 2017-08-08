@@ -2,7 +2,7 @@
 namespace cmsgears\notify\common\models\entities;
 
 // Yii Imports
-use \Yii;
+use Yii;
 use yii\helpers\Url;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;

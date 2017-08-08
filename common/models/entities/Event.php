@@ -107,7 +107,7 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 
 	// Public -----------------
 
-	public $mParentType	= NotifyGlobal::TYPE_EVENT;
+	public $modelType	= NotifyGlobal::TYPE_EVENT;
 
 	// Protected --------------
 

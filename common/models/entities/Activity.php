@@ -2,7 +2,7 @@
 namespace cmsgears\notify\common\models\entities;
 
 // Yii Imports
-use \Yii;
+use Yii;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
@@ -51,8 +51,8 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
 
 	// Traits ------------------------------------------------------
 
-	use ResourceTrait;
 	use DataTrait;
+	use ResourceTrait;
 
 	// Constructor and Initialisation ------------------------------
 

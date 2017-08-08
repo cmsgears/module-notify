@@ -14,7 +14,9 @@ use cmsgears\notify\common\models\entities\Event;
 
 use cmsgears\notify\common\services\interfaces\entities\IEventService;
 
+use cmsgears\core\common\services\traits\NameTypeTrait;
 use cmsgears\core\common\services\traits\ResourceTrait;
+use cmsgears\core\common\services\traits\SlugTypeTrait;
 
 /**
  * The class EventService is base class to perform database activities for Event Entity.
@@ -33,6 +35,8 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 
 	public static $modelTable	= NotifyTables::TABLE_EVENT;
 
+	public static $typed		= true;
+
 	public static $parentType	= NotifyGlobal::TYPE_EVENT;
 
 	// Protected --------------
@@ -47,7 +51,9 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 
 	// Traits ------------------------------------------------------
 
+	use NameTypeTrait;
 	use ResourceTrait;
+	use SlugTypeTrait;
 
 	// Constructor and Initialisation ------------------------------
 
