@@ -126,6 +126,11 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		$notification->trash	= false;
 		$notification->content	= $message;
 
+		if( isset( $config[ 'createdBy' ] ) ) {
+
+			$notification->createdBy	= $config[ 'createdBy' ];
+		}
+
 		if( isset( $config[ 'parentId' ] ) ) {
 
 			$notification->parentId = $config[ 'parentId' ];
