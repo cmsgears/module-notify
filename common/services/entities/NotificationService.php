@@ -399,6 +399,25 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 	}
 
 	// Delete -------------
+        
+        public function deleteNotifications( $userId ) {            
+            
+            $modelTable	= self::$modelTable;
+
+            $userIds    = $this->getIdList( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
+            $creatorIds = $this->getIdList( [ 'conditions' => [ "$modelTable.createdBy" => $userId ] ] );
+            
+            $models     = array_merge( $userIds, $creatorIds );
+            
+            if( count( $models ) > 0 ) {
+                
+                // Delete user notifications if any
+                $this->applyBulkByUserId( 'model', 'delete', $models, $userId );
+                
+                // Delete admin notifications if any
+                $this->applyBulkByAdmin( 'model', 'delete', $models );
+            }
+        }
 
 	// Static Methods ----------------------------------------------
 
