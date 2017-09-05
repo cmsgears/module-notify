@@ -184,7 +184,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 				$userNotification			= new Notification();
 
-				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'title', 'consumed', 'trash', 'link', 'content' ] );
+				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'title', 'consumed', 'trash', 'link', 'content', 'createdBy' ] );
 
 				$userNotification->userId	= $userId;
 				$userNotification->admin	= false;
@@ -227,4 +227,10 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 		// Trigger notifications using given template, message and config
 	}
+        
+        // Delete Notifications
+        public function deleteNotificationsByUserId( $userId ) {
+            
+             return $this->notificationService->deleteNotificationsByUserId( $userId );
+        } 
 }
