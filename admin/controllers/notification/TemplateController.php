@@ -33,7 +33,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 		$this->type			= NotifyGlobal::TYPE_NOTIFICATION;
 
 		// Sidebar
-		$this->sidebar 		= [ 'parent' => 'sidebar-notify', 'child' => 'notification-template' ];
+		$this->sidebar 		= [ 'parent' => 'sidebar-notify', 'child' => 'template' ];
 
 		// Return Url
 		$this->returnUrl	= Url::previous( 'templates' );

@@ -2,7 +2,7 @@
 namespace cmsgears\notify\common\components;
 
 // Yii Imports
-use \Yii;
+use Yii;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
@@ -36,11 +36,11 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 		parent::init();
 
-		$this->userService				= Yii::$app->factory->get( 'userService' );
-		$this->notificationService		= Yii::$app->factory->get( 'notificationService' );
-		$this->reminderService			= Yii::$app->factory->get( 'reminderService' );
+		$this->userService			= Yii::$app->factory->get( 'userService' );
+		$this->notificationService	= Yii::$app->factory->get( 'notificationService' );
+		$this->reminderService		= Yii::$app->factory->get( 'reminderService' );
 
-		$this->templateService			= Yii::$app->factory->get( 'templateService' );
+		$this->templateService		= Yii::$app->factory->get( 'templateService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -79,10 +79,15 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		$notifications	= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
 		$new			= $this->notificationService->getUserCount( $user->id, false, false );
 
+		$reminders		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
+		$newReminders	= $this->reminderService->getUserCount( $user->id, false, false );
+
 		// Results
 		$stats							= parent::getAdminStats();
 		$stats[ 'notifications' ]		= $notifications;
 		$stats[ 'notificationCount' ]	= $new;
+		$stats[ 'reminders' ]			= $reminders;
+		$stats[ 'reminderCount' ]		= $newReminders;
 
 		return $stats;
 	}
@@ -90,7 +95,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 	// Notification Trigger ---
 
 	/**
-	 * It trigger nitification and also send mail based on the configuration.
+	 * It trigger notification and also send mail based on the configuration.
 	 *
 	 * * Generates notification message using given template slug, models and config. Template manager will be used to generate this message.
 	 *
@@ -115,6 +120,13 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		// Generate Message
 
 		$template	= $this->templateService->getBySlugType( $templateSlug, NotifyGlobal::TYPE_NOTIFICATION );
+
+		// Do nothing if template not found or disabled
+		if( empty( $template ) || !$template->isActive() ) {
+
+			return;
+		}
+
 		$message	= Yii::$app->templateManager->renderMessage( $template, $models, $config );
 
 		// Trigger Notification
@@ -227,10 +239,11 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 		// Trigger notifications using given template, message and config
 	}
-        
-        // Delete Notifications
-        public function deleteNotificationsByUserId( $userId ) {
-            
-             return $this->notificationService->deleteNotificationsByUserId( $userId );
-        } 
+
+	// Delete Notifications ---
+
+	public function deleteNotifications( $parentId, $parentType, $user = false ) {
+
+		return $this->notificationService->deleteByParent( $parentId, $parentType, $user );
+	}
 }
