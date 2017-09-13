@@ -125,7 +125,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 		$this->createTable( $this->prefix . 'notify_notification', [
 			'id' => $this->bigPrimaryKey( 20 ),
 			'userId' => $this->bigInteger( 20 ),
-			'createdBy' => $this->bigInteger( 20 )->notNull(),
+			'createdBy' => $this->bigInteger( 20 ),
 			'modifiedBy' => $this->bigInteger( 20 ),
 			'parentId' => $this->bigInteger( 20 ),
 			'parentType' => $this->string( Yii::$app->core->mediumText ),
