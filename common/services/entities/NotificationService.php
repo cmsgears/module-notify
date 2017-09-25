@@ -400,6 +400,7 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 	// Delete -------------
 
+	/*
 	public function deleteByParent( $parentId, $parentType, $user = false ) {
 
 		$modelTable	= self::$modelTable;
@@ -418,6 +419,7 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 			$this->applyBulkByAdmin( 'model', 'delete', $models );
 		}
 	}
+	*/
 
 	// Static Methods ----------------------------------------------
 

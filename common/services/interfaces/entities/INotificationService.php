@@ -51,5 +51,5 @@ interface INotificationService extends \cmsgears\core\common\services\interfaces
 
 	// Delete -------------
 
-	public function deleteByParent( $parentId, $parentType, $user = false );
+	//public function deleteByParent( $parentId, $parentType, $user = false );
 }
