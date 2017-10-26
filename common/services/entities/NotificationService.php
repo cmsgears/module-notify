@@ -200,13 +200,6 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
 	}
 
-	public function getPageByUserIdType( $userId, $type ) {
-
-		$modelTable	= self::$modelTable;
-
-		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId, "$modelTable.type" => $type ] ] );
-	}
-
 	public function getPageByParent( $parentId, $parentType, $admin = false ) {
 
 		$modelTable	= self::$modelTable;
@@ -236,11 +229,6 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 	public function getUserCount( $userId, $consumed = false, $admin = false ) {
 
 		return Notification::queryByUserId( $userId )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
-	}
-
-	public function getUserCountByType( $userId, $type, $consumed = false, $admin = false ) {
-
-		return Notification::queryByUserId( $userId )->andWhere( 'consumed=:consumed AND admin=:admin AND type=:type', [ ':consumed' => $consumed, ':admin' => $admin, ':type' => $type ] )->count();
 	}
 
 	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
