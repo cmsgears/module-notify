@@ -3,6 +3,9 @@ namespace cmsgears\notify\common\models\entities;
 
 // Yii Imports
 use Yii;
+use yii\db\Expression;
+use yii\behaviors\TimestampBehavior;
+
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
@@ -12,6 +15,7 @@ use cmsgears\notify\common\models\base\NotifyTables;
 
 use cmsgears\core\common\models\traits\ResourceTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
+use cmsgears\core\common\models\traits\CreateModifyTrait;
 
 /**
  * Activity Entity - It can be used to log user activities. A model can be optionally associated with it to identify model specific activities.
@@ -53,6 +57,7 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
 
 	use DataTrait;
 	use ResourceTrait;
+	use CreateModifyTrait;
 
 	// Constructor and Initialisation ------------------------------
 
@@ -66,6 +71,23 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
 
 	// yii\base\Model ---------
 
+	
+	/**
+	 * @inheritdoc
+	 */
+	public function behaviors() {
+
+		return [
+			
+			'timestampBehavior' => [
+				'class' => TimestampBehavior::className(),
+				'createdAtAttribute' => 'createdAt',
+				'updatedAtAttribute' => 'modifiedAt',
+				'value' => new Expression('NOW()')
+			]
+		];
+	}
+	
 	/**
 	 * @inheritdoc
 	 */

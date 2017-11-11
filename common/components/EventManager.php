@@ -9,6 +9,7 @@ use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\models\entities\Notification;
+use cmsgears\notify\common\models\entities\Activity;
 
 class EventManager extends \cmsgears\core\common\components\EventManager {
 
@@ -27,6 +28,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 	protected $reminderService;
 
 	protected $templateService;
+	protected $activityService;
 
 	// Private ----------------
 
@@ -39,6 +41,8 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		$this->userService			= Yii::$app->factory->get( 'userService' );
 		$this->notificationService	= Yii::$app->factory->get( 'notificationService' );
 		$this->reminderService		= Yii::$app->factory->get( 'reminderService' );
+
+		$this->activityService		= Yii::$app->factory->get( 'activityService' );
 
 		$this->templateService		= Yii::$app->factory->get( 'templateService' );
 	}
@@ -235,9 +239,75 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 	// Activity Logger --------
 
-	public function logActivity( $template, $message, $config = [] ) {
+	public function triggerActivity( $templateSlug, $models, $config = [] ) {
 
-		// Trigger notifications using given template, message and config
+		// Trigger Activity using given template, message and config
+
+		// Return in case Activity are disabled at system level.
+		if( !Yii::$app->core->isActivities() ) {
+
+			return false;
+		}
+
+		// Generate Message
+		$template	= $this->templateService->getBySlugType( $templateSlug, NotifyGlobal::TYPE_ACTIVITY );
+
+		// Do nothing if template not found or disabled
+		if( empty( $template ) || !$template->isActive() ) {
+
+			return;
+		}
+
+		$message	= Yii::$app->templateManager->renderMessage( $template, $models, $config );
+
+		// Trigger Notification
+
+		$templateConfig			= $template->getDataMeta( CoreGlobal::DATA_CONFIG );
+
+		$activity			= new Activity();
+		$activity->content	= $message;
+
+		if( isset( $config[ 'userId' ] ) ) {
+
+			$activity->userId	= $config[ 'userId' ];
+		}
+
+		if( isset( $config[ 'parentId' ] ) ) {
+
+			$activity->parentId = $config[ 'parentId' ];
+		}
+
+		if( isset( $config[ 'parentType' ] ) ) {
+
+			$activity->parentType = $config[ 'parentType' ];
+		}
+		
+		$activity->type = "log";
+		
+		if( isset( $config[ 'title' ] ) ) {
+
+			$activity->title = $config[ 'title' ];
+		}
+		else {
+
+			$activity->title = $template->name;
+		}
+		
+		// Create Notification
+		$this->activityService->create( $activity );
+
+	}
+
+	// Delete Notifications ---
+
+	public function deleteNotifications( $parentId, $parentType, $user = false ) {
+
+		return $this->notificationService->deleteByParent( $parentId, $parentType, $user );
+	}
+	
+	public function deleteActivity( $parentId, $parentType, $user = false ) {
+
+		return $this->activityService->deleteByParent( $parentId, $parentType, $user );
 	}
 
 	// Delete Notifications ---
