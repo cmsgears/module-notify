@@ -298,12 +298,8 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 	}
 
-	// Delete Notifications ---
+	// Delete Activity ---
 
-	public function deleteNotifications( $parentId, $parentType, $user = false ) {
-
-		return $this->notificationService->deleteByParent( $parentId, $parentType, $user );
-	}
 	
 	public function deleteActivity( $parentId, $parentType, $user = false ) {
 
