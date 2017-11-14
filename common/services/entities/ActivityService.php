@@ -211,7 +211,7 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 	public function deleteActivity( $model, $parentType = null ) {
 		
 		$title = $model->name ?? null;
-		$this->triggerActivity($model, NotifyGlobal::TEMPLATE_LOG_DELETE, $title, $parentType);
+		$this->triggerActivity( $model, NotifyGlobal::TEMPLATE_LOG_DELETE, $title, $parentType );
 	}
 	
 	// Activity
@@ -223,14 +223,15 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 		$firstName	= isset( $user ) ? $user->firstName : "";
 		$lastName	= isset( $user ) ? $user->lastName : "";
 		$userName	= $firstName . $lastName;
+		$modelName	= $model->name ?? '';
 		
 		Yii::$app->eventManager->triggerActivity(
 			$templateSlug,
-			[  'userName' => $userName, 'modelName' => "<b>$model->name</b>" ],
+			[  'userName' => $userName, 'modelName' => "<b>$modelName</b>" ],
 			[
 				'parentId' => $model->id,
 				'parentType' => $parentType,
-				'userId' =>  $userId,
+				'userId' => $userId,
 				'title' => $title
 			]
 		);
