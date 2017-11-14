@@ -12,7 +12,7 @@ use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\notify\common\services\interfaces\entities\IActivityService;
 
 use cmsgears\core\common\services\traits\ResourceTrait;
-
+use cmsgears\notify\common\config\NotifyGlobal;
 /**
  * The class ActivityService is base class to perform database activities for Activity Entity.
  */
@@ -194,6 +194,48 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 		]);
 	}
 
+	public function createActivity( $model, $parentType = null ) {
+		
+		$title = $model->name ?? null;
+		$this->triggerActivity($model, NotifyGlobal::TEMPLATE_LOG_CREATE, $title, $parentType);
+		
+	}
+	
+	public function updateActivity( $model, $parentType = null ) {
+		
+		$title = $model->name ?? null;
+		$this->triggerActivity($model, NotifyGlobal::TEMPLATE_LOG_UPDATE, $title, $parentType);
+		
+	}
+	
+	public function deleteActivity( $model, $parentType = null ) {
+		
+		$title = $model->name ?? null;
+		$this->triggerActivity($model, NotifyGlobal::TEMPLATE_LOG_DELETE, $title, $parentType);
+	}
+	
+	// Activity
+	private function triggerActivity( $model, $templateSlug, $title, $parentType = null ) {
+
+		$user =	Yii::$app->user->getIdentity();
+			
+		$userId		= isset( $user ) ? $user->id : "";
+		$firstName	= isset( $user ) ? $user->firstName : "";
+		$lastName	= isset( $user ) ? $user->lastName : "";
+		$userName	= $firstName . $lastName;
+		
+		Yii::$app->eventManager->triggerActivity(
+			$templateSlug,
+			[  'userName' => $userName, 'modelName' => "<b>$model->name</b>" ],
+			[
+				'parentId' => $model->id,
+				'parentType' => $parentType,
+				'userId' =>  $userId,
+				'title' => $title
+			]
+		);
+	}
+	
 	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType ) {
 
 		foreach ( $target as $id ) {
