@@ -96,12 +96,13 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
 		return [
 			// Required, Safe
 			[ [ 'userId' ], 'required' ],
-			[ [ 'id', 'content', 'data' ], 'safe' ],
+			[ [ 'id', 'content', 'data',  'adminLink' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ 'agent', 'string', 'min' => 1, 'max' => Yii::$app->core->xLargeText ],
 			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
 			// Other
+			[ [ 'admin', 'consumed', 'trash' ], 'boolean' ],
 			[ [ 'userId', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
@@ -119,6 +120,10 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
 			'title' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TITLE ),
 			'ip' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_IP ),
 			'agent' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_AGENT_BROWSER ),
+			'admin' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
+			'adminLink' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW_ADMIN ),
+			'consumed' => 'Consumed',
+			'trash' => 'Trash',
 			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT ),
 			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA )
 		];
@@ -140,6 +145,31 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
 		return $this->hasOne( User::className(), [ 'id' => 'userId' ] );
 	}
 
+	public function isNew() {
+
+		return !$this->consumed;
+	}
+
+	public function isConsumed() {
+
+		return $this->consumed;
+	}
+	
+	public function getConsumedStr() {
+
+		return Yii::$app->formatter->asBoolean( $this->consumed );
+	}
+
+	public function isTrash() {
+
+		return $this->trash;
+	}
+
+	public function getTrashStr() {
+
+		return Yii::$app->formatter->asBoolean( $this->trash );
+	}
+	
 	// Static Methods ----------------------------------------------
 
 	// Yii parent classes --------------------

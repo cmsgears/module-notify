@@ -41,7 +41,7 @@ $moduleTemplates	= '@cmsgears/module-notify/admin/views/templates';
 	'templateDir' => '@themes/admin/views/templates/widget/grid',
 	//'dataView' => "$moduleTemplates/grid/data/activity",
 	//'cardView' => "$moduleTemplates/grid/cards/activity",
-	//'actionView' => "$moduleTemplates/grid/actions/activity"
+	'actionView' => "$moduleTemplates/grid/actions/activity"
 ]) ?>
 
 <?= Popup::widget([

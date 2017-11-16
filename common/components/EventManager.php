@@ -65,6 +65,9 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 		$reminders			= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
 		$newReminders		= $this->reminderService->getCount( false, true );
+		
+		$activities			= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
+		$newActivities		= $this->activityService->getCount( false, true );
 
 		// Results
 		$stats							= parent::getAdminStats();
@@ -72,6 +75,8 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		$stats[ 'notificationCount' ]	= $newNotifications;
 		$stats[ 'reminders' ]			= $reminders;
 		$stats[ 'reminderCount' ]		= $newReminders;
+		$stats[ 'activities' ]			= $activities;
+		$stats[ 'activityCount' ]		= $newActivities;
 
 		return $stats;
 	}
@@ -265,6 +270,9 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		$templateConfig			= $template->getDataMeta( CoreGlobal::DATA_CONFIG );
 
 		$activity			= new Activity();
+		$activity->consumed	= false;
+		$activity->admin	= true;
+		$activity->trash	= false;
 		$activity->content	= $message;
 
 		if( isset( $config[ 'userId' ] ) ) {

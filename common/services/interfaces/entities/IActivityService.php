@@ -11,6 +11,10 @@ interface IActivityService extends \cmsgears\core\common\services\interfaces\bas
 
 	// Read - Models ---
 
+	public function getRecent( $limit = 5, $config = [] );
+
+	public function getCount( $consumed = false );
+
 	// Read - Lists ----
 
 	// Read - Maps -----
@@ -19,9 +23,19 @@ interface IActivityService extends \cmsgears\core\common\services\interfaces\bas
 
 	// Update -------------
 
+	public function toggleRead( $notification );
+
+	public function markNew( $notification );
+
+	public function markConsumed( $notification );
+
+	public function markTrash( $notification );
+	
 	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType );
 
 	public function applyBulkByUserId( $column, $action, $target, $userId );
+	
+	public function applyBulkByAdmin( $column, $action, $target );
 	
 	public function createActivity( $model );
 	public function updateActivity( $model );

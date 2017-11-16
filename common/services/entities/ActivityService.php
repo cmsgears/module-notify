@@ -13,6 +13,7 @@ use cmsgears\notify\common\services\interfaces\entities\IActivityService;
 
 use cmsgears\core\common\services\traits\ResourceTrait;
 use cmsgears\notify\common\config\NotifyGlobal;
+use cmsgears\notify\common\models\entities\Activity;
 /**
  * The class ActivityService is base class to perform database activities for Activity Entity.
  */
@@ -193,7 +194,54 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 			'attributes' => [ 'title', 'content' ]
 		]);
 	}
+	
+	public function toggleRead( $model ) {
 
+		if( $model->isConsumed() ) {
+
+			return $this->markNew( $model );
+		}
+
+		return $this->markConsumed( $model );
+	}
+
+	public function markNew( $model ) {
+
+		$model->consumed = false;
+
+		return parent::update( $model, [
+			'attributes' => [ 'consumed' ]
+		]);
+	}
+
+	public function markConsumed( $model ) {
+
+		$model->consumed = true;
+
+		return parent::update( $model, [
+			'attributes' => [ 'consumed' ]
+		]);
+	}
+
+	public function markTrash( $model ) {
+
+		$model->trash = true;
+
+		return parent::update( $model, [
+			'attributes' => [ 'trash' ]
+		]);
+	}
+
+	public function getRecent( $limit = 5, $config = [] ) {
+
+		return Activity::find()->where( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt DESC' )->all();
+	}
+	
+	public function getCount( $consumed = false, $admin = false ) {
+
+		return Activity::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+	}
+	
 	public function createActivity( $model, $parentType = null ) {
 		
 		$title = $model->name ?? null;
@@ -227,7 +275,7 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 		
 		Yii::$app->eventManager->triggerActivity(
 			$templateSlug,
-			[  'userName' => $userName, 'modelName' => "<b>$modelName</b>" ],
+			[ 'parentType' => $parentType, 'userName' => $userName, 'modelName' => "<b>$modelName</b>" ],
 			[
 				'parentId' => $model->id,
 				'parentType' => $parentType,
@@ -263,10 +311,55 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 		}
 	}
 
+	public function applyBulkByAdmin( $column, $action, $target ) {
+
+		foreach ( $target as $id ) {
+
+			$notification = $this->getById( $id );
+
+			if( isset( $notification ) && $notification->admin ) {
+
+				$this->applyBulk( $notification, $column, $action, $target );
+			}
+		}
+	}
+
 	protected function applyBulk( $model, $column, $action, $target, $config = [] ) {
 
 		switch( $column ) {
 
+			case 'id': {
+
+				$this->delete( $model );
+
+				break;
+			}
+			case 'consumed': {
+
+				switch( $action ) {
+
+					case 'new': {
+
+						$this->markNew( $model );
+
+						break;
+					}
+					case 'read': {
+
+						$this->markConsumed( $model );
+
+						break;
+					}
+				}
+
+				break;
+			}
+			case 'trash': {
+
+				$this->markTrash( $model );
+
+				break;
+			}
 			case 'model': {
 
 				switch( $action ) {
@@ -283,7 +376,7 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 			}
 		}
 	}
-
+	
 	// Delete -------------
 
 	// Static Methods ----------------------------------------------
