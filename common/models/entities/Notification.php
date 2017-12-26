@@ -61,7 +61,9 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
 	// Variables -----------------------------
 
 	// Public -----------------
-
+	
+	public static $multiSite	= true;
+	
 	// Protected --------------
 
 	// Private ----------------

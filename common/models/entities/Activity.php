@@ -44,6 +44,8 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
 
 	// Public -----------------
 
+	public static $multiSite	= true;
+
 	// Protected --------------
 
 	// Variables -----------------------------

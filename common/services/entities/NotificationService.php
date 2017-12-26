@@ -213,7 +213,8 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 	public function getRecent( $limit = 5, $config = [] ) {
 
-		return Notification::find()->where( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt DESC' )->all();
+		$siteId = Yii::$app->core->siteId;
+		return Notification::find()->where( $config[ 'conditions' ] )->andWhere([ 'siteId' => $siteId ])->limit( $limit )->orderBy( 'createdAt DESC' )->all();
 	}
 
 	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
@@ -223,7 +224,8 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 	public function getCount( $consumed = false, $admin = false ) {
 
-		return Notification::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+		$siteId = Yii::$app->core->siteId;	
+		return Notification::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
 	}
 
 	public function getUserCount( $userId, $consumed = false, $admin = false ) {

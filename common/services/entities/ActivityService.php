@@ -235,12 +235,14 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 
 	public function getRecent( $limit = 5, $config = [] ) {
 
-		return Activity::find()->where( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt DESC' )->all();
+		$siteId = Yii::$app->core->siteId;
+		return Activity::find()->where( $config[ 'conditions' ] )->andWhere([ 'siteId' => $siteId ])->limit( $limit )->orderBy( 'createdAt DESC' )->all();
 	}
 	
 	public function getCount( $consumed = false, $admin = false ) {
 
-		return Activity::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+		$siteId = Yii::$app->core->siteId;
+		return Activity::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
 	}
 	
 	public function createActivity( $model, $parentType = null ) {
