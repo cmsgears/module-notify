@@ -21,6 +21,7 @@ use cmsgears\core\common\models\traits\CreateModifyTrait;
  * Activity Entity - It can be used to log user activities. A model can be optionally associated with it to identify model specific activities.
  *
  * @property long $id
+ * @property integer $siteId
  * @property long $userId
  * @property long $parentId
  * @property string $parentType
@@ -103,7 +104,7 @@ class Activity extends \cmsgears\core\common\models\base\Entity {
 			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
 			// Other
 			[ [ 'admin', 'consumed', 'trash' ], 'boolean' ],
-			[ [ 'userId', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ [ 'siteId', 'userId', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
 	}

@@ -26,6 +26,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  * Notification Entity
  *
  * @property integer $id
+ * @property integer $siteId
  * @property integer $userId
  * @property integer $createdBy
  * @property integer $modifiedBy
@@ -115,7 +116,7 @@ class Notification extends \cmsgears\core\common\models\base\Entity implements I
 			[ [ 'title', 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
 			// Other
 			[ [ 'admin', 'consumed', 'trash' ], 'boolean' ],
-			[ [ 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ [ 'siteId', 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
 

@@ -18,6 +18,7 @@ use cmsgears\core\common\models\traits\resources\DataTrait;
  * Reminder Entity
  *
  * @property integer $id
+ * @property integer $siteId
  * @property integer $eventId
  * @property integer $userId
  * @property string $title
@@ -74,7 +75,7 @@ class EventReminder extends \cmsgears\core\common\models\base\Entity implements 
 		$rules = [
 			// Required, Safe
 			[ [ 'eventId', 'scheduledAt' ], 'required' ],
-			[ [ 'id' ], 'safe' ],
+			[ [ 'id', 'siteId' ], 'safe' ],
 			// Text Limit
 			[ [ 'title', 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
 			// Other

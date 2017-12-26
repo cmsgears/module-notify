@@ -247,7 +247,8 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 	public function create( $model, $config = [] ) {
 
 		$model->agent	= Yii::$app->request->userAgent;
-		$model->ip		= Yii::$app->request->userIP;
+		$model->ip	= Yii::$app->request->userIP;
+		$model->siteId	= Yii::$app->core->siteId;
 
 		return parent::create( $model, $config );
 	}
