@@ -10,6 +10,7 @@ $core		= Yii::$app->core;
 $user		= Yii::$app->user->getIdentity();
 
 $stats		= Yii::$app->eventManager->getAdminStats();
+$acount		= $stats[ 'activityCount' ];
 $ncount		= $stats[ 'notificationCount' ];
 $rcount		= $stats[ 'reminderCount' ];
 ?>
@@ -18,12 +19,21 @@ $rcount		= $stats[ 'reminderCount' ];
 	<div id="sidebar-activity" class="collapsible-tab has-children <?php if( strcmp( $parent, 'sidebar-activity' ) == 0 ) echo 'active'; ?>">
 		<div class="row tab-header">
 			<div class="tab-icon"><span class="cmti cmti-event"></span></div>
-			<div class="tab-title">Activities</div>
+			<div class="tab-title">Activities
+			<?php if( $acount > 0 ) { ?>
+					<span class="count-sidebar count-sidebar-header"><?= $acount ?></span>
+				<?php } ?>			
+			</div>
 		</div>
 		<div class="tab-content clear <?php if( strcmp( $parent, 'sidebar-activity' ) == 0 ) echo 'expanded visible';?>">
 			<ul>
 				<li class='activity <?php if( strcmp( $child, 'activity' ) == 0 ) echo 'active'; ?>'>
-					<?= Html::a( "Activities", [ '/notify/activity/all' ] ) ?>
+					<a href="<?= Url::toRoute( [ '/notify/activity/all' ], true ) ?>">
+						Activities
+						<?php if( $acount > 0 ) { ?>
+							<span class="count-sidebar count-sidebar-content "><?= $acount ?></span>
+						<?php } ?>
+					</a>
 				</li>
 				<li class='template <?php if( strcmp( $child, 'template' ) == 0 ) echo 'active'; ?>'><?= Html::a( "Templates", [ '/notify/activity/template/all' ] ) ?></li>
 			</ul>
