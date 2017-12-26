@@ -117,6 +117,8 @@ class m160622_015405_notify extends \yii\db\Migration {
 		], $this->options );
 
 		// Index for columns user
+		$this->createIndex( 'idx_' . $this->prefix . 'event_reminder_site', $this->prefix . 'notify_event_reminder', 'siteId' );
+		
 		$this->createIndex( 'idx_' . $this->prefix . 'event_reminder_parent', $this->prefix . 'notify_event_reminder', 'eventId' );
 		$this->createIndex( 'idx_' . $this->prefix . 'event_reminder_user', $this->prefix . 'notify_event_reminder', 'userId' );
 	}
@@ -147,6 +149,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 		], $this->options );
 
 		// Index for columns site, creator and modifier
+		$this->createIndex( 'idx_' . $this->prefix . 'notification_site', $this->prefix . 'notify_notification', 'siteId' );
 		$this->createIndex( 'idx_' . $this->prefix . 'notification_user', $this->prefix . 'notify_notification', 'userId' );
 		$this->createIndex( 'idx_' . $this->prefix . 'notification_creator', $this->prefix . 'notify_notification', 'createdBy' );
 		$this->createIndex( 'idx_' . $this->prefix . 'notification_modifier', $this->prefix . 'notify_notification', 'modifiedBy' );
@@ -175,6 +178,7 @@ class m160622_015405_notify extends \yii\db\Migration {
 		], $this->options );
 
 		// Index for columns user
+		$this->createIndex( 'idx_' . $this->prefix . 'activity_site', $this->prefix . 'notify_activity', 'siteId' );
 		$this->createIndex( 'idx_' . $this->prefix . 'activity_user', $this->prefix . 'notify_activity', 'userId' );
 	}
 
@@ -191,16 +195,19 @@ class m160622_015405_notify extends \yii\db\Migration {
 		$this->addForeignKey( 'fk_' . $this->prefix . 'event_participant_user', $this->prefix . 'notify_event_participant', 'userId', $this->prefix . 'core_user', 'id', 'CASCADE' );
 
 		// Event Reminder
+		$this->addForeignKey( 'fk_' . $this->prefix . 'event_reminder_site', $this->prefix . 'notify_event_reminder', 'siteId', $this->prefix . 'core_site', 'id', 'CASCADE' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'event_reminder_parent', $this->prefix . 'notify_event_reminder', 'eventId', $this->prefix . 'notify_event', 'id', 'CASCADE' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'event_reminder_user', $this->prefix . 'notify_event_reminder', 'userId', $this->prefix . 'core_user', 'id', 'CASCADE' );
 
 		// Notification
+		$this->addForeignKey( 'fk_' . $this->prefix . 'notification_site', $this->prefix . 'notify_notification', 'siteId', $this->prefix . 'core_site', 'id', 'CASCADE' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'notification_user', $this->prefix . 'notify_notification', 'userId', $this->prefix . 'core_user', 'id', 'CASCADE' );
 		//$this->addForeignKey( 'fk_' . $this->prefix . 'notification_creator', $this->prefix . 'notify_notification', 'createdBy', $this->prefix . 'core_user', 'id', 'RESTRICT' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'notification_creator', $this->prefix . 'notify_notification', 'createdBy', $this->prefix . 'core_user', 'id', 'SET NULL' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'notification_modifier', $this->prefix . 'notify_notification', 'modifiedBy', $this->prefix . 'core_user', 'id', 'SET NULL' );
 
 		// Activity
+		$this->addForeignKey( 'fk_' . $this->prefix . 'activity_site', $this->prefix . 'notify_activity', 'siteId', $this->prefix . 'core_site', 'id', 'CASCADE' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'activity_user', $this->prefix . 'notify_activity', 'userId', $this->prefix . 'core_user', 'id', 'CASCADE' );
 	}
 
@@ -233,15 +240,18 @@ class m160622_015405_notify extends \yii\db\Migration {
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'event_participant_user', $this->prefix . 'notify_event_participant' );
 
 		// Event Reminder
+		$this->dropForeignKey( 'fk_' . $this->prefix . 'event_reminder_site', $this->prefix . 'notify_event_reminder' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'event_reminder_parent', $this->prefix . 'notify_event_reminder' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'event_reminder_user', $this->prefix . 'notify_event_reminder' );
 
 		// Notification
+		$this->dropForeignKey( 'fk_' . $this->prefix . 'notification_site', $this->prefix . 'notify_notification' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'notification_user', $this->prefix . 'notify_notification' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'notification_creator', $this->prefix . 'notify_notification' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'notification_modifier', $this->prefix . 'notify_notification' );
 
 		// Activity
+		$this->dropForeignKey( 'fk_' . $this->prefix . 'activity_site', $this->prefix . 'notify_activity' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'activity_user', $this->prefix . 'notify_activity' );
 	}
 }
