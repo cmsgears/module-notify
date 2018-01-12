@@ -187,7 +187,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 			}
 
 			// Create Notification
-			$this->notificationService->create( $notification );
+			$this->notificationService->create( $notification, $config );
 
 			if( $templateConfig->adminEmail ) {
 
@@ -211,7 +211,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 				$userNotification->admin	= false;
 
 				// Create Notification
-				$this->notificationService->create( $userNotification );
+				$this->notificationService->create( $userNotification, $config );
 
 				if( $templateConfig->userEmail ) {
 
@@ -225,7 +225,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		if( !$templateConfig->admin && !$templateConfig->user ) {
 
 			// Create Notification
-			$this->notificationService->create( $notification );
+			$this->notificationService->create( $notification, $config );
 
 			if( isset( $config[ 'email' ] ) ) {
 
@@ -302,7 +302,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		}
 		
 		// Create Notification
-		$this->activityService->create( $activity );
+		$this->activityService->create( $activity, $config );
 
 	}
 
