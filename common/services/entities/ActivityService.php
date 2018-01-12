@@ -182,7 +182,8 @@ class ActivityService extends \cmsgears\core\common\services\base\EntityService 
 
 		$model->agent	= Yii::$app->request->userAgent;
 		$model->ip	= Yii::$app->request->userIP;
-		$model->siteId	= Yii::$app->core->siteId;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$model->siteId	= $siteId;
 
 		return parent::create( $model, $config );
 	}
