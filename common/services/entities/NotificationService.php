@@ -219,7 +219,8 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
 
-		return Notification::queryByParent( $parentId, $parentType )->andWhere( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt ASC' )->all();
+		$siteId = Yii::$app->core->siteId;
+		return Notification::queryByParent( $parentId, $parentType )->andWhere( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt ASC' )->andWhere([ 'siteId' => $siteId ])->all();
 	}
 
 	public function getCount( $consumed = false, $admin = false ) {
@@ -230,12 +231,14 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 	public function getUserCount( $userId, $consumed = false, $admin = false ) {
 
-		return Notification::queryByUserId( $userId )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+		$siteId = Yii::$app->core->siteId;
+		return Notification::queryByUserId( $userId )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
 	}
 
 	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
 
-		return Notification::queryByParent( $parentId, $parentType )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+		$siteId = Yii::$app->core->siteId;
+		return Notification::queryByParent( $parentId, $parentType )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
 	}
 
 	// Read - Lists ----
