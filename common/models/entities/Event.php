@@ -2,8 +2,7 @@
 namespace cmsgears\notify\common\models\entities;
 
 // Yii Imports
-use \Yii;
-use yii\helpers\Url;
+use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 
@@ -14,6 +13,7 @@ use cmsgears\notify\common\config\NotifyGlobal;
 use cmsgears\notify\common\models\base\NotifyTables;
 
 use cmsgears\core\common\models\entities\Site;
+use cmsgears\core\common\models\entities\User;
 
 use cmsgears\core\common\models\traits\CreateModifyTrait;
 use cmsgears\core\common\models\traits\NameTypeTrait;
@@ -28,6 +28,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  *
  * @property integer $id
  * @property integer $siteId
+ * @property integer $userId
  * @property integer $createdBy
  * @property integer $modifiedBy
  * @property integer $parentId
@@ -43,6 +44,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  * @property short $postReminderInterval
  * @property short $preIntervalUnit
  * @property short $postIntervalUnit
+ * @property boolean $admin
  * @property boolean $multiUser
  * @property short $status
  * @property datetime $createdAt
@@ -61,6 +63,7 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 	const STATUS_TRASH	= 20000;
 
 	// Interval Units ---------
+
 	const UNIT_YEAR		= 0;
 	const UNIT_MONTH	= 1;
 	const UNIT_DAY		= 2;
@@ -73,6 +76,16 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 	public static $statusMap = [
 		self::STATUS_NEW => 'New',
 		self::STATUS_TRASH => 'Trash'
+	];
+
+	public static $revStatusMap = [
+		'New' => self::STATUS_NEW,
+		'Trash' => self::STATUS_TRASH
+	];
+
+	public static $urlRevStatusMap = [
+		'new' => self::STATUS_NEW,
+		'trash' => self::STATUS_TRASH
 	];
 
 	public static $unitMap = [
@@ -94,7 +107,7 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 
 	// Public -----------------
 
-	public $mParentType	= NotifyGlobal::TYPE_EVENT;
+	public $modelType	= NotifyGlobal::TYPE_EVENT;
 
 	// Protected --------------
 
@@ -124,6 +137,9 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 	public function behaviors() {
 
 		return [
+			'authorBehavior' => [
+				'class' => AuthorBehavior::className()
+			],
 			'timestampBehavior' => [
 				'class' => TimestampBehavior::className(),
 				'createdAtAttribute' => 'createdAt',
@@ -154,8 +170,8 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 			[ [ 'slug', 'description' ], 'string', 'min' => 0, 'max' => Yii::$app->core->xxLargeText ],
 			// Other
 			[ [ 'preReminderCount', 'preReminderInterval', 'postReminderCount', 'postReminderInterval', 'preIntervalUnit', 'postIntervalUnit', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-			[ 'multiUser', 'boolean' ],
-			[ [ 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ [ 'admin', 'multiUser' ], 'boolean' ],
+			[ [ 'siteId', 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ [ 'createdAt', 'modifiedAt', 'scheduledAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
 
@@ -169,6 +185,7 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 
 		return [
 			'siteId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_SITE ),
+			'userId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_USER ),
 			'parentId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
 			'parentType' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
 			'name' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_NAME ),
@@ -194,6 +211,19 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 		return $this->hasOne( Site::className(), [ 'id' => 'siteId' ] );
 	}
 
+	/**
+	 * @return User - associated user
+	 */
+	public function getUser() {
+
+		return $this->hasOne( Activity::className(), [ 'id' => 'userId' ] );
+	}
+
+	public function getAdminStr() {
+
+		return Yii::$app->formatter->asBoolean( $this->admin );
+	}
+
 	public function getMultiStr() {
 
 		return Yii::$app->formatter->asBoolean( $this->multiUser );
@@ -202,6 +232,16 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 	public function getStatusStr() {
 
 		return self::$statusMap[ $this->status ];
+	}
+
+	public function getPreIntervalStr() {
+
+		return $this->preReminderInterval . self::$unitMap[ $this->preIntervalUnit ];
+	}
+
+	public function getPostIntervalStr() {
+
+		return $this->postReminderInterval . self::$unitMap[ $this->postIntervalUnit ];
 	}
 
 	// Static Methods ----------------------------------------------
@@ -226,7 +266,7 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'site', 'creator', 'modifier' ];
+		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'site', 'user', 'creator', 'modifier' ];
 		$config[ 'relations' ]	= $relations;
 
 		return parent::queryWithAll( $config );
@@ -239,18 +279,11 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 		return parent::queryWithAll( $config );
 	}
 
-	public static function findNewEvents() {
+	public static function queryWithUser( $config = [] ) {
 
-		$events	= self::queryWithSite();
+		$config[ 'relations' ]	= [ 'user' ];
 
-		return $events->where( 'status='.self::STATUS_NEW )->all();
-	}
-
-	public static function findByParentId( $parentId ) {
-
-		$events	= self::queryWithSite();
-
-		return $events->where( 'parentId='.$parentId )->one();
+		return parent::queryWithAll( $config );
 	}
 
 	// Read - Find ------------
@@ -260,4 +293,5 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 	// Update -----------------
 
 	// Delete -----------------
+
 }

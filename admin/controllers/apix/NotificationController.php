@@ -2,19 +2,44 @@
 namespace cmsgears\notify\admin\controllers\apix;
 
 // Yii Imports
-use \Yii;
+use Yii;
 use yii\filters\VerbFilter;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-class NotificationController extends \cmsgears\core\common\controllers\base\Controller {
+class NotificationController extends \cmsgears\core\admin\controllers\base\Controller {
+
+	// Variables ---------------------------------------------------
+
+	// Globals ----------------
+
+	// Public -----------------
+
+	// Protected --------------
+
+	// Private ----------------
 
 	// Constructor and Initialisation ------------------------------
 
-	// Instance Methods --------------------------------------------
+	public function init() {
 
-	// yii\base\Component ----------------
+		parent::init();
+
+		// Permissions
+		$this->crudPermission 	= CoreGlobal::PERM_CORE;
+
+		// Services
+		$this->modelService		= Yii::$app->factory->get( 'notificationService' );
+	}
+
+	// Instance methods --------------------------------------------
+
+	// Yii interfaces ------------------------
+
+	// Yii parent classes --------------------
+
+	// yii\base\Component -----
 
 	public function behaviors() {
 
@@ -22,17 +47,19 @@ class NotificationController extends \cmsgears\core\common\controllers\base\Cont
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'toggleRead' => [ 'permission' => CoreGlobal::PERM_CORE ],
-					'trash' => [ 'permission' => CoreGlobal::PERM_CORE ],
-					'delete' => [ 'permission' => CoreGlobal::PERM_CORE ]
+					'toggle-read' => [ 'permission' => $this->crudPermission ],
+					'trash' => [ 'permission' => $this->crudPermission ],
+					'delete' => [ 'permission' => $this->crudPermission ],
+					'bulk' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
 				'class' => VerbFilter::className(),
 				'actions' => [
-					'toggleRead' => [ 'post' ],
+					'toggle-read' => [ 'post' ],
 					'trash' => [ 'post' ],
-					'delete' => [ 'post' ]
+					'delete' => [ 'post' ],
+					'bulk' => [ 'post' ]
 				]
 			]
 		];
@@ -45,11 +72,15 @@ class NotificationController extends \cmsgears\core\common\controllers\base\Cont
 		return [
 			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead', 'admin' => true ],
 			'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash', 'admin' => true ],
-			'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete', 'admin' => true ]
+			'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete', 'admin' => true ],
+			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\notification\Bulk', 'admin' => true ]
 		];
 	}
 
-	// NotificationController ------------
-}
+	// CMG interfaces ------------------------
 
-?>
+	// CMG parent classes --------------------
+
+	// NotificationController ----------------
+
+}

@@ -2,7 +2,7 @@
 namespace cmsgears\notify\frontend\controllers\apix;
 
 // Yii Imports
-use \Yii;
+use Yii;
 use yii\filters\VerbFilter;
 
 // CMG Imports
@@ -44,17 +44,19 @@ class NotificationController extends \cmsgears\core\common\controllers\base\Cont
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'toggleRead' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
+					'toggle-read' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
 					'trash' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
-					'delete' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ]
+					'delete' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
+					'bulk' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
 				'class' => VerbFilter::className(),
 				'actions' => [
-					'toggleRead' => [ 'post' ],
+					'toggle-read' => [ 'post' ],
 					'trash' => [ 'post' ],
-					'delete' => [ 'post' ]
+					'delete' => [ 'post' ],
+					'bulk' => [ 'post' ]
 				]
 			]
 		];
@@ -64,13 +66,11 @@ class NotificationController extends \cmsgears\core\common\controllers\base\Cont
 
 	public function actions() {
 
-		$user		= Yii::$app->user->getIdentity();
-		$conditions	= [ 'userId' => $user->id ];
-
 		return [
-			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead', 'conditions' => $conditions ],
-			'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash', 'conditions' => $conditions ],
-			'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete', 'conditions' => $conditions ]
+			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead' ],
+			'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash' ],
+			'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete' ],
+			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\notification\Bulk' ]
 		];
 	}
 
@@ -79,4 +79,5 @@ class NotificationController extends \cmsgears\core\common\controllers\base\Cont
 	// CMG parent classes --------------------
 
 	// NotificationController ----------------
+
 }

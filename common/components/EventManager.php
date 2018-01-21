@@ -2,13 +2,14 @@
 namespace cmsgears\notify\common\components;
 
 // Yii Imports
-use \Yii;
+use Yii;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\models\entities\Notification;
+use cmsgears\notify\common\models\entities\Activity;
 
 class EventManager extends \cmsgears\core\common\components\EventManager {
 
@@ -24,8 +25,10 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 	protected $userService;
 	protected $notificationService;
+	protected $reminderService;
 
 	protected $templateService;
+	protected $activityService;
 
 	// Private ----------------
 
@@ -35,10 +38,13 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 		parent::init();
 
-		$this->userService				= Yii::$app->factory->get( 'userService' );
-		$this->notificationService		= Yii::$app->factory->get( 'notificationService' );
+		$this->userService			= Yii::$app->factory->get( 'userService' );
+		$this->notificationService	= Yii::$app->factory->get( 'notificationService' );
+		$this->reminderService		= Yii::$app->factory->get( 'reminderService' );
 
-		$this->templateService			= Yii::$app->factory->get( 'templateService' );
+		$this->activityService		= Yii::$app->factory->get( 'activityService' );
+
+		$this->templateService		= Yii::$app->factory->get( 'templateService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -55,12 +61,22 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 		// Query
 		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
-		$notificationCounts	= $this->notificationService->getStatusCounts( [ 'conditions' => [ 'admin' => true ] ] );
+		$newNotifications	= $this->notificationService->getCount( false, true );
+
+		$reminders			= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
+		$newReminders		= $this->reminderService->getCount( false, true );
+		
+		$activities			= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
+		$newActivities		= $this->activityService->getCount( false, true );
 
 		// Results
 		$stats							= parent::getAdminStats();
 		$stats[ 'notifications' ]		= $notifications;
-		$stats[ 'notificationCount' ]	= $notificationCounts[ Notification::STATUS_NEW ];
+		$stats[ 'notificationCount' ]	= $newNotifications;
+		$stats[ 'reminders' ]			= $reminders;
+		$stats[ 'reminderCount' ]		= $newReminders;
+		$stats[ 'activities' ]			= $activities;
+		$stats[ 'activityCount' ]		= $newActivities;
 
 		return $stats;
 	}
@@ -68,14 +84,19 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 	public function getUserStats() {
 
 		// Query
-		$user				= Yii::$app->user->getIdentity();
-		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
-		$notificationCounts	= $this->notificationService->getStatusCounts( [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
+		$user			= Yii::$app->user->getIdentity();
+		$notifications	= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
+		$new			= $this->notificationService->getUserCount( $user->id, false, false );
+
+		$reminders		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
+		$newReminders	= $this->reminderService->getUserCount( $user->id, false, false );
 
 		// Results
 		$stats							= parent::getAdminStats();
 		$stats[ 'notifications' ]		= $notifications;
-		$stats[ 'notificationCount' ]	= $notificationCounts[ Notification::STATUS_NEW ];
+		$stats[ 'notificationCount' ]	= $new;
+		$stats[ 'reminders' ]			= $reminders;
+		$stats[ 'reminderCount' ]		= $newReminders;
 
 		return $stats;
 	}
@@ -83,7 +104,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 	// Notification Trigger ---
 
 	/**
-	 * It trigger nitification and also send mail based on the configuration.
+	 * It trigger notification and also send mail based on the configuration.
 	 *
 	 * * Generates notification message using given template slug, models and config. Template manager will be used to generate this message.
 	 *
@@ -108,6 +129,13 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		// Generate Message
 
 		$template	= $this->templateService->getBySlugType( $templateSlug, NotifyGlobal::TYPE_NOTIFICATION );
+
+		// Do nothing if template not found or disabled
+		if( empty( $template ) || !$template->isActive() ) {
+
+			return;
+		}
+
 		$message	= Yii::$app->templateManager->renderMessage( $template, $models, $config );
 
 		// Trigger Notification
@@ -115,8 +143,14 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		$templateConfig			= $template->getDataMeta( CoreGlobal::DATA_CONFIG );
 
 		$notification			= new Notification();
-		$notification->status	= Notification::STATUS_NEW;
+		$notification->consumed	= false;
+		$notification->trash	= false;
 		$notification->content	= $message;
+
+		if( isset( $config[ 'createdBy' ] ) ) {
+
+			$notification->createdBy	= $config[ 'createdBy' ];
+		}
 
 		if( isset( $config[ 'parentId' ] ) ) {
 
@@ -153,7 +187,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 			}
 
 			// Create Notification
-			$this->notificationService->create( $notification );
+			$this->notificationService->create( $notification, $config );
 
 			if( $templateConfig->adminEmail ) {
 
@@ -171,13 +205,13 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 				$userNotification			= new Notification();
 
-				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'title', 'status', 'link', 'content' ] );
+				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'title', 'consumed', 'trash', 'link', 'content', 'createdBy' ] );
 
 				$userNotification->userId	= $userId;
 				$userNotification->admin	= false;
 
 				// Create Notification
-				$this->notificationService->create( $userNotification );
+				$this->notificationService->create( $userNotification, $config );
 
 				if( $templateConfig->userEmail ) {
 
@@ -191,7 +225,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		if( !$templateConfig->admin && !$templateConfig->user ) {
 
 			// Create Notification
-			$this->notificationService->create( $notification );
+			$this->notificationService->create( $notification, $config );
 
 			if( isset( $config[ 'email' ] ) ) {
 
@@ -210,8 +244,80 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 	// Activity Logger --------
 
-	public function logActivity( $template, $message, $config = [] ) {
+	public function triggerActivity( $templateSlug, $models, $config = [] ) {
 
-		// Trigger notifications using given template, message and config
+		// Trigger Activity using given template, message and config
+
+		// Return in case Activity are disabled at system level.
+		if( !Yii::$app->core->isActivities() ) {
+
+			return false;
+		}
+
+		// Generate Message
+		$template	= $this->templateService->getBySlugType( $templateSlug, NotifyGlobal::TYPE_ACTIVITY );
+
+		// Do nothing if template not found or disabled
+		if( empty( $template ) || !$template->isActive() ) {
+
+			return;
+		}
+
+		$message	= Yii::$app->templateManager->renderMessage( $template, $models, $config );
+
+		// Trigger Notification
+
+		$templateConfig			= $template->getDataMeta( CoreGlobal::DATA_CONFIG );
+
+		$activity			= new Activity();
+		$activity->consumed	= false;
+		$activity->admin	= true;
+		$activity->trash	= false;
+		$activity->content	= $message;
+
+		if( isset( $config[ 'userId' ] ) ) {
+
+			$activity->userId	= $config[ 'userId' ];
+		}
+
+		if( isset( $config[ 'parentId' ] ) ) {
+
+			$activity->parentId = $config[ 'parentId' ];
+		}
+
+		if( isset( $config[ 'parentType' ] ) ) {
+
+			$activity->parentType = $config[ 'parentType' ];
+		}
+		
+		$activity->type = "log";
+		
+		if( isset( $config[ 'title' ] ) ) {
+
+			$activity->title = $config[ 'title' ];
+		}
+		else {
+
+			$activity->title = $template->name;
+		}
+		
+		// Create Notification
+		$this->activityService->create( $activity, $config );
+
+	}
+
+	// Delete Activity ---
+
+	
+	public function deleteActivity( $parentId, $parentType, $user = false ) {
+
+		return $this->activityService->deleteByParent( $parentId, $parentType, $user );
+	}
+
+	// Delete Notifications ---
+
+	public function deleteNotifications( $parentId, $parentType, $user = false ) {
+
+		return $this->notificationService->deleteByParent( $parentId, $parentType, $user );
 	}
 }

@@ -2,11 +2,7 @@
 namespace cmsgears\notify\common\components;
 
 // Yii Imports
-use \Yii;
-use yii\di\Container;
-
-// CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
+use Yii;
 
 class Notify extends \yii\base\Component {
 
@@ -46,27 +42,43 @@ class Notify extends \yii\base\Component {
 	public function registerComponents() {
 
 		// Register services
+		$this->registerResourceServices();
 		$this->registerEntityServices();
 
 		// Init services
+		$this->initResourceServices();
 		$this->initEntityServices();
+	}
+
+	public function registerResourceServices() {
+
+		$factory = Yii::$app->factory->getContainer();
+
+		$factory->set( 'cmsgears\notify\common\services\interfaces\resources\IEventReminderService', 'cmsgears\notify\common\services\resources\EventReminderService' );
 	}
 
 	public function registerEntityServices() {
 
 		$factory = Yii::$app->factory->getContainer();
 
+		$factory->set( 'cmsgears\notify\common\services\interfaces\entities\IActivityService', 'cmsgears\notify\common\services\entities\ActivityService' );
 		$factory->set( 'cmsgears\notify\common\services\interfaces\entities\INotificationService', 'cmsgears\notify\common\services\entities\NotificationService' );
 		$factory->set( 'cmsgears\notify\common\services\interfaces\entities\IEventService', 'cmsgears\notify\common\services\entities\EventService' );
-		$factory->set( 'cmsgears\notify\common\services\interfaces\entities\IReminderService', 'cmsgears\notify\common\services\entities\ReminderService' );
+	}
+
+	public function initResourceServices() {
+
+		$factory = Yii::$app->factory->getContainer();
+
+		$factory->set( 'reminderService', 'cmsgears\notify\common\services\resources\EventReminderService' );
 	}
 
 	public function initEntityServices() {
 
 		$factory = Yii::$app->factory->getContainer();
 
+		$factory->set( 'activityService', 'cmsgears\notify\common\services\entities\ActivityService' );
 		$factory->set( 'notificationService', 'cmsgears\notify\common\services\entities\NotificationService' );
 		$factory->set( 'eventService', 'cmsgears\notify\common\services\entities\EventService' );
-		$factory->set( 'reminderService', 'cmsgears\notify\common\services\entities\ReminderService' );
 	}
 }

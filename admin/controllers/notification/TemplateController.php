@@ -2,7 +2,7 @@
 namespace cmsgears\notify\admin\controllers\notification;
 
 // Yii Imports
-use \Yii;
+use Yii;
 use yii\helpers\Url;
 
 // CMG Imports
@@ -29,12 +29,24 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 		parent::init();
 
-		$this->sidebar 		= [ 'parent' => 'sidebar-notify', 'child' => 'notification-template' ];
-
+		// Type
 		$this->type			= NotifyGlobal::TYPE_NOTIFICATION;
 
+		// Sidebar
+		$this->sidebar 		= [ 'parent' => 'sidebar-notify', 'child' => 'template' ];
+
+		// Return Url
 		$this->returnUrl	= Url::previous( 'templates' );
 		$this->returnUrl	= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/template/all' ], true );
+
+		// Breadcrumbs
+		$this->breadcrumbs	= [
+			'base' => [ [ 'label' => 'Notifications', 'url' =>  [ '/notify/notification/all' ] ] ],
+			'all' => [ [ 'label' => 'Templates' ] ],
+			'create' => [ [ 'label' => 'Templates', 'url' => $this->returnUrl ], [ 'label' => 'Add' ] ],
+			'update' => [ [ 'label' => 'Templates', 'url' => $this->returnUrl ], [ 'label' => 'Update' ] ],
+			'delete' => [ [ 'label' => 'Templates', 'url' => $this->returnUrl ], [ 'label' => 'Delete' ] ]
+		];
 	}
 
 	// Instance methods --------------------------------------------
@@ -55,7 +67,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 	public function actionAll() {
 
-		Url::remember( [ 'notification/template/all' ], 'templates' );
+		Url::remember( Yii::$app->request->getUrl(), 'templates' );
 
 		return parent::actionAll();
 	}
@@ -79,7 +91,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 			$model->updateDataMeta( CoreGlobal::DATA_CONFIG, $config );
 
-			return $this->redirect( $this->returnUrl );
+			return $this->redirect( "update?id=$model->id" );
 		}
 
 		return $this->render( 'create', [
@@ -107,7 +119,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 				$model->updateDataMeta( CoreGlobal::DATA_CONFIG, $config );
 
-				return $this->redirect( $this->returnUrl );
+				return $this->refresh();
 			}
 
 			return $this->render( 'update', [

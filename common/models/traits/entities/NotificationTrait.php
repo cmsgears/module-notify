@@ -2,8 +2,7 @@
 namespace cmsgears\notify\common\models\traits\entities;
 
 // Yii Imports
-use \Yii;
-use \yii\db\Query;
+use yii\db\Query;
 
 // CMG Imports
 use cmsgears\notify\common\models\base\NotifyTables;
@@ -28,9 +27,10 @@ trait NotificationTrait {
 
 	// NotificationTrait ---------------------
 
-	public function getModelNotifications() {
+	public function getNotifications() {
 
-		return Notification::findByParent( $this->id, $this->mParentType );
+		return $this->hasMany( Notification::className(), [ 'parentId' => 'id' ] )
+					->where( "parentType='$this->modelType'" );
 	}
 
 	public function getNotificationStatusCounts() {
@@ -42,7 +42,7 @@ trait NotificationTrait {
 
 		$query->select( [ 'status', 'count(id) as total' ] )
 				->from( $notifyTable )
-				->where( [ 'parentId' => $this->id, 'parentType' => $this->mParentType ] )
+				->where( [ 'parentId' => $this->id, 'parentType' => $this->modelType ] )
 				->groupBy( 'status' );
 
 		$counts     = $query->all();
@@ -80,4 +80,5 @@ trait NotificationTrait {
 	// Update -----------------
 
 	// Delete -----------------
+
 }

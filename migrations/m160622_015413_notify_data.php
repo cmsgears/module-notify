@@ -7,7 +7,11 @@ use cmsgears\core\common\models\entities\User;
 
 class m160622_015413_notify_data extends \yii\db\Migration {
 
-	public $prefix;
+	// Public Variables
+
+	// Private Variables
+
+	private $prefix;
 
 	private $site;
 
@@ -15,7 +19,8 @@ class m160622_015413_notify_data extends \yii\db\Migration {
 
 	public function init() {
 
-		$this->prefix		= 'cmg_';
+		// Table prefix
+		$this->prefix	= Yii::$app->migration->cmgPrefix;
 
 		$this->site		= Site::findBySlug( CoreGlobal::SITE_MAIN );
 		$this->master	= User::findByUsername( Yii::$app->migration->getSiteMaster() );

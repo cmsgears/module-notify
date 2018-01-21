@@ -5,8 +5,21 @@ class NotifyGlobal {
 
 	// Traits - Metas, Tags, Attachments, Addresses --------------------
 
-	const TYPE_EVENT			= 'event';
+	const TYPE_ACTIVITY		= 'activity';
+
+
+	const TYPE_EVENT		= 'event';
+
+
 	const TYPE_NOTIFICATION		= 'notification';
+
+	const TYPE_REMINDER		= 'reminder';
+
+	// Template 
+	
+	const TEMPLATE_LOG_CREATE	= 'create';
+	const TEMPLATE_LOG_UPDATE	= 'update';
+	const TEMPLATE_LOG_DELETE	= 'delete';
 
 	// Permissions -----------------------------------------------------
 

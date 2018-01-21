@@ -29,13 +29,23 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 
 		parent::init();
 
+		// Permission
 		$this->crudPermission 	= CoreGlobal::PERM_CORE;
+
+		// Services
 		$this->modelService		= Yii::$app->factory->get( 'notificationService' );
 
+		// Sidebar
 		$this->sidebar 			= [ 'parent' => 'sidebar-notify', 'child' => 'notification' ];
 
+		// Return Url
 		$this->returnUrl		= Url::previous( 'notifications' );
 		$this->returnUrl		= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/all' ], true );
+
+		// Breadcrumbs
+		$this->breadcrumbs		= [
+			'all' => [ [ 'label' => 'Notifications' ] ]
+		];
 	}
 
 	// Instance methods --------------------------------------------
@@ -52,15 +62,15 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'index'  => [ 'permission' => $this->crudPermission ],
-					'all'    => [ 'permission' => $this->crudPermission ]
+					'index' => [ 'permission' => $this->crudPermission ],
+					'all' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
 				'class' => VerbFilter::className(),
 				'actions' => [
-					'index'  => [ 'get' ],
-					'all'   => [ 'get' ]
+					'index' => [ 'get' ],
+					'all' => [ 'get' ]
 				]
 			]
 		];
@@ -81,7 +91,7 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 
 	public function actionAll() {
 
-		Url::remember( [ 'notification/all' ], 'notifications' );
+		Url::remember( Yii::$app->request->getUrl(), 'notifications' );
 
 		$dataProvider = $this->modelService->getPageForAdmin();
 

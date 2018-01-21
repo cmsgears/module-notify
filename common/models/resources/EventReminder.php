@@ -2,26 +2,36 @@
 namespace cmsgears\notify\common\models\resources;
 
 // Yii Imports
-use \Yii;
+use Yii;
 
 // CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\notify\common\models\base\NotifyTables;
+
+use cmsgears\core\common\models\interfaces\IOwner;
 
 use cmsgears\core\common\models\entities\User;
-use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\notify\common\models\entities\Event;
 
+use cmsgears\core\common\models\traits\resources\DataTrait;
 
 /**
- * EventReminder Entity
+ * Reminder Entity
  *
- * @property long $id
- * @property long $eventId
- * @property long $userId
- * @property datetime $scheduledAt
- * @property short $status
+ * @property integer $id
+ * @property integer $siteId
+ * @property integer $eventId
+ * @property integer $userId
+ * @property string $title
+ * @property string $link
+ * @property boolean $admin
+ * @property string $adminLink
+ * @property boolean $consumed
+ * @property boolean $trash
+ * @property date $scheduledAt
+ * @property string $content
+ * @property string $data
  */
-class EventReminder extends \cmsgears\core\common\models\base\Mapper {
+class EventReminder extends \cmsgears\core\common\models\base\Entity implements IOwner {
 
 	// Variables ---------------------------------------------------
 
@@ -43,6 +53,8 @@ class EventReminder extends \cmsgears\core\common\models\base\Mapper {
 
 	// Traits ------------------------------------------------------
 
+	use DataTrait;
+
 	// Constructor and Initialisation ------------------------------
 
 	// Instance methods --------------------------------------------
@@ -60,12 +72,19 @@ class EventReminder extends \cmsgears\core\common\models\base\Mapper {
 	 */
 	public function rules() {
 
-		return [
-			[ [ 'eventId', 'userId' ], 'required' ],
-			[ [ 'eventId', 'userId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
-			[ 'status', 'number', 'integerOnly' => true, 'min' => 0 ],
-			[ [ 'scheduledAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
+		$rules = [
+			// Required, Safe
+			[ [ 'eventId', 'scheduledAt' ], 'required' ],
+			[ [ 'id', 'siteId' ], 'safe' ],
+			// Text Limit
+			[ [ 'title', 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
+			// Other
+			[ [ 'admin', 'consumed', 'trash' ], 'boolean' ],
+			[ [ 'scheduledAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ],
+			[ [ 'eventId', 'userId' ], 'number', 'integerOnly' => true, 'min' => 1 ]
 		];
+
+		return $rules;
 	}
 
 	/**
@@ -74,19 +93,40 @@ class EventReminder extends \cmsgears\core\common\models\base\Mapper {
 	public function attributeLabels() {
 
 		return [
-			'eventId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_EVENT ),
+			'eventId' => 'Event',
 			'userId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_USER ),
-			'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS )
+			'title' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TITLE ),
+			'link' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
+			'admin' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
+			'adminLink' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW_ADMIN ),
+			'consumed' => 'Consumed',
+			'trash' => 'Trash',
+			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT )
 		];
 	}
 
-	// CMG interfaces ------------------------
+	// IOwner -----------------
+
+	public function isOwner( $user = null, $strict = false ) {
+
+		if( !isset( $user ) && !$strict ) {
+
+			$user	= Yii::$app->user->getIdentity();
+		}
+
+		if( isset( $user ) ) {
+
+			return $this->userId == $user->id;
+		}
+
+		return false;
+	}
 
 	// CMG parent classes --------------------
 
 	// Validators ----------------------------
 
-	// EventParticipant ----------------------
+	// Reminder ---------------------------------
 
 	public function getEvent() {
 
@@ -96,6 +136,58 @@ class EventReminder extends \cmsgears\core\common\models\base\Mapper {
 	public function getUser() {
 
 		return $this->hasOne( User::className(), [ 'id' => 'userId' ] );
+	}
+
+	public function isNew() {
+
+		return !$this->consumed;
+	}
+
+	public function isConsumed() {
+
+		return $this->consumed;
+	}
+
+	public function getConsumedStr() {
+
+		return Yii::$app->formatter->asBoolean( $this->consumed );
+	}
+
+	public function isTrash() {
+
+		return $this->trash;
+	}
+
+	public function getTrashStr() {
+
+		return Yii::$app->formatter->asBoolean( $this->trash );
+	}
+
+	public function toHtml() {
+
+		$content	= "<li class='new'>";
+
+		if( $this->isConsumed() ) {
+
+			$content	= "<li class='consumed'>";
+		}
+
+		if( $this->isTrash() ) {
+
+			$content	= "<li class='trash'>";
+		}
+
+		if( !empty( $this->link ) ) {
+
+			$link		 = Url::toRoute( [ $this->link ], true );
+			$content	.= "<a href='$link'>$this->content</a></li>";
+		}
+		else {
+
+			$content	.= "$this->content</li>";
+		}
+
+		return $content;
 	}
 
 	// Static Methods ----------------------------------------------
@@ -114,7 +206,7 @@ class EventReminder extends \cmsgears\core\common\models\base\Mapper {
 
 	// CMG parent classes --------------------
 
-	// SiteMember ----------------------------
+	// Reminder ---------------------------------
 
 	// Read - Query -----------
 
@@ -140,6 +232,11 @@ class EventReminder extends \cmsgears\core\common\models\base\Mapper {
 		return parent::queryWithAll( $config );
 	}
 
+	public static function queryByUserId( $userId ) {
+
+		return static::find()->where( 'userId=:uid', [ ':uid' => $userId ] );
+	}
+
 	// Read - Find ------------
 
 	// Create -----------------
@@ -150,11 +247,14 @@ class EventReminder extends \cmsgears\core\common\models\base\Mapper {
 
 	public static function deleteByEventId( $eventId ) {
 
-		self::deleteAll( 'eventId=:id', [ ':id' => $eventId ] );
+		return self::deleteAll( [ 'eventId' => $eventId ] );
 	}
 
+	/**
+	 * Delete all entries related to a user
+	 */
 	public static function deleteByUserId( $userId ) {
 
-		self::deleteAll( 'userId=:id', [ ':id' => $userId ] );
+		self::deleteAll( 'userId=:uid', [ ':uid' => $userId ] );
 	}
 }

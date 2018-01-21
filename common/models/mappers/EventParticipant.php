@@ -1,8 +1,8 @@
 <?php
-namespace cmsgears\notify\common\models\entities;
+namespace cmsgears\notify\common\models\mappers;
 
 // Yii Imports
-use \Yii;
+use Yii;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
@@ -20,7 +20,7 @@ use cmsgears\notify\common\models\entities\Event;
  * @property long $userId
  * @property boolean $active
  */
-class EventParticipant extends \cmsgears\core\common\models\base\Mapper {
+class EventParticipant extends \cmsgears\core\common\models\base\Entity {
 
 	// Variables ---------------------------------------------------
 

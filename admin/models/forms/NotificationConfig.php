@@ -1,12 +1,6 @@
 <?php
 namespace cmsgears\notify\admin\models\forms;
 
-// Yii Imports
-use \Yii;
-
-// CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
-
 class NotificationConfig extends \cmsgears\core\common\models\forms\JsonModel {
 
 	// Variables ---------------------------------------------------

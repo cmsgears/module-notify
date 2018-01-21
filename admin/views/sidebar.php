@@ -3,32 +3,94 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 
-$core	= Yii::$app->core;
-$user	= Yii::$app->user->getIdentity();
+// CMG Imports
+use cmsgears\core\common\config\CoreGlobal;
 
-$adminStats		= Yii::$app->eventManager->getAdminStats();
-$count			= $adminStats[ 'notificationCount' ];
-$notifCount1	= "<span class='right inline-block'>
-					<span class='upd-count upd-count-rounded upd-count-notification-all circled1 valign-center upd-count-$count'>$count</span>
-				</span>";
+$core		= Yii::$app->core;
+$user		= Yii::$app->user->getIdentity();
 
-$notifCount2	= "<span class='upd-count upd-count-notification-all upd-count-$count right'>$count</span>";
+$stats		= Yii::$app->eventManager->getAdminStats();
+$acount		= $stats[ 'activityCount' ];
+$ncount		= $stats[ 'notificationCount' ];
+$rcount		= $stats[ 'reminderCount' ];
 ?>
 
-<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( 'core' ) ) { ?>
-	<div id="sidebar-notify" class="collapsible-tab has-children <?php if( strcmp( $parent, 'sidebar-notify' ) == 0 ) echo 'active'; ?>">
-		<div class="collapsible-tab-header clearfix">
-			<div class="colf colf5 wrap-icon"><span class="cmti cmti-chart-column"></span></div>
-			<div class="colf colf5x4">
-				Notifications <?= $notifCount1 ?>
+<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
+	<div id="sidebar-activity" class="collapsible-tab has-children <?php if( strcmp( $parent, 'sidebar-activity' ) == 0 ) echo 'active'; ?>">
+		<div class="row tab-header">
+			<div class="tab-icon"><span class="cmti cmti-event"></span></div>
+			<div class="tab-title">Activities
+			<?php if( $acount > 0 ) { ?>
+					<span class="count-sidebar count-sidebar-header"><?= $acount ?></span>
+				<?php } ?>			
 			</div>
 		</div>
-		<div class="collapsible-tab-content clear <?php if( strcmp( $parent, 'sidebar-notify' ) == 0 ) echo 'expanded visible';?>">
+		<div class="tab-content clear <?php if( strcmp( $parent, 'sidebar-activity' ) == 0 ) echo 'expanded visible';?>">
+			<ul>
+				<li class='activity <?php if( strcmp( $child, 'activity' ) == 0 ) echo 'active'; ?>'>
+					<a href="<?= Url::toRoute( [ '/notify/activity/all' ], true ) ?>">
+						Activities
+						<?php if( $acount > 0 ) { ?>
+							<span class="count-sidebar count-sidebar-content "><?= $acount ?></span>
+						<?php } ?>
+					</a>
+				</li>
+				<li class='template <?php if( strcmp( $child, 'template' ) == 0 ) echo 'active'; ?>'><?= Html::a( "Templates", [ '/notify/activity/template/all' ] ) ?></li>
+			</ul>
+		</div>
+	</div>
+<?php } ?>
+
+<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
+	<div id="sidebar-notify" class="collapsible-tab has-children <?php if( strcmp( $parent, 'sidebar-notify' ) == 0 ) echo 'active'; ?>">
+		<div class="row tab-header">
+			<div class="tab-icon"><span class="cmti cmti-flag"></span></div>
+			<div class="tab-title">
+				Notifications
+				<?php if( $ncount > 0 ) { ?>
+					<span class="count-sidebar count-sidebar-header count-notification"><?= $ncount ?></span>
+				<?php } ?>
+			</div>
+		</div>
+		<div class="tab-content clear <?php if( strcmp( $parent, 'sidebar-notify' ) == 0 ) echo 'expanded visible';?>">
 			<ul>
 				<li class='notification <?php if( strcmp( $child, 'notification' ) == 0 ) echo 'active'; ?>'>
-					<?= Html::a( "Notifications $notifCount2", [ '/notify/notification/all' ] ) ?>
+					<a href="<?= Url::toRoute( [ '/notify/notification/all' ], true ) ?>">
+						Notifications
+						<?php if( $ncount > 0 ) { ?>
+							<span class="count-sidebar count-sidebar-content count-notification"><?= $ncount ?></span>
+						<?php } ?>
+					</a>
 				</li>
-				<li class='notification-template <?php if( strcmp( $child, 'notification-template' ) == 0 ) echo 'active'; ?>'><?= Html::a( "Notification Templates", [ '/notify/notification/template/all' ] ) ?></li>
+				<li class='template <?php if( strcmp( $child, 'template' ) == 0 ) echo 'active'; ?>'><?= Html::a( "Templates", [ '/notify/notification/template/all' ] ) ?></li>
+			</ul>
+		</div>
+	</div>
+<?php } ?>
+
+<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
+	<div id="sidebar-reminder" class="collapsible-tab has-children <?php if( strcmp( $parent, 'sidebar-reminder' ) == 0 ) echo 'active'; ?>">
+		<div class="row tab-header">
+			<div class="tab-icon"><span class="cmti cmti-bell"></span></div>
+			<div class="tab-title">
+				Reminders
+				<?php if( $rcount > 0 ) { ?>
+					<span class="count-sidebar count-sidebar-header count-reminder"><?= $rcount ?></span>
+				<?php } ?>
+			</div>
+		</div>
+		<div class="tab-content clear <?php if( strcmp( $parent, 'sidebar-reminder' ) == 0 ) echo 'expanded visible';?>">
+			<ul>
+				<li class='event <?php if( strcmp( $child, 'event' ) == 0 ) echo 'active'; ?>'><?= Html::a( "Events", [ '/notify/event/all' ] ) ?></li>
+				<li class='reminder <?php if( strcmp( $child, 'reminder' ) == 0 ) echo 'active'; ?>'>
+					<a href="<?= Url::toRoute( [ '/notify/reminder/all' ], true ) ?>">
+						Reminders
+						<?php if( $rcount > 0 ) { ?>
+							<span class="count-sidebar count-sidebar-content count-reminder"><?= $rcount ?></span>
+						<?php } ?>
+					</a>
+				</li>
+				<li class='template <?php if( strcmp( $child, 'template' ) == 0 ) echo 'active'; ?>'><?= Html::a( "Templates", [ '/notify/reminder/template/all' ] ) ?></li>
 			</ul>
 		</div>
 	</div>
