@@ -1,34 +1,66 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\common\models\entities;
 
 // Yii Imports
 use Yii;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 use yii\behaviors\TimestampBehavior;
+use yii\behaviors\SluggableBehavior;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
 
+use cmsgears\core\common\models\interfaces\base\IAuthor;
+use cmsgears\core\common\models\interfaces\base\IModelResource;
+use cmsgears\core\common\models\interfaces\base\IMultiSite;
+use cmsgears\core\common\models\interfaces\base\INameType;
+use cmsgears\core\common\models\interfaces\base\IOwner;
+use cmsgears\core\common\models\interfaces\base\ISlugType;
+use cmsgears\core\common\models\interfaces\resources\IData;
+use cmsgears\core\common\models\interfaces\resources\IModelMeta;
+use cmsgears\core\common\models\interfaces\resources\ITemplate;
+use cmsgears\core\common\models\interfaces\resources\IVisual;
+use cmsgears\core\common\models\interfaces\mappers\IFile;
+
+use cmsgears\core\common\models\base\Entity;
+use cmsgears\core\common\models\entities\User;
 use cmsgears\notify\common\models\base\NotifyTables;
 
-use cmsgears\core\common\models\entities\Site;
-use cmsgears\core\common\models\entities\User;
-
-use cmsgears\core\common\models\traits\CreateModifyTrait;
-use cmsgears\core\common\models\traits\NameTypeTrait;
-use cmsgears\core\common\models\traits\ResourceTrait;
-use cmsgears\core\common\models\traits\SlugTypeTrait;
+use cmsgears\core\common\models\traits\base\AuthorTrait;
+use cmsgears\core\common\models\traits\base\ModelResourceTrait;
+use cmsgears\core\common\models\traits\base\MultiSiteTrait;
+use cmsgears\core\common\models\traits\base\NameTypeTrait;
+use cmsgears\core\common\models\traits\base\SlugTypeTrait;
+use cmsgears\core\common\models\traits\base\UserOwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
+use cmsgears\core\common\models\traits\resources\ModelMetaTrait;
+use cmsgears\core\common\models\traits\resources\TemplateTrait;
+use cmsgears\core\common\models\traits\resources\VisualTrait;
+use cmsgears\core\common\models\traits\mappers\FileTrait;
 
 use cmsgears\core\common\behaviors\AuthorBehavior;
 
 /**
- * Event Entity
+ * Event model represents an event on calendar. Scheduled reminders will be triggered for
+ * the event according to it's configuration.
  *
  * @property integer $id
  * @property integer $siteId
+ * @property integer $templateId
  * @property integer $userId
+ * @property integer $avatarId
+ * @property integer $bannerId
+ * @property integer $videoId
  * @property integer $createdBy
  * @property integer $modifiedBy
  * @property integer $parentId
@@ -37,12 +69,13 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  * @property string $slug
  * @property string $type
  * @property string $icon
+ * @property string $title
  * @property string $description
  * @property short $preReminderCount
  * @property short $preReminderInterval
+ * @property short $preIntervalUnit
  * @property short $postReminderCount
  * @property short $postReminderInterval
- * @property short $preIntervalUnit
  * @property short $postIntervalUnit
  * @property boolean $admin
  * @property boolean $multiUser
@@ -50,10 +83,17 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  * @property datetime $createdAt
  * @property datetime $modifiedAt
  * @property datetime $scheduledAt
+ * @property datetime $triggeredAt
  * @property string $content
  * @property string $data
+ * @property string $gridCache
+ * @property boolean $gridCacheValid
+ * @property datetime $gridCachedAt
+ *
+ * @since 1.0.0
  */
-class Event extends \cmsgears\core\common\models\base\Entity {
+class Event extends Entity implements IAuthor, IData, IFile, IModelMeta, IModelResource, IMultiSite,
+	INameType, IOwner, ISlugType, ITemplate, IOwner, IVisual {
 
 	// Variables ---------------------------------------------------
 
@@ -91,35 +131,39 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 	public static $unitMap = [
 		self::UNIT_YEAR => 'year',
 		self::UNIT_MONTH => 'month',
-		self::UNIT_DAY => 'days',
-		self::UNIT_HOUR => 'hours',
+		self::UNIT_DAY => 'day',
+		self::UNIT_HOUR => 'hour',
 		self::UNIT_MINUTE => 'minute',
-		self::UNIT_SECOND => 'seconds'
+		self::UNIT_SECOND => 'second'
 	];
 
 	// Public -----------------
 
 	// Protected --------------
 
-	public static $multiSite = true;
-
 	// Variables -----------------------------
 
 	// Public -----------------
-
-	public $modelType	= NotifyGlobal::TYPE_EVENT;
 
 	// Protected --------------
 
 	// Private ----------------
 
+	private $modelType	= NotifyGlobal::TYPE_EVENT;
+
 	// Traits ------------------------------------------------------
 
-	use CreateModifyTrait;
+	use AuthorTrait;
 	use DataTrait;
+	use FileTrait;
+	use ModelResourceTrait;
+	use ModelMetaTrait;
+	use MultiSiteTrait;
 	use NameTypeTrait;
-	use ResourceTrait;
 	use SlugTypeTrait;
+	use TemplateTrait;
+	use UserOwnerTrait;
+	use VisualTrait;
 
 	// Constructor and Initialisation ------------------------------
 
@@ -134,20 +178,27 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 	/**
 	 * @inheritdoc
 	 */
-	public function behaviors() {
+    public function behaviors() {
 
-		return [
-			'authorBehavior' => [
-				'class' => AuthorBehavior::className()
-			],
-			'timestampBehavior' => [
-				'class' => TimestampBehavior::className(),
-				'createdAtAttribute' => 'createdAt',
-				'updatedAtAttribute' => 'modifiedAt',
-				'value' => new Expression('NOW()')
+        return [
+            'authorBehavior' => [
+                'class' => AuthorBehavior::class
+            ],
+            'timestampBehavior' => [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'createdAt',
+                'updatedAtAttribute' => 'modifiedAt',
+                'value' => new Expression('NOW()')
+            ],
+			'sluggableBehavior' => [
+				'class' => SluggableBehavior::class,
+				'attribute' => 'name',
+				'slugAttribute' => 'slug', // Unique for combination of Site Id
+				'ensureUnique' => true,
+				'uniqueValidator' => [ 'targetAttribute' => 'siteId' ]
 			]
-		];
-	}
+        ];
+    }
 
 	// yii\base\Model ---------
 
@@ -156,26 +207,35 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 	 */
 	public function rules() {
 
+		// Model Rules
 		$rules = [
 			// Required, Safe
-			[ [ 'siteId', 'name' ], 'safe' ],
-			[ [ 'id', 'content', 'data' ], 'safe' ],
-			// Unique
-			[ [ 'name', 'type' ], 'unique', 'targetAttribute' => [ 'name', 'type' ] ],
-			[ [ 'slug', 'type' ], 'unique', 'targetAttribute' => [ 'slug', 'type' ] ],
+			[ [ 'name', 'scheduledAt' ], 'required' ],
+			[ [ 'id', 'content', 'data', 'gridCache' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ 'icon', 'string', 'min' => 1, 'max' => Yii::$app->core->largeText ],
 			[ 'name', 'string', 'min' => 1, 'max' => Yii::$app->core->xLargeText ],
-			[ [ 'slug', 'description' ], 'string', 'min' => 0, 'max' => Yii::$app->core->xxLargeText ],
+			[ 'slug', 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
+			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxxLargeText ],
+			[ 'description', 'string', 'min' => 1, 'max' => Yii::$app->core->xtraLargeText ],
 			// Other
-			[ [ 'preReminderCount', 'preReminderInterval', 'postReminderCount', 'postReminderInterval', 'preIntervalUnit', 'postIntervalUnit', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-			[ [ 'admin', 'multiUser' ], 'boolean' ],
-			[ [ 'siteId', 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
-			[ [ 'createdAt', 'modifiedAt', 'scheduledAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
+			[ [ 'preReminderCount', 'preReminderInterval', 'preIntervalUnit', 'postReminderCount', 'postReminderInterval', 'postIntervalUnit', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ [ 'admin', 'multiUser', 'gridCacheValid' ], 'boolean' ],
+			[ 'status', 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ [ 'siteId', 'templateId', 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ [ 'createdAt', 'modifiedAt', 'scheduledAt', 'triggeredAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
 
-		return $rules;
+		// Trim Text
+        if( Yii::$app->core->trimFieldValue ) {
+
+            $trim[] = [ [ 'name', 'title', 'description' ], 'filter', 'filter' => 'trim', 'skipOnArray' => true ];
+
+            return ArrayHelper::merge( $trim, $rules );
+        }
+
+        return $rules;
 	}
 
 	/**
@@ -185,16 +245,19 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 
 		return [
 			'siteId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_SITE ),
+			'templateId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TEMPLATE ),
 			'userId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_USER ),
 			'parentId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
 			'parentType' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
 			'name' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_NAME ),
 			'type' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TYPE ),
 			'icon' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ICON ),
+			'title' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TITLE ),
 			'description' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DESCRIPTION ),
 			'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
 			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT ),
-			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA )
+			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA ),
+			'gridCache' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_GRID_CACHE )
 		];
 	}
 
@@ -206,39 +269,61 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 
 	// Event ---------------------------------
 
-	public function getSite() {
-
-		return $this->hasOne( Site::className(), [ 'id' => 'siteId' ] );
-	}
-
 	/**
-	 * @return User - associated user
+	 * Returns the host user associated with the event.
+	 *
+	 * @return \cmsgears\core\common\models\entities\User
 	 */
 	public function getUser() {
 
-		return $this->hasOne( Activity::className(), [ 'id' => 'userId' ] );
+		return $this->hasOne( User::class, [ 'id' => 'userId' ] );
 	}
 
+	/**
+	 * Returns string representation of admin flag.
+	 *
+	 * @return string
+	 */
 	public function getAdminStr() {
 
 		return Yii::$app->formatter->asBoolean( $this->admin );
 	}
 
+	/**
+	 * Returns string representation of multi user flag.
+	 *
+	 * @return string
+	 */
 	public function getMultiStr() {
 
 		return Yii::$app->formatter->asBoolean( $this->multiUser );
 	}
 
+	/**
+	 * Returns string representation of status.
+	 *
+	 * @return string
+	 */
 	public function getStatusStr() {
 
 		return self::$statusMap[ $this->status ];
 	}
 
+	/**
+	 * Returns string representation of pre reminder interval.
+	 *
+	 * @return string
+	 */
 	public function getPreIntervalStr() {
 
 		return $this->preReminderInterval . self::$unitMap[ $this->preIntervalUnit ];
 	}
 
+	/**
+	 * Returns string representation of post reminder interval.
+	 *
+	 * @return string
+	 */
 	public function getPostIntervalStr() {
 
 		return $this->postReminderInterval . self::$unitMap[ $this->postIntervalUnit ];
@@ -255,7 +340,7 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 	 */
 	public static function tableName() {
 
-		return NotifyTables::TABLE_EVENT;
+		return NotifyTables::getTableName( NotifyTables::TABLE_EVENT );
 	}
 
 	// CMG parent classes --------------------
@@ -264,21 +349,23 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 
 	// Read - Query -----------
 
+	/**
+	 * @inheritdoc
+	 */
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'site', 'user', 'creator', 'modifier' ];
+		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'site', 'template', 'user', 'creator', 'modifier' ];
 		$config[ 'relations' ]	= $relations;
 
 		return parent::queryWithAll( $config );
 	}
 
-	public static function queryWithSite( $config = [] ) {
-
-		$config[ 'relations' ]	= [ 'site' ];
-
-		return parent::queryWithAll( $config );
-	}
-
+	/**
+	 * Return query to find the event with user.
+	 *
+	 * @param array $config
+	 * @return \yii\db\ActiveQuery to query with user.
+	 */
 	public static function queryWithUser( $config = [] ) {
 
 		$config[ 'relations' ]	= [ 'user' ];
@@ -294,4 +381,11 @@ class Event extends \cmsgears\core\common\models\base\Entity {
 
 	// Delete -----------------
 
+	/**
+	 * Delete all entries related to a user
+	 */
+	public static function deleteByUserId( $userId ) {
+
+		self::deleteAll( 'userId=:uid', [ ':uid' => $userId ] );
+	}
 }

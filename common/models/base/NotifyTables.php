@@ -1,7 +1,17 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\common\models\base;
 
-class NotifyTables {
+use cmsgears\core\common\models\base\DbTables;
+
+class NotifyTables extends DbTables {
 
 	// Entities -------------
 
@@ -13,7 +23,7 @@ class NotifyTables {
 
 	const TABLE_EVENT_REMINDER		= 'cmg_notify_event_reminder';
 
-	// Mappers & Traits -----
+	// Mappers --------------
 
 	const TABLE_EVENT_PARTICIPANT	= 'cmg_notify_event_participant';
 }
