@@ -164,7 +164,7 @@ class EventReminder extends Resource implements IData, IOwner {
 	 */
 	public static function tableName() {
 
-		return NotifyTables::getTableName( NotifyTables::ABLE_EVENT_REMINDER );
+		return NotifyTables::getTableName( NotifyTables::TABLE_EVENT_REMINDER );
 	}
 
 	// CMG parent classes --------------------

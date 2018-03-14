@@ -23,6 +23,7 @@ use cmsgears\core\common\models\interfaces\base\IModelResource;
 use cmsgears\core\common\models\interfaces\base\IMultiSite;
 use cmsgears\core\common\models\interfaces\base\IOwner;
 use cmsgears\notify\common\models\interfaces\base\IStatusSwitch;
+use cmsgears\core\common\models\interfaces\resources\IData;
 
 use cmsgears\core\common\models\base\Entity;
 use cmsgears\core\common\models\entities\User;
