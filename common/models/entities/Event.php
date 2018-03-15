@@ -147,9 +147,9 @@ class Event extends Entity implements IAuthor, IData, IFile, IModelMeta, IModelR
 
 	// Protected --------------
 
-	// Private ----------------
+	protected $modelType	= NotifyGlobal::TYPE_EVENT;
 
-	private $modelType	= NotifyGlobal::TYPE_EVENT;
+	// Private ----------------
 
 	// Traits ------------------------------------------------------
 

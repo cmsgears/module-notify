@@ -88,9 +88,9 @@ class Notification extends Entity implements IAuthor, IData, IModelResource, IMu
 
 	// Protected --------------
 
-	// Private ----------------
+	protected $modelType	= NotifyGlobal::TYPE_NOTIFICATION;
 
-	private $modelType	= NotifyGlobal::TYPE_NOTIFICATION;
+	// Private ----------------
 
 	// Traits ------------------------------------------------------
 

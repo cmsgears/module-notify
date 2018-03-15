@@ -14,6 +14,7 @@ use Yii;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\interfaces\base\IOwner;
 use cmsgears\core\common\models\interfaces\resources\IData;
@@ -64,6 +65,8 @@ class EventReminder extends Resource implements IData, IOwner {
 	// Public -----------------
 
 	// Protected --------------
+
+	protected $modelType	= NotifyGlobal::TYPE_REMINDER;
 
 	// Private ----------------
 

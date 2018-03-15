@@ -82,9 +82,9 @@ class Activity extends Entity implements IData, IGridCache, IModelResource, IMul
 
 	// Protected --------------
 
-	// Private ----------------
+	protected $modelType	= NotifyGlobal::TYPE_ACTIVITY;
 
-	private $modelType	= NotifyGlobal::TYPE_ACTIVITY;
+	// Private ----------------
 
 	// Traits ------------------------------------------------------
 

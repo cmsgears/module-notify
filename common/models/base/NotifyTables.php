@@ -11,6 +11,11 @@ namespace cmsgears\notify\common\models\base;
 
 use cmsgears\core\common\models\base\DbTables;
 
+/**
+ * It provide table name constants of db tables available in Notify Module.
+ *
+ * @since 1.0.0
+ */
 class NotifyTables extends DbTables {
 
 	// Entities -------------
