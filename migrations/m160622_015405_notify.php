@@ -66,7 +66,7 @@ class m160622_015405_notify extends Migration {
 
 		$this->createTable( $this->prefix . 'notify_event', [
 			'id' => $this->bigPrimaryKey( 20 ),
-			'siteId' => $this->bigInteger( 20 ),
+			'siteId' => $this->bigInteger( 20 )->notNull(),
 			'templateId' => $this->bigInteger( 20 ),
 			'userId' => $this->bigInteger( 20 ),
 			'avatarId' => $this->bigInteger( 20 ),
@@ -133,7 +133,7 @@ class m160622_015405_notify extends Migration {
 
 		$this->createTable( $this->prefix . 'notify_event_reminder', [
 			'id' => $this->bigPrimaryKey( 20 ),
-			'siteId' => $this->bigInteger( 20 ),
+			'siteId' => $this->bigInteger( 20 )->notNull(),
 			'eventId' => $this->bigInteger( 20 )->notNull(),
 			'userId' => $this->bigInteger( 20 ),
 			'title' => $this->string( Yii::$app->core->xxLargeText )->notNull(),
@@ -162,7 +162,7 @@ class m160622_015405_notify extends Migration {
 
 		$this->createTable( $this->prefix . 'notify_notification', [
 			'id' => $this->bigPrimaryKey( 20 ),
-			'siteId' => $this->bigInteger( 20 ),
+			'siteId' => $this->bigInteger( 20 )->notNull(),
 			'userId' => $this->bigInteger( 20 ),
 			'createdBy' => $this->bigInteger( 20 ),
 			'modifiedBy' => $this->bigInteger( 20 ),
@@ -232,7 +232,7 @@ class m160622_015405_notify extends Migration {
 
 		// Event
 		$this->addForeignKey( 'fk_' . $this->prefix . 'event_site', $this->prefix . 'notify_event', 'siteId', $this->prefix . 'core_site', 'id', 'CASCADE' );
-		$this->addForeignKey( 'fk_' . $this->prefix . 'event_template', $this->prefix . 'notify_event', 'siteId', $this->prefix . 'core_template', 'id', 'SET NULL' );
+		$this->addForeignKey( 'fk_' . $this->prefix . 'event_template', $this->prefix . 'notify_event', 'templateId', $this->prefix . 'core_template', 'id', 'SET NULL' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'event_user', $this->prefix . 'notify_event', 'userId', $this->prefix . 'core_user', 'id', 'CASCADE' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'event_avatar', $this->prefix . 'notify_event', 'avatarId', $this->prefix . 'core_file', 'id', 'SET NULL' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'event_banner', $this->prefix . 'notify_event', 'bannerId', $this->prefix . 'core_file', 'id', 'SET NULL' );

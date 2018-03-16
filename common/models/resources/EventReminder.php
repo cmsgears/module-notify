@@ -66,7 +66,7 @@ class EventReminder extends Resource implements IData, IOwner {
 
 	// Protected --------------
 
-	protected $modelType	= NotifyGlobal::TYPE_REMINDER;
+	protected $modelType = NotifyGlobal::TYPE_REMINDER;
 
 	// Private ----------------
 
@@ -95,7 +95,7 @@ class EventReminder extends Resource implements IData, IOwner {
 		// Model Rules
 		$rules = [
 			// Required, Safe
-			[ [ 'eventId', 'scheduledAt' ], 'required' ],
+			[ [ 'siteId', 'eventId', 'scheduledAt' ], 'required' ],
 			[ [ 'id', 'content', 'data', 'gridCache' ], 'safe' ],
 			// Text Limit
 			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],

@@ -88,7 +88,7 @@ class Notification extends Entity implements IAuthor, IData, IModelResource, IMu
 
 	// Protected --------------
 
-	protected $modelType	= NotifyGlobal::TYPE_NOTIFICATION;
+	protected $modelType = NotifyGlobal::TYPE_NOTIFICATION;
 
 	// Private ----------------
 
@@ -139,6 +139,7 @@ class Notification extends Entity implements IAuthor, IData, IModelResource, IMu
 		// Model Rules
 		$rules = [
 			// Required, Safe
+			[ 'siteId', 'required' ],
 			[ [ 'id', 'content', 'data',  'gridCache' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],

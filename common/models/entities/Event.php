@@ -147,7 +147,7 @@ class Event extends Entity implements IAuthor, IData, IFile, IModelMeta, IModelR
 
 	// Protected --------------
 
-	protected $modelType	= NotifyGlobal::TYPE_EVENT;
+	protected $modelType = NotifyGlobal::TYPE_EVENT;
 
 	// Private ----------------
 
@@ -210,7 +210,7 @@ class Event extends Entity implements IAuthor, IData, IFile, IModelMeta, IModelR
 		// Model Rules
 		$rules = [
 			// Required, Safe
-			[ [ 'name', 'scheduledAt' ], 'required' ],
+			[ [ 'siteId', 'name', 'scheduledAt' ], 'required' ],
 			[ [ 'id', 'content', 'data', 'gridCache' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
