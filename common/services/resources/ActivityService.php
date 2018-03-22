@@ -1,5 +1,13 @@
 <?php
-namespace cmsgears\notify\common\services\entities;
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
+namespace cmsgears\notify\common\services\resources;
 
 // Yii Imports
 use Yii;
@@ -8,17 +16,20 @@ use yii\data\Sort;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
+use cmsgears\core\common\models\base\CoreTables;
 use cmsgears\notify\common\models\base\NotifyTables;
-use cmsgears\notify\common\models\entities\Notification;
+use cmsgears\notify\common\models\resources\Activity;
 
-use cmsgears\notify\common\services\interfaces\entities\INotificationService;
+use cmsgears\notify\common\services\interfaces\resources\IActivityService;
 
-use cmsgears\core\common\services\traits\ResourceTrait;
+use cmsgears\core\common\services\base\ModelResourceService;
 
 /**
- * The class NotificationService is base class to perform database activities for Notification Entity.
+ * ActivityService provide service methods of activity model.
+ *
+ * @since 1.0.0
  */
-class NotificationService extends \cmsgears\core\common\services\base\EntityService implements INotificationService {
+class ActivityService extends ModelResourceService implements IActivityService {
 
 	// Variables ---------------------------------------------------
 
@@ -28,11 +39,11 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\entities\Notification';
+	public static $modelClass	= '\cmsgears\notify\common\models\resources\Activity';
 
-	public static $modelTable	= NotifyTables::TABLE_NOTIFICATION;
+	public static $modelTable	= NotifyTables::TABLE_ACTIVITY;
 
-	public static $parentType	= NotifyGlobal::TYPE_NOTIFICATION;
+	public static $parentType	= null;
 
 	// Protected --------------
 
@@ -46,8 +57,6 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 	// Traits ------------------------------------------------------
 
-	use ResourceTrait;
-
 	// Constructor and Initialisation ------------------------------
 
 	// Instance methods --------------------------------------------
@@ -60,7 +69,7 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 	// CMG parent classes --------------------
 
-	// NotificationService -------------------
+	// ActivityService -----------------------
 
 	// Data Provider ------
 
@@ -68,62 +77,45 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 		$modelClass		= static::$modelClass;
 		$modelTable		= static::$modelTable;
+		$userTable		= CoreTables::TABLE_USER;
 
 		// Sorting ----------
 
 		$sort = new Sort([
 			'attributes' => [
+	            'user' => [
+					'asc' => [ "`$userTable`.`firstName`" => SORT_ASC, "`$userTable`.`lastName`" => SORT_ASC ],
+					'desc' => [ "`$userTable`.`firstName`" => SORT_DESC, "`$userTable`.`lastName`" => SORT_DESC ],
+					'default' => SORT_DESC,
+	                'label' => 'User'
+	            ],
 				'title' => [
 					'asc' => [ 'title' => SORT_ASC ],
-					'desc' => ['title' => SORT_DESC ],
+					'desc' => [ 'title' => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Title'
 				],
 				'type' => [
 					'asc' => [ 'type' => SORT_ASC ],
-					'desc' => ['type' => SORT_DESC ],
+					'desc' => [ 'type' => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Type'
 				],
-				'ip' => [
-					'asc' => [ 'ip' => SORT_ASC ],
-					'desc' => ['ip' => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'IP'
-				],
 				'agent' => [
 					'asc' => [ 'agent' => SORT_ASC ],
-					'desc' => ['agent' => SORT_DESC ],
+					'desc' => [ 'agent' => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Agent'
 				],
-				'admin' => [
-					'asc' => [ 'admin' => SORT_ASC ],
-					'desc' => ['admin' => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'Admin'
-				],
-				'consumed' => [
-					'asc' => [ 'consumed' => SORT_ASC ],
-					'desc' => ['consumed' => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'Consumed'
-				],
-				'trash' => [
-					'asc' => [ 'trash' => SORT_ASC ],
-					'desc' => ['trash' => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'Trash'
-				],
 				'cdate' => [
 					'asc' => [ 'createdAt' => SORT_ASC ],
-					'desc' => ['createdAt' => SORT_DESC ],
+					'desc' => [ 'createdAt' => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Created At'
 				],
 				'udate' => [
 					'asc' => [ 'modifiedAt' => SORT_ASC ],
-					'desc' => ['modifiedAt' => SORT_DESC ],
+					'desc' => [ 'modifiedAt' => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Updated At'
 				]
@@ -146,21 +138,12 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 		// Filters ----------
 
 		// Params
-		$consumed 	= Yii::$app->request->getQueryParam( 'consumed' );
-		$trash 		= Yii::$app->request->getQueryParam( 'trash' );
+		$type 	= Yii::$app->request->getQueryParam( 'type' );
 
-		// Filter - Consumed
-		if( isset( $consumed ) ) {
+		// Filter - Type
+		if( isset( $type ) ) {
 
-			$filter = [ 'new' => 0, 'read' => 1 ];
-			$config[ 'conditions' ][ "$modelTable.consumed" ]	= $filter[ $consumed ];
-		}
-
-		// Filter - Trash
-		if( isset( $trash ) ) {
-
-			$filter = [ 'trash' => 1 ];
-			$config[ 'conditions' ][ "$modelTable.trash" ]	= $filter[ $trash ];
+			$config[ 'conditions' ][ "$modelTable.type" ]	= $type;
 		}
 
 		// Searching --------
@@ -178,19 +161,12 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 		$config[ 'report-col' ]	= [
 			'title' => "$modelTable.title", 'content' => "$modelTable.content",
-			'consumed' => "$modelTable.consumed", 'trash' => "$modelTable.trash"
+			'type' => "$modelTable.type"
 		];
 
 		// Result -----------
 
 		return parent::getPage( $config );
-	}
-
-	public function getPageForAdmin() {
-
-		$modelTable	= self::$modelTable;
-
-		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
 	}
 
 	public function getPageByUserId( $userId ) {
@@ -200,46 +176,9 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
 	}
 
-	public function getPageByParent( $parentId, $parentType, $admin = false ) {
-
-		$modelTable	= self::$modelTable;
-
-		return $this->getPage( [ 'conditions' => [ "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType, "$modelTable.admin" => $admin ] ] );
-	}
-
 	// Read ---------------
 
 	// Read - Models ---
-
-	public function getRecent( $limit = 5, $config = [] ) {
-
-		$siteId = Yii::$app->core->siteId;
-		return Notification::find()->where( $config[ 'conditions' ] )->andWhere([ 'siteId' => $siteId ])->limit( $limit )->orderBy( 'createdAt DESC' )->all();
-	}
-
-	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
-
-		$siteId = Yii::$app->core->siteId;
-		return Notification::queryByParent( $parentId, $parentType )->andWhere( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt ASC' )->andWhere([ 'siteId' => $siteId ])->all();
-	}
-
-	public function getCount( $consumed = false, $admin = false ) {
-
-		$siteId = Yii::$app->core->siteId;	
-		return Notification::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
-	}
-
-	public function getUserCount( $userId, $consumed = false, $admin = false ) {
-
-		$siteId = Yii::$app->core->siteId;
-		return Notification::queryByUserId( $userId )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
-	}
-
-	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
-
-		$siteId = Yii::$app->core->siteId;
-		return Notification::queryByParent( $parentId, $parentType )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
-	}
 
 	// Read - Lists ----
 
@@ -257,14 +196,6 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 		$model->siteId	= $siteId;
 
 		return parent::create( $model, $config );
-	}
-
-	public function createByParams( $params = [], $config = [] ) {
-
-		$params[ 'admin' ]		= isset( $params[ 'admin' ] ) ? $params[ 'admin' ] : false;
-		$params[ 'adminLink' ]	= isset( $params[ 'adminLink' ] ) ? $params[ 'adminLink' ] : null;
-
-		return parent::createByParams( $params, $config );
 	}
 
 	// Update -------------
@@ -311,6 +242,61 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 		return parent::update( $model, [
 			'attributes' => [ 'trash' ]
 		]);
+	}
+
+	public function getRecent( $limit = 5, $config = [] ) {
+
+		$siteId = Yii::$app->core->siteId;
+		return Activity::find()->where( $config[ 'conditions' ] )->andWhere([ 'siteId' => $siteId ])->limit( $limit )->orderBy( 'createdAt DESC' )->all();
+	}
+
+	public function getCount( $consumed = false, $admin = false ) {
+
+		$siteId = Yii::$app->core->siteId;
+		return Activity::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
+	}
+
+	public function createActivity( $model, $parentType = null ) {
+
+		$title = $model->name ?? null;
+		$this->triggerActivity($model, NotifyGlobal::TEMPLATE_LOG_CREATE, $title, $parentType);
+
+	}
+
+	public function updateActivity( $model, $parentType = null ) {
+
+		$title = $model->name ?? null;
+		$this->triggerActivity($model, NotifyGlobal::TEMPLATE_LOG_UPDATE, $title, $parentType);
+
+	}
+
+	public function deleteActivity( $model, $parentType = null ) {
+
+		$title = $model->name ?? null;
+		$this->triggerActivity( $model, NotifyGlobal::TEMPLATE_LOG_DELETE, $title, $parentType );
+	}
+
+	// Activity
+	private function triggerActivity( $model, $templateSlug, $title, $parentType = null ) {
+
+		$user =	Yii::$app->user->getIdentity();
+
+		$userId		= isset( $user ) ? $user->id : "";
+		$firstName	= isset( $user ) ? $user->firstName : "";
+		$lastName	= isset( $user ) ? $user->lastName : "";
+		$userName	= $firstName . $lastName;
+		$modelName	= $model->name ?? '';
+
+		Yii::$app->eventManager->triggerActivity(
+			$templateSlug,
+			[ 'parentType' => $parentType, 'userName' => $userName, 'modelName' => "<b>$modelName</b>" ],
+			[
+				'parentId' => $model->id,
+				'parentType' => $parentType,
+				'userId' => $userId,
+				'title' => $title
+			]
+		);
 	}
 
 	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType ) {
@@ -407,32 +393,19 @@ class NotificationService extends \cmsgears\core\common\services\base\EntityServ
 
 	// Delete -------------
 
-	/*
-	public function deleteByParent( $parentId, $parentType, $user = false ) {
+	// Bulk ---------------
 
-		$modelTable	= self::$modelTable;
+	// Notifications ------
 
-		$userIds    = $this->getIdList( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
-		$creatorIds = $this->getIdList( [ 'conditions' => [ "$modelTable.createdBy" => $userId ] ] );
+	// Cache --------------
 
-		$models     = array_merge( $userIds, $creatorIds );
-
-		if( count( $models ) > 0 ) {
-
-			// Delete user notifications if any
-			$this->applyBulkByUserId( 'model', 'delete', $models, $userId );
-
-			// Delete admin notifications if any
-			$this->applyBulkByAdmin( 'model', 'delete', $models );
-		}
-	}
-	*/
+	// Additional ---------
 
 	// Static Methods ----------------------------------------------
 
 	// CMG parent classes --------------------
 
-	// NotificationService -------------------
+	// ActivityService -----------------------
 
 	// Data Provider ------
 

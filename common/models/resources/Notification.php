@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
  */
 
-namespace cmsgears\notify\common\models\entities;
+namespace cmsgears\notify\common\models\resources;
 
 // Yii Imports
 use Yii;
@@ -19,18 +19,16 @@ use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\interfaces\base\IAuthor;
-use cmsgears\core\common\models\interfaces\base\IModelResource;
 use cmsgears\core\common\models\interfaces\base\IMultiSite;
 use cmsgears\core\common\models\interfaces\base\IOwner;
-use cmsgears\notify\common\models\interfaces\base\IStatusSwitch;
 use cmsgears\core\common\models\interfaces\resources\IData;
+use cmsgears\notify\common\models\interfaces\base\IStatusSwitch;
 
-use cmsgears\core\common\models\base\Entity;
+use cmsgears\core\common\models\base\ModelResource;
 use cmsgears\core\common\models\entities\User;
 use cmsgears\notify\common\models\base\NotifyTables;
 
 use cmsgears\core\common\models\traits\base\AuthorTrait;
-use cmsgears\core\common\models\traits\base\ModelResourceTrait;
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
 use cmsgears\core\common\models\traits\base\UserOwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
@@ -70,7 +68,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  *
  * @since 1.0.0
  */
-class Notification extends Entity implements IAuthor, IData, IModelResource, IMultiSite, IOwner, IStatusSwitch {
+class Notification extends ModelResource implements IAuthor, IData, IMultiSite, IOwner, IStatusSwitch {
 
 	// Variables ---------------------------------------------------
 
@@ -96,10 +94,9 @@ class Notification extends Entity implements IAuthor, IData, IModelResource, IMu
 
 	use AuthorTrait;
 	use DataTrait;
-	use ModelResourceTrait;
 	use MultiSiteTrait;
-	use UserOwnerTrait;
 	use StatusSwitchTrait;
+	use UserOwnerTrait;
 
 	// Constructor and Initialisation ------------------------------
 

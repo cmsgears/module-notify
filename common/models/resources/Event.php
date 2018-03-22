@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
  */
 
-namespace cmsgears\notify\common\models\entities;
+namespace cmsgears\notify\common\models\resources;
 
 // Yii Imports
 use Yii;
@@ -21,7 +21,6 @@ use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\interfaces\base\IAuthor;
-use cmsgears\core\common\models\interfaces\base\IModelResource;
 use cmsgears\core\common\models\interfaces\base\IMultiSite;
 use cmsgears\core\common\models\interfaces\base\INameType;
 use cmsgears\core\common\models\interfaces\base\IOwner;
@@ -32,12 +31,11 @@ use cmsgears\core\common\models\interfaces\resources\ITemplate;
 use cmsgears\core\common\models\interfaces\resources\IVisual;
 use cmsgears\core\common\models\interfaces\mappers\IFile;
 
-use cmsgears\core\common\models\base\Entity;
+use cmsgears\core\common\models\base\ModelResource;
 use cmsgears\core\common\models\entities\User;
 use cmsgears\notify\common\models\base\NotifyTables;
 
 use cmsgears\core\common\models\traits\base\AuthorTrait;
-use cmsgears\core\common\models\traits\base\ModelResourceTrait;
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
 use cmsgears\core\common\models\traits\base\NameTypeTrait;
 use cmsgears\core\common\models\traits\base\SlugTypeTrait;
@@ -92,7 +90,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  *
  * @since 1.0.0
  */
-class Event extends Entity implements IAuthor, IData, IFile, IModelMeta, IModelResource, IMultiSite,
+class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, IMultiSite,
 	INameType, IOwner, ISlugType, ITemplate, IOwner, IVisual {
 
 	// Variables ---------------------------------------------------
@@ -156,7 +154,6 @@ class Event extends Entity implements IAuthor, IData, IFile, IModelMeta, IModelR
 	use AuthorTrait;
 	use DataTrait;
 	use FileTrait;
-	use ModelResourceTrait;
 	use ModelMetaTrait;
 	use MultiSiteTrait;
 	use NameTypeTrait;

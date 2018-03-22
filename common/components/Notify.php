@@ -1,10 +1,24 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\common\components;
 
 // Yii Imports
 use Yii;
+use yii\base\Component;
 
-class Notify extends \yii\base\Component {
+/**
+ * Notify component register the services provided by Notify Module.
+ *
+ * @since 1.0.0
+ */
+class Notify extends Component {
 
 	// Global -----------------
 
@@ -17,13 +31,13 @@ class Notify extends \yii\base\Component {
 	// Constructor and Initialisation ------------------------------
 
 	/**
-	 * Initialise the CMG Core Component.
+	 * Initialize the services.
 	 */
 	public function init() {
 
 		parent::init();
 
-		// Register application components and objects i.e. CMG and Project
+		// Register components and objects
 		$this->registerComponents();
 	}
 
@@ -33,52 +47,72 @@ class Notify extends \yii\base\Component {
 
 	// CMG parent classes --------------------
 
-	// Cms -----------------------------------
+	// Notify --------------------------------
 
-	// Properties
+	// Properties ----------------
 
-	// Components and Objects
+	// Components and Objects ----
 
+	/**
+	 * Register the services.
+	 */
 	public function registerComponents() {
 
 		// Register services
 		$this->registerResourceServices();
-		$this->registerEntityServices();
+		$this->registerMapperServices();
 
 		// Init services
 		$this->initResourceServices();
-		$this->initEntityServices();
+		$this->initMapperServices();
 	}
 
+	/**
+	 * Registers resource services.
+	 */
 	public function registerResourceServices() {
 
 		$factory = Yii::$app->factory->getContainer();
 
 		$factory->set( 'cmsgears\notify\common\services\interfaces\resources\IEventReminderService', 'cmsgears\notify\common\services\resources\EventReminderService' );
+
+		$factory->set( 'cmsgears\notify\common\services\interfaces\resources\IActivityService', 'cmsgears\notify\common\services\resources\ActivityService' );
+		$factory->set( 'cmsgears\notify\common\services\interfaces\resources\INotificationService', 'cmsgears\notify\common\services\resources\NotificationService' );
+		$factory->set( 'cmsgears\notify\common\services\interfaces\resources\IEventService', 'cmsgears\notify\common\services\resources\EventService' );
 	}
 
-	public function registerEntityServices() {
+	/**
+	 * Registers mapper services.
+	 */
+	public function registerMapperServices() {
 
 		$factory = Yii::$app->factory->getContainer();
 
-		$factory->set( 'cmsgears\notify\common\services\interfaces\entities\IActivityService', 'cmsgears\notify\common\services\entities\ActivityService' );
-		$factory->set( 'cmsgears\notify\common\services\interfaces\entities\INotificationService', 'cmsgears\notify\common\services\entities\NotificationService' );
-		$factory->set( 'cmsgears\notify\common\services\interfaces\entities\IEventService', 'cmsgears\notify\common\services\entities\EventService' );
+		$factory->set( 'cmsgears\notify\common\services\interfaces\mappers\IEventParticipantService', 'cmsgears\notify\common\services\mappers\EventParticipantService' );
 	}
 
+	/**
+	 * Initialize resource services.
+	 */
 	public function initResourceServices() {
 
 		$factory = Yii::$app->factory->getContainer();
 
 		$factory->set( 'reminderService', 'cmsgears\notify\common\services\resources\EventReminderService' );
-	}
-
-	public function initEntityServices() {
-
-		$factory = Yii::$app->factory->getContainer();
 
 		$factory->set( 'activityService', 'cmsgears\notify\common\services\entities\ActivityService' );
 		$factory->set( 'notificationService', 'cmsgears\notify\common\services\entities\NotificationService' );
 		$factory->set( 'eventService', 'cmsgears\notify\common\services\entities\EventService' );
 	}
+
+	/**
+	 * Initialize mapper services.
+	 */
+	public function initMapperServices() {
+
+		$factory = Yii::$app->factory->getContainer();
+
+		$factory->set( 'eventParticipantService', 'cmsgears\notify\common\services\mappers\EventParticipantService' );
+	}
+
 }

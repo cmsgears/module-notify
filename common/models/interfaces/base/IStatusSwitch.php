@@ -57,4 +57,5 @@ interface IStatusSwitch {
 	 * @return string
 	 */
 	public function toHtml();
+
 }

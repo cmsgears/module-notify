@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\common\services\resources;
 
 // Yii Imports
@@ -13,10 +21,14 @@ use cmsgears\notify\common\models\resources\EventReminder;
 
 use cmsgears\notify\common\services\interfaces\resources\IEventReminderService;
 
+use cmsgears\core\common\services\base\ResourceService;
+
 /**
- * The class EventReminderService is base class to perform database activities for EventReminder Entity.
+ * EventReminderService provide service methods of event reminder.
+ *
+ * @since 1.0.0
  */
-class EventReminderService extends \cmsgears\core\common\services\base\EntityService implements IEventReminderService {
+class EventReminderService extends ResourceService implements IEventReminderService {
 
 	// Variables ---------------------------------------------------
 
@@ -310,6 +322,14 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 	}
 
 	// Delete -------------
+
+	// Bulk ---------------
+
+	// Notifications ------
+
+	// Cache --------------
+
+	// Additional ---------
 
 	// Static Methods ----------------------------------------------
 

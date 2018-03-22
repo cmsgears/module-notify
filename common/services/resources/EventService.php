@@ -1,5 +1,13 @@
 <?php
-namespace cmsgears\notify\common\services\entities;
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
+namespace cmsgears\notify\common\services\resources;
 
 // Yii Imports
 use Yii;
@@ -10,18 +18,21 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\base\CoreTables;
 use cmsgears\notify\common\models\base\NotifyTables;
-use cmsgears\notify\common\models\entities\Event;
+use cmsgears\notify\common\models\resources\Event;
 
-use cmsgears\notify\common\services\interfaces\entities\IEventService;
+use cmsgears\notify\common\services\interfaces\resources\IEventService;
 
-use cmsgears\core\common\services\traits\NameTypeTrait;
-use cmsgears\core\common\services\traits\ResourceTrait;
-use cmsgears\core\common\services\traits\SlugTypeTrait;
+use cmsgears\core\common\services\base\ModelResourceService;
+
+use cmsgears\core\common\services\traits\base\NameTypeTrait;
+use cmsgears\core\common\services\traits\base\SlugTypeTrait;
 
 /**
- * The class EventService is base class to perform database activities for Event Entity.
+ * EventService provide service methods of event model.
+ *
+ * @since 1.0.0
  */
-class EventService extends \cmsgears\core\common\services\base\EntityService implements IEventService {
+class EventService extends ModelResourceService implements IEventService {
 
 	// Variables ---------------------------------------------------
 
@@ -31,7 +42,7 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\entities\Event';
+	public static $modelClass	= '\cmsgears\notify\common\models\resources\Event';
 
 	public static $modelTable	= NotifyTables::TABLE_EVENT;
 
@@ -52,7 +63,6 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 	// Traits ------------------------------------------------------
 
 	use NameTypeTrait;
-	use ResourceTrait;
 	use SlugTypeTrait;
 
 	// Constructor and Initialisation ------------------------------
@@ -328,6 +338,14 @@ class EventService extends \cmsgears\core\common\services\base\EntityService imp
 	}
 
 	// Delete -------------
+
+	// Bulk ---------------
+
+	// Notifications ------
+
+	// Cache --------------
+
+	// Additional ---------
 
 	// Static Methods ----------------------------------------------
 

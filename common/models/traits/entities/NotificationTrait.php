@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\common\models\traits\entities;
 
 // Yii Imports
@@ -9,7 +17,9 @@ use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\notify\common\models\entities\Notification;
 
 /**
- * NotificationTrait can be used to add notification feature to relevant models.
+ * NotificationTrait provide methods to add notification feature to relevant models.
+ *
+ * @since 1.0.0
  */
 trait NotificationTrait {
 
@@ -27,12 +37,18 @@ trait NotificationTrait {
 
 	// NotificationTrait ---------------------
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getNotifications() {
 
 		return $this->hasMany( Notification::className(), [ 'parentId' => 'id' ] )
-					->where( "parentType='$this->modelType'" );
+			->where( "parentType='$this->modelType'" );
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getNotificationStatusCounts() {
 
 		$returnArr      = [ Notification::STATUS_NEW => 0, Notification::STATUS_CONSUMED => 0, Notification::STATUS_TRASH => 0 ];

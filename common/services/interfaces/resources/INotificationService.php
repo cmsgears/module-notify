@@ -1,9 +1,23 @@
 <?php
-namespace cmsgears\notify\common\services\interfaces\entities;
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
 
-use cmsgears\notify\common\models\entities\Notification;
+namespace cmsgears\notify\common\services\interfaces\resources;
 
-interface INotificationService extends \cmsgears\core\common\services\interfaces\base\IResourceService {
+// CMG Imports
+use cmsgears\core\common\services\interfaces\base\IModelResourceService;
+
+/**
+ * INotificationService declares methods specific to notification model.
+ *
+ * @since 1.0.0
+ */
+interface INotificationService extends IModelResourceService {
 
 	// Data Provider ------
 
@@ -31,6 +45,8 @@ interface INotificationService extends \cmsgears\core\common\services\interfaces
 
 	// Read - Maps -----
 
+	// Read - Others ---
+
 	// Create -------------
 
 	// Update -------------
@@ -52,4 +68,13 @@ interface INotificationService extends \cmsgears\core\common\services\interfaces
 	// Delete -------------
 
 	//public function deleteByParent( $parentId, $parentType, $user = false );
+
+	// Bulk ---------------
+
+	// Notifications ------
+
+	// Cache --------------
+
+	// Additional ---------
+
 }

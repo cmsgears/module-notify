@@ -10,14 +10,14 @@
 namespace cmsgears\notify\common\services\interfaces\resources;
 
 // CMG Imports
-use cmsgears\core\common\services\interfaces\base\IResourceService;
+use cmsgears\core\common\services\interfaces\base\IModelResourceService;
 
 /**
- * IEventReminderService declares methods specific to event reminder.
+ * IEventService declares methods specific to event model.
  *
  * @since 1.0.0
  */
-interface IEventReminderService extends IResourceService {
+interface IEventService extends IModelResourceService {
 
 	// Data Provider ------
 
@@ -25,15 +25,15 @@ interface IEventReminderService extends IResourceService {
 
 	public function getPageByUserId( $userId );
 
+	public function getPageByParent( $parentId, $parentType, $admin = false );
+
 	// Read ---------------
 
 	// Read - Models ---
 
-	public function getRecent( $limit = 5, $config = [] );
+	public function getNewEvents();
 
-	public function getCount( $consumed = false, $admin = false );
-
-	public function getUserCount( $userId, $consumed = false, $admin = false );
+	public function getByParentId( $parentId );
 
 	// Read - Lists ----
 
@@ -45,19 +45,11 @@ interface IEventReminderService extends IResourceService {
 
 	// Update -------------
 
+	public function updateStatus( $model, $status );
+
+	public function trash( $model );
+
 	// Delete -------------
-
-	public function toggleRead( $model );
-
-	public function markNew( $model );
-
-	public function markConsumed( $model );
-
-	public function markTrash( $model );
-
-	public function applyBulkByUserId( $column, $action, $target, $userId );
-
-	public function applyBulkByAdmin( $column, $action, $target );
 
 	// Bulk ---------------
 

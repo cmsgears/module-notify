@@ -48,9 +48,7 @@ trait StatusSwitchTrait {
 	// StatusSwitchTrait ---------------------
 
 	/**
-	 * Check whether activity status is new.
-	 *
-	 * @return boolean
+	 * @inheritdoc
 	 */
 	public function isNew() {
 
@@ -58,9 +56,7 @@ trait StatusSwitchTrait {
 	}
 
 	/**
-	 * Check whether activity status is consumed.
-	 *
-	 * @return boolean
+	 * @inheritdoc
 	 */
 	public function isConsumed() {
 
@@ -68,9 +64,7 @@ trait StatusSwitchTrait {
 	}
 
 	/**
-	 * Returns string representation of consumed flag.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getConsumedStr() {
 
@@ -78,9 +72,7 @@ trait StatusSwitchTrait {
 	}
 
 	/**
-	 * Check whether activity status is trash.
-	 *
-	 * @return boolean
+	 * @inheritdoc
 	 */
 	public function isTrash() {
 
@@ -88,9 +80,7 @@ trait StatusSwitchTrait {
 	}
 
 	/**
-	 * Returns string representation of trash flag.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getTrashStr() {
 
@@ -98,9 +88,7 @@ trait StatusSwitchTrait {
 	}
 
 	/**
-	 * Returns the list item html.
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function toHtml() {
 

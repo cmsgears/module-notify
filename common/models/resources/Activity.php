@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
  */
 
-namespace cmsgears\notify\common\models\entities;
+namespace cmsgears\notify\common\models\resources;
 
 // Yii Imports
 use Yii;
@@ -18,17 +18,15 @@ use yii\behaviors\TimestampBehavior;
 use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\common\models\interfaces\base\IModelResource;
 use cmsgears\core\common\models\interfaces\base\IMultiSite;
 use cmsgears\core\common\models\interfaces\resources\IData;
 use cmsgears\core\common\models\interfaces\resources\IGridCache;
 use cmsgears\notify\common\models\interfaces\base\IStatusSwitch;
 
-use cmsgears\core\common\models\base\Entity;
+use cmsgears\core\common\models\base\ModelResource;
 use cmsgears\core\common\models\entities\User;
 use cmsgears\notify\common\models\base\NotifyTables;
 
-use cmsgears\core\common\models\traits\base\ModelResourceTrait;
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
 use cmsgears\core\common\models\traits\resources\GridCacheTrait;
@@ -64,7 +62,7 @@ use cmsgears\notify\common\models\traits\base\StatusSwitchTrait;
  *
  * @since 1.0.0
  */
-class Activity extends Entity implements IData, IGridCache, IModelResource, IMultiSite, IStatusSwitch {
+class Activity extends ModelResource implements IData, IGridCache, IMultiSite, IStatusSwitch {
 
 	// Variables ---------------------------------------------------
 
@@ -90,7 +88,6 @@ class Activity extends Entity implements IData, IGridCache, IModelResource, IMul
 
 	use DataTrait;
 	use GridCacheTrait;
-	use ModelResourceTrait;
 	use MultiSiteTrait;
 	use StatusSwitchTrait;
 
