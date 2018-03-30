@@ -191,8 +191,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 				'class' => SluggableBehavior::class,
 				'attribute' => 'name',
 				'slugAttribute' => 'slug', // Unique for combination of Site Id
+				'immutable' => true,
 				'ensureUnique' => true,
-				'uniqueValidator' => [ 'targetAttribute' => 'siteId' ]
+				'uniqueValidator' => [ 'targetAttribute' => [ 'siteId', 'slug' ] ]
 			]
         ];
     }

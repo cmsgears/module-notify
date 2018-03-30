@@ -16,8 +16,6 @@ use yii\data\Sort;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\common\models\base\CoreTables;
-use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\notify\common\models\resources\Event;
 
 use cmsgears\notify\common\services\interfaces\resources\IEventService;
@@ -43,8 +41,6 @@ class EventService extends ModelResourceService implements IEventService {
 	// Public -----------------
 
 	public static $modelClass	= '\cmsgears\notify\common\models\resources\Event';
-
-	public static $modelTable	= NotifyTables::TABLE_EVENT;
 
 	public static $typed		= true;
 
@@ -83,14 +79,21 @@ class EventService extends ModelResourceService implements IEventService {
 
 	public function getPage( $config = [] ) {
 
-		$modelClass		= static::$modelClass;
-		$modelTable		= static::$modelTable;
-		$userTable		= CoreTables::TABLE_USER;
+		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
+
+		$userTable = Yii::$app->get( 'userService' )->getModelTable();
 
 		// Sorting ----------
 
 		$sort = new Sort([
 			'attributes' => [
+				'id' => [
+					'asc' => [ "$modelTable.id" => SORT_ASC ],
+					'desc' => [ "$modelTable.id" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Id'
+				],
 	            'user' => [
 					'asc' => [ "`$userTable`.`firstName`" => SORT_ASC, "`$userTable`.`lastName`" => SORT_ASC ],
 					'desc' => [ "`$userTable`.`firstName`" => SORT_DESC, "`$userTable`.`lastName`" => SORT_DESC ],
@@ -98,86 +101,86 @@ class EventService extends ModelResourceService implements IEventService {
 	                'label' => 'User'
 	            ],
 				'name' => [
-					'asc' => [ 'name' => SORT_ASC ],
-					'desc' => [ 'name' => SORT_DESC ],
+					'asc' => [ "$modelTable.name" => SORT_ASC ],
+					'desc' => [ "$modelTable.name" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Name'
 				],
 				'slug' => [
-					'asc' => [ 'slug' => SORT_ASC ],
-					'desc' => [ 'slug' => SORT_DESC ],
+					'asc' => [ "$modelTable.slug" => SORT_ASC ],
+					'desc' => [ "$modelTable.slug" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Slug'
 				],
 				'type' => [
-					'asc' => [ 'type' => SORT_ASC ],
-					'desc' => [ 'type' => SORT_DESC ],
+					'asc' => [ "$modelTable.type" => SORT_ASC ],
+					'desc' => [ "$modelTable.type" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Type'
 				],
 				'prcount' => [
-					'asc' => [ 'preReminderCount' => SORT_ASC ],
-					'desc' => [ 'preReminderCount' => SORT_DESC ],
+					'asc' => [ "$modelTable.preReminderCount" => SORT_ASC ],
+					'desc' => [ "$modelTable.preReminderCount" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Pre Reminder Count'
 				],
 				'printerval' => [
-					'asc' => [ 'preReminderInterval' => SORT_ASC ],
-					'desc' => [ 'preReminderInterval' => SORT_DESC ],
+					'asc' => [ "$modelTable.preReminderInterval" => SORT_ASC ],
+					'desc' => [ "$modelTable.preReminderInterval" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Pre Reminder Interval'
 				],
 				'pscount' => [
-					'asc' => [ 'postReminderCount' => SORT_ASC ],
-					'desc' => [ 'postReminderCount' => SORT_DESC ],
+					'asc' => [ "$modelTable.postReminderCount" => SORT_ASC ],
+					'desc' => [ "$modelTable.postReminderCount" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Post Reminder Count'
 				],
 				'psinterval' => [
-					'asc' => [ 'postReminderInterval' => SORT_ASC ],
-					'desc' => [ 'postReminderInterval' => SORT_DESC ],
+					'asc' => [ "$modelTable.postReminderInterval" => SORT_ASC ],
+					'desc' => [ "$modelTable.postReminderInterval" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Post Reminder Interval'
 				],
 				'pruinterval' => [
-					'asc' => [ 'preIntervalUnit' => SORT_ASC ],
-					'desc' => [ 'preIntervalUnit' => SORT_DESC ],
+					'asc' => [ "$modelTable.preIntervalUnit" => SORT_ASC ],
+					'desc' => [ "$modelTable.preIntervalUnit" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Pre Interval Interval'
 				],
 				'psuinterval' => [
-					'asc' => [ 'postIntervalUnit' => SORT_ASC ],
-					'desc' => [ 'postIntervalUnit' => SORT_DESC ],
+					'asc' => [ "$modelTable.postIntervalUnit" => SORT_ASC ],
+					'desc' => [ "$modelTable.postIntervalUnit" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Post Interval Interval'
 				],
 				'status' => [
-					'asc' => [ 'status' => SORT_ASC ],
-					'desc' => [ 'status' => SORT_DESC ],
+					'asc' => [ "$modelTable.status" => SORT_ASC ],
+					'desc' => [ "$modelTable.status" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Status'
 				],
 				'multi' => [
-					'asc' => [ 'multiUser' => SORT_ASC ],
-					'desc' => [ 'multiUser' => SORT_DESC ],
+					'asc' => [ "$modelTable.multiUser" => SORT_ASC ],
+					'desc' => [ "$modelTable.multiUser" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Multi Users'
 				],
 				'cdate' => [
-					'asc' => [ 'createdAt' => SORT_ASC ],
-					'desc' => [ 'createdAt' => SORT_DESC ],
+					'asc' => [ "$modelTable.createdAt" => SORT_ASC ],
+					'desc' => [ "$modelTable.createdAt" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Created At'
 				],
 				'udate' => [
-					'asc' => [ 'modifiedAt' => SORT_ASC ],
-					'desc' => [ 'modifiedAt' => SORT_DESC ],
+					'asc' => [ "$modelTable.updatedAt" => SORT_ASC ],
+					'desc' => [ "$modelTable.updatedAt" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Updated At'
 				],
 				'sdate' => [
-					'asc' => [ 'scheduledAt' => SORT_ASC ],
-					'desc' => [ 'scheduledAt' => SORT_DESC ],
+					'asc' => [ "$modelTable.scheduledAt" => SORT_ASC ],
+					'desc' => [ "$modelTable.scheduledAt" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Scheduled At'
 				]
@@ -221,7 +224,11 @@ class EventService extends ModelResourceService implements IEventService {
 
 		if( isset( $searchCol ) ) {
 
-			$search = [ 'name' => "$modelTable.name", 'slug' => "$modelTable.slug", 'desc' => "$modelTable.description", 'content' => "$modelTable.content" ];
+			$search = [
+				'name' => "$modelTable.name",
+				'slug' => "$modelTable.slug",
+				'desc' => "$modelTable.description",
+				'content' => "$modelTable.content" ];
 
 			$config[ 'search-col' ] = $search[ $searchCol ];
 		}
@@ -229,8 +236,12 @@ class EventService extends ModelResourceService implements IEventService {
 		// Reporting --------
 
 		$config[ 'report-col' ]	= [
-			'name' => "$modelTable.name", 'slug' => "$modelTable.slug", 'desc' => "$modelTable.description", 'content' => "$modelTable.content",
-			'status' => "$modelTable.status", 'multi' => "$modelTable.multiUser"
+			'name' => "$modelTable.name",
+			'slug' => "$modelTable.slug",
+			'desc' => "$modelTable.description",
+			'content' => "$modelTable.content",
+			'status' => "$modelTable.status",
+			'multi' => "$modelTable.multiUser"
 		];
 
 		// Result -----------
@@ -300,6 +311,10 @@ class EventService extends ModelResourceService implements IEventService {
 		return $this->updateStatus( $model, Event::STATUS_TRASH );
 	}
 
+	// Delete -------------
+
+	// Bulk ---------------
+
 	protected function applyBulk( $model, $column, $action, $target, $config = [] ) {
 
 		switch( $column ) {
@@ -336,10 +351,6 @@ class EventService extends ModelResourceService implements IEventService {
 			}
 		}
 	}
-
-	// Delete -------------
-
-	// Bulk ---------------
 
 	// Notifications ------
 

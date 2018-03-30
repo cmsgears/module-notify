@@ -53,6 +53,9 @@ class m160622_015405_notify extends Migration {
 		// Notification
 		$this->upNotification();
 
+		// Announcement
+		$this->upAnnouncement();
+
 		// Activity
 		$this->upActivity();
 
@@ -195,6 +198,42 @@ class m160622_015405_notify extends Migration {
 		$this->createIndex( 'idx_' . $this->prefix . 'notification_modifier', $this->prefix . 'notify_notification', 'modifiedBy' );
 	}
 
+	private function upAnnouncement() {
+
+		$this->createTable( $this->prefix . 'notify_announcement', [
+			'id' => $this->bigPrimaryKey( 20 ),
+			'siteId' => $this->bigInteger( 20 )->notNull(),
+			'bannerId' => $this->bigInteger( 20 ),
+			'createdBy' => $this->bigInteger( 20 ),
+			'modifiedBy' => $this->bigInteger( 20 ),
+			'parentId' => $this->bigInteger( 20 ),
+			'parentType' => $this->string( Yii::$app->core->mediumText ),
+			'title' => $this->string( Yii::$app->core->xxLargeText )->notNull(),
+			'description' => $this->string( Yii::$app->core->xtraLargeText )->notNull(),
+			'type' => $this->string( Yii::$app->core->mediumText )->notNull()->defaultValue( 'default' ),
+			'status' => $this->smallInteger( 6 )->defaultValue( 0 ),
+			'ip' => $this->string( Yii::$app->core->mediumText )->defaultValue( null ),
+			'ipNum' => $this->integer( 11 )->defaultValue( 0 ),
+			'agent' => $this->string( Yii::$app->core->xxLargeText )->defaultValue( null ),
+			'link' => $this->string( Yii::$app->core->xxxLargeText )->defaultValue( null ),
+			'admin' => $this->boolean()->notNull()->defaultValue( false ),
+			'adminLink' => $this->string( Yii::$app->core->xxxLargeText )->defaultValue( null ),
+			'createdAt' => $this->dateTime()->notNull(),
+			'modifiedAt' => $this->dateTime(),
+			'content' => $this->mediumText(),
+			'data' => $this->mediumText(),
+			'gridCache' => $this->longText(),
+			'gridCacheValid' => $this->boolean()->notNull()->defaultValue( false ),
+			'gridCachedAt' => $this->dateTime()
+		], $this->options );
+
+		// Index for columns site, creator and modifier
+		$this->createIndex( 'idx_' . $this->prefix . 'announcement_site', $this->prefix . 'notify_announcement', 'siteId' );
+		$this->createIndex( 'idx_' . $this->prefix . 'announcement_banner', $this->prefix . 'notify_announcement', 'bannerId' );
+		$this->createIndex( 'idx_' . $this->prefix . 'notification_creator', $this->prefix . 'notify_announcement', 'createdBy' );
+		$this->createIndex( 'idx_' . $this->prefix . 'notification_modifier', $this->prefix . 'notify_announcement', 'modifiedBy' );
+	}
+
 	private function upActivity() {
 
 		$this->createTable( $this->prefix . 'notify_activity', [
@@ -256,6 +295,12 @@ class m160622_015405_notify extends Migration {
 		$this->addForeignKey( 'fk_' . $this->prefix . 'notification_creator', $this->prefix . 'notify_notification', 'createdBy', $this->prefix . 'core_user', 'id', 'SET NULL' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'notification_modifier', $this->prefix . 'notify_notification', 'modifiedBy', $this->prefix . 'core_user', 'id', 'SET NULL' );
 
+		// Announcement
+		$this->addForeignKey( 'fk_' . $this->prefix . 'announcement_site', $this->prefix . 'notify_announcement', 'siteId', $this->prefix . 'core_site', 'id', 'CASCADE' );
+		$this->addForeignKey( 'fk_' . $this->prefix . 'announcement_banner', $this->prefix . 'notify_announcement', 'bannerId', $this->prefix . 'core_file', 'id', 'SET NULL' );
+		$this->addForeignKey( 'fk_' . $this->prefix . 'announcement_creator', $this->prefix . 'notify_announcement', 'createdBy', $this->prefix . 'core_user', 'id', 'SET NULL' );
+		$this->addForeignKey( 'fk_' . $this->prefix . 'announcement_modifier', $this->prefix . 'notify_announcement', 'modifiedBy', $this->prefix . 'core_user', 'id', 'SET NULL' );
+
 		// Activity
 		$this->addForeignKey( 'fk_' . $this->prefix . 'activity_site', $this->prefix . 'notify_activity', 'siteId', $this->prefix . 'core_site', 'id', 'CASCADE' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'activity_user', $this->prefix . 'notify_activity', 'userId', $this->prefix . 'core_user', 'id', 'CASCADE' );
@@ -273,6 +318,7 @@ class m160622_015405_notify extends Migration {
 		$this->dropTable( $this->prefix . 'notify_event_reminder' );
 
 		$this->dropTable( $this->prefix . 'notify_notification' );
+		$this->dropTable( $this->prefix . 'notify_announcement' );
 
 		$this->dropTable( $this->prefix . 'notify_activity' );
 	}
@@ -304,8 +350,15 @@ class m160622_015405_notify extends Migration {
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'notification_creator', $this->prefix . 'notify_notification' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'notification_modifier', $this->prefix . 'notify_notification' );
 
+		// Announcement
+		$this->dropForeignKey( 'fk_' . $this->prefix . 'announcement_site', $this->prefix . 'notify_announcement' );
+		$this->dropForeignKey( 'fk_' . $this->prefix . 'announcement_banner', $this->prefix . 'notify_announcement' );
+		$this->dropForeignKey( 'fk_' . $this->prefix . 'announcement_creator', $this->prefix . 'notify_announcement' );
+		$this->dropForeignKey( 'fk_' . $this->prefix . 'announcement_modifier', $this->prefix . 'notify_announcement' );
+
 		// Activity
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'activity_site', $this->prefix . 'notify_activity' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'activity_user', $this->prefix . 'notify_activity' );
 	}
+
 }

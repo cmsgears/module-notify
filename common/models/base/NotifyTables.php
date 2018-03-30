@@ -25,6 +25,7 @@ class NotifyTables extends DbTables {
 	const TABLE_ACTIVITY			= 'cmg_notify_activity';
 	const TABLE_EVENT				= 'cmg_notify_event';
 	const TABLE_NOTIFICATION		= 'cmg_notify_notification';
+	const TABLE_ANNOUNCEMENT		= 'cmg_notify_announcement';
 
 	const TABLE_EVENT_REMINDER		= 'cmg_notify_event_reminder';
 

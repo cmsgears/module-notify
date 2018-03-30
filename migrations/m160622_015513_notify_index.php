@@ -28,7 +28,7 @@ class m160622_015513_notify_index extends Migration {
 	public function init() {
 
 		// Table prefix
-		$this->prefix		= Yii::$app->migration->cmgPrefix;
+		$this->prefix = Yii::$app->migration->cmgPrefix;
 	}
 
 	public function up() {
@@ -46,11 +46,18 @@ class m160622_015513_notify_index extends Migration {
 		$this->createIndex( 'idx_' . $this->prefix . 'event_type_p', $this->prefix . 'notify_event', 'parentType' );
 
 		// Notification
-		$this->createIndex( 'idx_' . $this->prefix . 'notification_title', $this->prefix . 'notify_notification', 'title' );
+		//$this->createIndex( 'idx_' . $this->prefix . 'notification_title', $this->prefix . 'notify_notification', 'title' );
 		$this->createIndex( 'idx_' . $this->prefix . 'notification_type', $this->prefix . 'notify_notification', 'type' );
 		//$this->createIndex( 'idx_' . $this->prefix . 'notification_ip', $this->prefix . 'notify_notification', 'ip' );
 		//$this->createIndex( 'idx_' . $this->prefix . 'notification_agent', $this->prefix . 'notify_notification', 'agent' );
 		$this->createIndex( 'idx_' . $this->prefix . 'notification_type_p', $this->prefix . 'notify_notification', 'parentType' );
+
+		// Announcement
+		//$this->createIndex( 'idx_' . $this->prefix . 'announcement_title', $this->prefix . 'notify_announcement', 'title' );
+		$this->createIndex( 'idx_' . $this->prefix . 'announcement_type', $this->prefix . 'notify_announcement', 'type' );
+		//$this->createIndex( 'idx_' . $this->prefix . 'announcement_ip', $this->prefix . 'notify_announcement', 'ip' );
+		//$this->createIndex( 'idx_' . $this->prefix . 'announcement_agent', $this->prefix . 'notify_announcement', 'agent' );
+		$this->createIndex( 'idx_' . $this->prefix . 'announcement_type_p', $this->prefix . 'notify_announcement', 'parentType' );
 
 		// Activity
 		$this->createIndex( 'idx_' . $this->prefix . 'activity_title', $this->prefix . 'notify_activity', 'title' );
@@ -75,11 +82,18 @@ class m160622_015513_notify_index extends Migration {
 		$this->dropIndex( 'idx_' . $this->prefix . 'event_type_p', $this->prefix . 'notify_event' );
 
 		// Notification
-		$this->dropIndex( 'idx_' . $this->prefix . 'notification_title', $this->prefix . 'notify_notification' );
+		//$this->dropIndex( 'idx_' . $this->prefix . 'notification_title', $this->prefix . 'notify_notification' );
 		$this->dropIndex( 'idx_' . $this->prefix . 'notification_type', $this->prefix . 'notify_notification' );
 		//$this->dropIndex( 'idx_' . $this->prefix . 'notification_ip', $this->prefix . 'notify_notification' );
 		//$this->dropIndex( 'idx_' . $this->prefix . 'notification_agent', $this->prefix . 'notify_notification' );
 		$this->dropIndex( 'idx_' . $this->prefix . 'notification_type_p', $this->prefix . 'notify_notification' );
+
+		// Announcement
+		//$this->dropIndex( 'idx_' . $this->prefix . 'announcement_title', $this->prefix . 'notify_announcement' );
+		$this->dropIndex( 'idx_' . $this->prefix . 'announcement_type', $this->prefix . 'notify_announcement' );
+		//$this->dropIndex( 'idx_' . $this->prefix . 'announcement_ip', $this->prefix . 'notify_announcement' );
+		//$this->dropIndex( 'idx_' . $this->prefix . 'announcement_agent', $this->prefix . 'notify_announcement' );
+		$this->dropIndex( 'idx_' . $this->prefix . 'announcement_type_p', $this->prefix . 'notify_announcement' );
 
 		// Activity
 		$this->dropIndex( 'idx_' . $this->prefix . 'activity_title', $this->prefix . 'notify_activity' );
@@ -88,4 +102,5 @@ class m160622_015513_notify_index extends Migration {
 		//$this->dropIndex( 'idx_' . $this->prefix . 'activity_agent', $this->prefix . 'notify_activity' );
 		$this->dropIndex( 'idx_' . $this->prefix . 'activity_type_p', $this->prefix . 'notify_activity' );
 	}
+
 }

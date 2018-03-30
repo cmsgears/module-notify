@@ -16,16 +16,16 @@ use yii\data\Sort;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\notify\common\services\interfaces\resources\INotificationService;
+use cmsgears\notify\common\services\interfaces\resources\IAnnouncementService;
 
 use cmsgears\core\common\services\base\ModelResourceService;
 
 /**
- * NotificationService provide service methods of notification model.
+ * AnnouncementService provide service methods of announcement model.
  *
  * @since 1.0.0
  */
-class NotificationService extends ModelResourceService implements INotificationService {
+class AnnouncementService extends ModelResourceService implements IAnnouncementService {
 
 	// Variables ---------------------------------------------------
 
@@ -35,9 +35,9 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\resources\Notification';
+	public static $modelClass	= '\cmsgears\notify\common\models\resources\Announcement';
 
-	public static $parentType	= NotifyGlobal::TYPE_NOTIFICATION;
+	public static $parentType	= NotifyGlobal::TYPE_ANNOUNCEMENT;
 
 	// Protected --------------
 
@@ -63,7 +63,7 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 	// CMG parent classes --------------------
 
-	// NotificationService -------------------
+	// AnnouncementService -------------------
 
 	// Data Provider ------
 
@@ -94,6 +94,12 @@ class NotificationService extends ModelResourceService implements INotificationS
 					'default' => SORT_DESC,
 					'label' => 'Type'
 				],
+				'status' => [
+					'asc' => [ "$modelTable.status" => SORT_ASC ],
+					'desc' => [ "$modelTable.status" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Status'
+				],
 				'ip' => [
 					'asc' => [ "$modelTable.ip" => SORT_ASC ],
 					'desc' => [ "$modelTable.ip" => SORT_DESC ],
@@ -111,18 +117,6 @@ class NotificationService extends ModelResourceService implements INotificationS
 					'desc' => [ "$modelTable.admin" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Admin'
-				],
-				'consumed' => [
-					'asc' => [ "$modelTable.consumed" => SORT_ASC ],
-					'desc' => [ "$modelTable.consumed" => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'Consumed'
-				],
-				'trash' => [
-					'asc' => [ "$modelTable.trash" => SORT_ASC ],
-					'desc' => [ "$modelTable.trash" => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'Trash'
 				],
 				'cdate' => [
 					'asc' => [ "$modelTable.createdAt" => SORT_ASC ],
@@ -154,26 +148,6 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 		// Filters ----------
 
-		// Params
-		$consumed 	= Yii::$app->request->getQueryParam( 'consumed' );
-		$trash 		= Yii::$app->request->getQueryParam( 'trash' );
-
-		// Filter - Consumed
-		if( isset( $consumed ) ) {
-
-			$filter = [ 'new' => 0, 'read' => 1 ];
-
-			$config[ 'conditions' ][ "$modelTable.consumed" ] = $filter[ $consumed ];
-		}
-
-		// Filter - Trash
-		if( isset( $trash ) ) {
-
-			$filter = [ 'trash' => 1 ];
-
-			$config[ 'conditions' ][ "$modelTable.trash" ] = $filter[ $trash ];
-		}
-
 		// Searching --------
 
 		$searchCol = Yii::$app->request->getQueryParam( 'search' );
@@ -192,9 +166,7 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 		$config[ 'report-col' ]	= [
 			'title' => "$modelTable.title",
-			'content' => "$modelTable.content",
-			'consumed' => "$modelTable.consumed",
-			'trash' => "$modelTable.trash"
+			'content' => "$modelTable.content"
 		];
 
 		// Result -----------
@@ -207,13 +179,6 @@ class NotificationService extends ModelResourceService implements INotificationS
 		$modelTable	= self::$modelTable;
 
 		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
-	}
-
-	public function getPageByUserId( $userId ) {
-
-		$modelTable	= self::$modelTable;
-
-		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
 	}
 
 	public function getPageByParent( $parentId, $parentType, $admin = false ) {
@@ -243,33 +208,6 @@ class NotificationService extends ModelResourceService implements INotificationS
 		$siteId = Yii::$app->core->siteId;
 
 		return $modelClass::queryByParent( $parentId, $parentType )->andWhere( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt ASC' )->andWhere([ 'siteId' => $siteId ])->all();
-	}
-
-	public function getCount( $consumed = false, $admin = false ) {
-
-		$modelClass	= static::$modelClass;
-
-		$siteId = Yii::$app->core->siteId;
-
-		return $modelClass::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
-	}
-
-	public function getUserCount( $userId, $consumed = false, $admin = false ) {
-
-		$modelClass	= static::$modelClass;
-
-		$siteId = Yii::$app->core->siteId;
-
-		return $modelClass::queryByUserId( $userId )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
-	}
-
-	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
-
-		$modelClass	= static::$modelClass;
-
-		$siteId = Yii::$app->core->siteId;
-
-		return $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
 	}
 
 	// Read - Lists ----
@@ -308,42 +246,9 @@ class NotificationService extends ModelResourceService implements INotificationS
 		]);
 	}
 
-	public function toggleRead( $model ) {
+	// Delete -------------
 
-		if( $model->isConsumed() ) {
-
-			return $this->markNew( $model );
-		}
-
-		return $this->markConsumed( $model );
-	}
-
-	public function markNew( $model ) {
-
-		$model->consumed = false;
-
-		return parent::update( $model, [
-			'attributes' => [ 'consumed' ]
-		]);
-	}
-
-	public function markConsumed( $model ) {
-
-		$model->consumed = true;
-
-		return parent::update( $model, [
-			'attributes' => [ 'consumed' ]
-		]);
-	}
-
-	public function markTrash( $model ) {
-
-		$model->trash = true;
-
-		return parent::update( $model, [
-			'attributes' => [ 'trash' ]
-		]);
-	}
+	// Bulk ---------------
 
 	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType ) {
 
@@ -352,19 +257,6 @@ class NotificationService extends ModelResourceService implements INotificationS
 			$notification = $this->getById( $id );
 
 			if( isset( $notification ) && $notification->parentId == $parentId && $notification->parentType == $parentType ) {
-
-				$this->applyBulk( $notification, $column, $action, $target );
-			}
-		}
-	}
-
-	public function applyBulkByUserId( $column, $action, $target, $userId ) {
-
-		foreach( $target as $id ) {
-
-			$notification = $this->getById( $id );
-
-			if( isset( $notification ) && $notification->userId == $userId ) {
 
 				$this->applyBulk( $notification, $column, $action, $target );
 			}
@@ -383,31 +275,6 @@ class NotificationService extends ModelResourceService implements INotificationS
 			}
 		}
 	}
-
-	// Delete -------------
-
-	/*
-	public function deleteByParent( $parentId, $parentType, $user = false ) {
-
-		$modelTable	= self::$modelTable;
-
-		$userIds    = $this->getIdList( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
-		$creatorIds = $this->getIdList( [ 'conditions' => [ "$modelTable.createdBy" => $userId ] ] );
-
-		$models     = array_merge( $userIds, $creatorIds );
-
-		if( count( $models ) > 0 ) {
-
-			// Delete user notifications if any
-			$this->applyBulkByUserId( 'model', 'delete', $models, $userId );
-
-			// Delete admin notifications if any
-			$this->applyBulkByAdmin( 'model', 'delete', $models );
-		}
-	}
-	*/
-
-	// Bulk ---------------
 
 	protected function applyBulk( $model, $column, $action, $target, $config = [] ) {
 
@@ -472,7 +339,7 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 	// CMG parent classes --------------------
 
-	// NotificationService -------------------
+	// AnnouncementService -------------------
 
 	// Data Provider ------
 

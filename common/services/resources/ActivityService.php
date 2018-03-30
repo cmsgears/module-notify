@@ -16,10 +16,6 @@ use yii\data\Sort;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\common\models\base\CoreTables;
-use cmsgears\notify\common\models\base\NotifyTables;
-use cmsgears\notify\common\models\resources\Activity;
-
 use cmsgears\notify\common\services\interfaces\resources\IActivityService;
 
 use cmsgears\core\common\services\base\ModelResourceService;
@@ -39,11 +35,7 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\resources\Activity';
-
-	public static $modelTable	= NotifyTables::TABLE_ACTIVITY;
-
-	public static $parentType	= null;
+	public static $modelClass = '\cmsgears\notify\common\models\resources\Activity';
 
 	// Protected --------------
 
@@ -75,14 +67,21 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 	public function getPage( $config = [] ) {
 
-		$modelClass		= static::$modelClass;
-		$modelTable		= static::$modelTable;
-		$userTable		= CoreTables::TABLE_USER;
+		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
+
+		$userTable = Yii::$app->get( 'userService' )->getModelTable();
 
 		// Sorting ----------
 
 		$sort = new Sort([
 			'attributes' => [
+				'id' => [
+					'asc' => [ "$modelTable.id" => SORT_ASC ],
+					'desc' => [ "$modelTable.id" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Id'
+				],
 	            'user' => [
 					'asc' => [ "`$userTable`.`firstName`" => SORT_ASC, "`$userTable`.`lastName`" => SORT_ASC ],
 					'desc' => [ "`$userTable`.`firstName`" => SORT_DESC, "`$userTable`.`lastName`" => SORT_DESC ],
@@ -90,32 +89,32 @@ class ActivityService extends ModelResourceService implements IActivityService {
 	                'label' => 'User'
 	            ],
 				'title' => [
-					'asc' => [ 'title' => SORT_ASC ],
-					'desc' => [ 'title' => SORT_DESC ],
+					'asc' => [ "$modelTable.title" => SORT_ASC ],
+					'desc' => [ "$modelTable.title" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Title'
 				],
 				'type' => [
-					'asc' => [ 'type' => SORT_ASC ],
-					'desc' => [ 'type' => SORT_DESC ],
+					'asc' => [ "$modelTable.type" => SORT_ASC ],
+					'desc' => [ "$modelTable.type" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Type'
 				],
 				'agent' => [
-					'asc' => [ 'agent' => SORT_ASC ],
-					'desc' => [ 'agent' => SORT_DESC ],
+					'asc' => [ "$modelTable.agent" => SORT_ASC ],
+					'desc' => [ "$modelTable.agent" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Agent'
 				],
 				'cdate' => [
-					'asc' => [ 'createdAt' => SORT_ASC ],
-					'desc' => [ 'createdAt' => SORT_DESC ],
+					'asc' => [ "$modelTable.createdAt" => SORT_ASC ],
+					'desc' => [ "$modelTable.createdAt" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Created At'
 				],
 				'udate' => [
-					'asc' => [ 'modifiedAt' => SORT_ASC ],
-					'desc' => [ 'modifiedAt' => SORT_DESC ],
+					'asc' => [ "$modelTable.updatedAt" => SORT_ASC ],
+					'desc' => [ "$modelTable.updatedAt" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Updated At'
 				]
@@ -152,7 +151,10 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 		if( isset( $searchCol ) ) {
 
-			$search = [ 'title' => "$modelTable.title", 'content' => "$modelTable.content" ];
+			$search = [
+				'title' => "$modelTable.title",
+				'content' => "$modelTable.content"
+			];
 
 			$config[ 'search-col' ] = $search[ $searchCol ];
 		}
@@ -160,7 +162,8 @@ class ActivityService extends ModelResourceService implements IActivityService {
 		// Reporting --------
 
 		$config[ 'report-col' ]	= [
-			'title' => "$modelTable.title", 'content' => "$modelTable.content",
+			'title' => "$modelTable.title",
+			'content' => "$modelTable.content",
 			'type' => "$modelTable.type"
 		];
 
@@ -190,9 +193,10 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 	public function create( $model, $config = [] ) {
 
+		$siteId = isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+
 		$model->agent	= Yii::$app->request->userAgent;
-		$model->ip	= Yii::$app->request->userIP;
-		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$model->ip		= Yii::$app->request->userIP;
 		$model->siteId	= $siteId;
 
 		return parent::create( $model, $config );
@@ -246,19 +250,26 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 	public function getRecent( $limit = 5, $config = [] ) {
 
+		$modelClass	= static::$modelClass;
+
 		$siteId = Yii::$app->core->siteId;
-		return Activity::find()->where( $config[ 'conditions' ] )->andWhere([ 'siteId' => $siteId ])->limit( $limit )->orderBy( 'createdAt DESC' )->all();
+
+		return $modelClass::find()->where( $config[ 'conditions' ] )->andWhere([ 'siteId' => $siteId ])->limit( $limit )->orderBy( 'createdAt DESC' )->all();
 	}
 
 	public function getCount( $consumed = false, $admin = false ) {
 
+		$modelClass	= static::$modelClass;
+
 		$siteId = Yii::$app->core->siteId;
-		return Activity::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
+
+		return $modelClass::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
 	}
 
 	public function createActivity( $model, $parentType = null ) {
 
 		$title = $model->name ?? null;
+
 		$this->triggerActivity($model, NotifyGlobal::TEMPLATE_LOG_CREATE, $title, $parentType);
 
 	}
@@ -266,6 +277,7 @@ class ActivityService extends ModelResourceService implements IActivityService {
 	public function updateActivity( $model, $parentType = null ) {
 
 		$title = $model->name ?? null;
+
 		$this->triggerActivity($model, NotifyGlobal::TEMPLATE_LOG_UPDATE, $title, $parentType);
 
 	}
@@ -273,6 +285,7 @@ class ActivityService extends ModelResourceService implements IActivityService {
 	public function deleteActivity( $model, $parentType = null ) {
 
 		$title = $model->name ?? null;
+
 		$this->triggerActivity( $model, NotifyGlobal::TEMPLATE_LOG_DELETE, $title, $parentType );
 	}
 
@@ -301,7 +314,7 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType ) {
 
-		foreach ( $target as $id ) {
+		foreach( $target as $id ) {
 
 			$notification = $this->getById( $id );
 
@@ -314,7 +327,7 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 	public function applyBulkByUserId( $column, $action, $target, $userId ) {
 
-		foreach ( $target as $id ) {
+		foreach( $target as $id ) {
 
 			$notification = $this->getById( $id );
 
@@ -327,7 +340,7 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 	public function applyBulkByAdmin( $column, $action, $target ) {
 
-		foreach ( $target as $id ) {
+		foreach( $target as $id ) {
 
 			$notification = $this->getById( $id );
 
@@ -337,6 +350,10 @@ class ActivityService extends ModelResourceService implements IActivityService {
 			}
 		}
 	}
+
+	// Delete -------------
+
+	// Bulk ---------------
 
 	protected function applyBulk( $model, $column, $action, $target, $config = [] ) {
 
@@ -390,10 +407,6 @@ class ActivityService extends ModelResourceService implements IActivityService {
 			}
 		}
 	}
-
-	// Delete -------------
-
-	// Bulk ---------------
 
 	// Notifications ------
 

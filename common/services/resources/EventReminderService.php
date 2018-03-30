@@ -16,9 +16,6 @@ use yii\data\Sort;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\notify\common\models\base\NotifyTables;
-use cmsgears\notify\common\models\resources\EventReminder;
-
 use cmsgears\notify\common\services\interfaces\resources\IEventReminderService;
 
 use cmsgears\core\common\services\base\ResourceService;
@@ -39,8 +36,6 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 	// Public -----------------
 
 	public static $modelClass	= '\cmsgears\notify\common\models\resources\EventReminder';
-
-	public static $modelTable	= NotifyTables::TABLE_EVENT_REMINDER;
 
 	public static $parentType	= NotifyGlobal::TYPE_REMINDER;
 
@@ -74,12 +69,19 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 
 	public function getPage( $config = [] ) {
 
-		$modelTable	= self::$modelTable;
+		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
 
 		// Sorting ----------
 
 		$sort = new Sort([
 			'attributes' => [
+				'id' => [
+					'asc' => [ "$modelTable.id" => SORT_ASC ],
+					'desc' => [ "$modelTable.id" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Id'
+				],
 				'event' => [
 					'asc' => [ "$modelTable.eventId" => SORT_ASC ],
 					'desc' => [ "$modelTable.eventId" => SORT_DESC ],
@@ -152,7 +154,10 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 
 		if( isset( $searchCol ) ) {
 
-			$search = [ 'title' => "$modelTable.title", 'content' => "$modelTable.content" ];
+			$search = [
+				'title' => "$modelTable.title",
+				'content' => "$modelTable.content"
+			];
 
 			$config[ 'search-col' ] = $search[ $searchCol ];
 		}
@@ -160,7 +165,8 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 		// Reporting --------
 
 		$config[ 'report-col' ]	= [
-			'title' => "$modelTable.title", 'content' => "$modelTable.content",
+			'title' => "$modelTable.title",
+			'content' => "$modelTable.content",
 			'scheduledAt' => "$modelTable.scheduledAt"
 		];
 
@@ -189,17 +195,23 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 
 	public function getRecent( $limit = 5, $config = [] ) {
 
-		return EventReminder::find()->where( $config[ 'conditions' ] )->andWhere( "scheduledAt <= NOW()" )->limit( $limit )->orderBy( 'scheduledAt ASC' )->all();
+		$modelClass	= static::$modelClass;
+
+		return $modelClass::find()->where( $config[ 'conditions' ] )->andWhere( "scheduledAt <= NOW()" )->limit( $limit )->orderBy( 'scheduledAt ASC' )->all();
 	}
 
 	public function getCount( $consumed = false, $admin = false ) {
 
-		return EventReminder::find()->where( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+		$modelClass	= static::$modelClass;
+
+		return $modelClass::find()->where( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
 	}
 
 	public function getUserCount( $userId, $consumed = false, $admin = false ) {
 
-		return EventReminder::queryByUserId( $userId )->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+		$modelClass	= static::$modelClass;
+
+		return $modelClass::queryByUserId( $userId )->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
 	}
 
 	// Read - Lists ----
@@ -243,7 +255,7 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 		$model->consumed = true;
 
 		return parent::update( $model, [
-				'attributes' => [ 'consumed' ]
+			'attributes' => [ 'consumed' ]
 		]);
 	}
 
@@ -252,13 +264,13 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 		$model->trash = true;
 
 		return parent::update( $model, [
-				'attributes' => [ 'trash' ]
+			'attributes' => [ 'trash' ]
 		]);
 	}
 
 	public function applyBulkByUserId( $column, $action, $target, $userId ) {
 
-		foreach ( $target as $id ) {
+		foreach( $target as $id ) {
 
 			$reminder = $this->getById( $id );
 
@@ -271,7 +283,7 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 
 	public function applyBulkByAdmin( $column, $action, $target ) {
 
-		foreach ( $target as $id ) {
+		foreach( $target as $id ) {
 
 			$reminder = $this->getById( $id );
 
@@ -281,6 +293,10 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 			}
 		}
 	}
+
+	// Delete -------------
+
+	// Bulk ---------------
 
 	protected function applyBulk( $model, $column, $action, $target, $config = [] ) {
 
@@ -320,10 +336,6 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 			}
 		}
 	}
-
-	// Delete -------------
-
-	// Bulk ---------------
 
 	// Notifications ------
 

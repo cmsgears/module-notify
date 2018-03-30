@@ -10,8 +10,6 @@
 namespace cmsgears\notify\common\services\mappers;
 
 // CMG Imports
-use cmsgears\notify\common\models\base\NotifyTables;
-
 use cmsgears\notify\common\services\interfaces\mappers\IEventParticipantService;
 
 use cmsgears\core\common\services\base\MapperService;
@@ -31,9 +29,7 @@ class EventParticipantService extends MapperService implements IEventParticipant
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\mappers\EventParticipant';
-
-	public static $modelTable	= NotifyTables::TABLE_EVENT_PARTICIPANT;
+	public static $modelClass = '\cmsgears\notify\common\models\mappers\EventParticipant';
 
 	// Protected --------------
 

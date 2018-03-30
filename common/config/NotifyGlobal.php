@@ -28,6 +28,8 @@ class NotifyGlobal {
 
 	const TYPE_NOTIFICATION	= 'notification';
 
+	const TYPE_ANNOUNCEMENT	= 'announcement';
+
 	const TYPE_REMINDER		= 'reminder';
 
 	// Templates -------------------------------------------------------
