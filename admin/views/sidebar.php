@@ -6,28 +6,28 @@ use yii\helpers\Url;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-$core		= Yii::$app->core;
-$user		= Yii::$app->user->getIdentity();
+$core	= Yii::$app->core;
+$user	= Yii::$app->user->getIdentity();
 
-$stats		= Yii::$app->eventManager->getAdminStats();
-$acount		= $stats[ 'activityCount' ];
-$ncount		= $stats[ 'notificationCount' ];
-$rcount		= $stats[ 'reminderCount' ];
+$stats	= Yii::$app->eventManager->getAdminStats();
+$acount	= $stats[ 'activityCount' ];
+$ncount	= $stats[ 'notificationCount' ];
+$rcount	= $stats[ 'reminderCount' ];
 ?>
 
 <?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
-	<div id="sidebar-activity" class="collapsible-tab has-children <?php if( strcmp( $parent, 'sidebar-activity' ) == 0 ) echo 'active'; ?>">
+	<div id="sidebar-activity" class="collapsible-tab has-children <?= $parent == 'sidebar-activity' ? 'active' : null ?>">
 		<div class="row tab-header">
 			<div class="tab-icon"><span class="cmti cmti-event"></span></div>
 			<div class="tab-title">Activities
 			<?php if( $acount > 0 ) { ?>
 					<span class="count-sidebar count-sidebar-header"><?= $acount ?></span>
-				<?php } ?>			
+				<?php } ?>
 			</div>
 		</div>
-		<div class="tab-content clear <?php if( strcmp( $parent, 'sidebar-activity' ) == 0 ) echo 'expanded visible';?>">
+		<div class="tab-content clear <?= $parent == 'sidebar-activity' ? 'expanded visible' : null ?>">
 			<ul>
-				<li class='activity <?php if( strcmp( $child, 'activity' ) == 0 ) echo 'active'; ?>'>
+				<li class="activity <?= $child == 'activity' ? 'active' : null ?>">
 					<a href="<?= Url::toRoute( [ '/notify/activity/all' ], true ) ?>">
 						Activities
 						<?php if( $acount > 0 ) { ?>
@@ -35,14 +35,14 @@ $rcount		= $stats[ 'reminderCount' ];
 						<?php } ?>
 					</a>
 				</li>
-				<li class='template <?php if( strcmp( $child, 'template' ) == 0 ) echo 'active'; ?>'><?= Html::a( "Templates", [ '/notify/activity/template/all' ] ) ?></li>
+				<li class="template <?= $child == 'template' ? 'active' : null ?>"><?= Html::a( "Templates", [ '/notify/activity/template/all' ] ) ?></li>
 			</ul>
 		</div>
 	</div>
 <?php } ?>
 
 <?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
-	<div id="sidebar-notify" class="collapsible-tab has-children <?php if( strcmp( $parent, 'sidebar-notify' ) == 0 ) echo 'active'; ?>">
+	<div id="sidebar-notify" class="collapsible-tab has-children <?= $parent == 'sidebar-notify' ? 'active' : null ?>">
 		<div class="row tab-header">
 			<div class="tab-icon"><span class="cmti cmti-flag"></span></div>
 			<div class="tab-title">
@@ -52,9 +52,9 @@ $rcount		= $stats[ 'reminderCount' ];
 				<?php } ?>
 			</div>
 		</div>
-		<div class="tab-content clear <?php if( strcmp( $parent, 'sidebar-notify' ) == 0 ) echo 'expanded visible';?>">
+		<div class="tab-content clear <?= $parent == 'sidebar-notify' ? 'expanded visible' : null ?>">
 			<ul>
-				<li class='notification <?php if( strcmp( $child, 'notification' ) == 0 ) echo 'active'; ?>'>
+				<li class="notification <?= $child == 'notification' ? 'active' : null ?>">
 					<a href="<?= Url::toRoute( [ '/notify/notification/all' ], true ) ?>">
 						Notifications
 						<?php if( $ncount > 0 ) { ?>
@@ -62,14 +62,28 @@ $rcount		= $stats[ 'reminderCount' ];
 						<?php } ?>
 					</a>
 				</li>
-				<li class='template <?php if( strcmp( $child, 'template' ) == 0 ) echo 'active'; ?>'><?= Html::a( "Templates", [ '/notify/notification/template/all' ] ) ?></li>
+				<li class="template <?= $child == 'template' ? 'active' : null ?>"><?= Html::a( "Templates", [ '/notify/notification/template/all' ] ) ?></li>
 			</ul>
 		</div>
 	</div>
 <?php } ?>
 
 <?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
-	<div id="sidebar-reminder" class="collapsible-tab has-children <?php if( strcmp( $parent, 'sidebar-reminder' ) == 0 ) echo 'active'; ?>">
+	<div id="sidebar-notify" class="collapsible-tab has-children <?= $parent == 'sidebar-announcement' ? 'active' : null ?>">
+		<div class="row tab-header">
+			<div class="tab-icon"><span class="fa fa-bullhorn"></span></div>
+			<div class="tab-title">Announcements</div>
+		</div>
+		<div class="tab-content clear <?= $parent == 'sidebar-announcement' ? 'expanded visible' : null ?>">
+			<ul>
+				<li class="announcement <?= $child == 'announcement' ? 'active' : null ?>"><?= Html::a( "Announcements", [ '/notify/announcement/all' ] ) ?></li>
+			</ul>
+		</div>
+	</div>
+<?php } ?>
+
+<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
+	<div id="sidebar-reminder" class="collapsible-tab has-children <?= $parent == 'sidebar-reminder' ? 'active' : null ?>">
 		<div class="row tab-header">
 			<div class="tab-icon"><span class="cmti cmti-bell"></span></div>
 			<div class="tab-title">
@@ -79,10 +93,10 @@ $rcount		= $stats[ 'reminderCount' ];
 				<?php } ?>
 			</div>
 		</div>
-		<div class="tab-content clear <?php if( strcmp( $parent, 'sidebar-reminder' ) == 0 ) echo 'expanded visible';?>">
+		<div class="tab-content clear <?= $parent == 'sidebar-reminder' ? 'expanded visible' : null ?>">
 			<ul>
-				<li class='event <?php if( strcmp( $child, 'event' ) == 0 ) echo 'active'; ?>'><?= Html::a( "Events", [ '/notify/event/all' ] ) ?></li>
-				<li class='reminder <?php if( strcmp( $child, 'reminder' ) == 0 ) echo 'active'; ?>'>
+				<li class="event <?= $child == 'event' ? 'active' : null ?>"><?= Html::a( "Events", [ '/notify/event/all' ] ) ?></li>
+				<li class="reminder <?= $child == 'reminder' ? 'active' : null ?>">
 					<a href="<?= Url::toRoute( [ '/notify/reminder/all' ], true ) ?>">
 						Reminders
 						<?php if( $rcount > 0 ) { ?>
@@ -90,7 +104,8 @@ $rcount		= $stats[ 'reminderCount' ];
 						<?php } ?>
 					</a>
 				</li>
-				<li class='template <?php if( strcmp( $child, 'template' ) == 0 ) echo 'active'; ?>'><?= Html::a( "Templates", [ '/notify/reminder/template/all' ] ) ?></li>
+				<li class="template <?= $child == 'etemplate' ? 'active' : null ?>"><?= Html::a( "Event Templates", [ '/notify/event/template/all' ] ) ?></li>
+				<li class="template <?= $child == 'rtemplate' ? 'active' : null ?>"><?= Html::a( "Reminder Templates", [ '/notify/reminder/template/all' ] ) ?></li>
 			</ul>
 		</div>
 	</div>

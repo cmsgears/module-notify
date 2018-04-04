@@ -29,7 +29,7 @@ interface IAnnouncementService extends IModelResourceService {
 
 	// Read - Models ---
 
-	public function getRecent( $limit = 5, $config = [] );
+	public function getRecentByAdmin( $limit = 5, $config = [] );
 
 	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] );
 
@@ -43,9 +43,21 @@ interface IAnnouncementService extends IModelResourceService {
 
 	// Update -------------
 
+	public function updateStatus( $model, $status );
+
+	public function approve( $model );
+
+	public function activate( $model );
+
+	public function pause( $model );
+
+	public function expire( $model );
+
 	// Delete -------------
 
 	// Bulk ---------------
+
+	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType );
 
 	// Notifications ------
 

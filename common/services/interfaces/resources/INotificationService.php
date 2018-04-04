@@ -11,35 +11,22 @@ namespace cmsgears\notify\common\services\interfaces\resources;
 
 // CMG Imports
 use cmsgears\core\common\services\interfaces\base\IModelResourceService;
+use cmsgears\notify\common\services\interfaces\base\IBulk;
+use cmsgears\notify\common\services\interfaces\base\INotify;
+use cmsgears\notify\common\services\interfaces\base\IToggle;
 
 /**
  * INotificationService declares methods specific to notification model.
  *
  * @since 1.0.0
  */
-interface INotificationService extends IModelResourceService {
+interface INotificationService extends IModelResourceService, IBulk, INotify, IToggle {
 
 	// Data Provider ------
-
-	public function getPageForAdmin();
-
-	public function getPageByUserId( $userId );
-
-	public function getPageByParent( $parentId, $parentType, $admin = false );
 
 	// Read ---------------
 
 	// Read - Models ---
-
-	public function getRecent( $limit = 5, $config = [] );
-
-	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] );
-
-	public function getCount( $consumed = false );
-
-	public function getUserCount( $userId, $consumed = false, $admin = false );
-
-	public function getCountByParent( $parentId, $parentType, $consumed = false );
 
 	// Read - Lists ----
 
@@ -51,23 +38,11 @@ interface INotificationService extends IModelResourceService {
 
 	// Update -------------
 
-	public function toggleRead( $notification );
-
-	public function markNew( $notification );
-
-	public function markConsumed( $notification );
-
-	public function markTrash( $notification );
-
-	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType );
-
-	public function applyBulkByUserId( $column, $action, $target, $userId );
-
-	public function applyBulkByAdmin( $column, $action, $target );
-
 	// Delete -------------
 
-	//public function deleteByParent( $parentId, $parentType, $user = false );
+	public function deleteByUserId( $userId, $config = [] );
+
+	// public function deleteByParent( $parentId, $parentType, $user = false );
 
 	// Bulk ---------------
 

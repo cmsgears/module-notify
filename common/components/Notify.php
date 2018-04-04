@@ -74,11 +74,12 @@ class Notify extends Component {
 
 		$factory = Yii::$app->factory->getContainer();
 
+		$factory->set( 'cmsgears\notify\common\services\interfaces\resources\IEventService', 'cmsgears\notify\common\services\resources\EventService' );
 		$factory->set( 'cmsgears\notify\common\services\interfaces\resources\IEventReminderService', 'cmsgears\notify\common\services\resources\EventReminderService' );
 
 		$factory->set( 'cmsgears\notify\common\services\interfaces\resources\IActivityService', 'cmsgears\notify\common\services\resources\ActivityService' );
+		$factory->set( 'cmsgears\notify\common\services\interfaces\resources\IAnnouncementService', 'cmsgears\notify\common\services\resources\AnnouncementService' );
 		$factory->set( 'cmsgears\notify\common\services\interfaces\resources\INotificationService', 'cmsgears\notify\common\services\resources\NotificationService' );
-		$factory->set( 'cmsgears\notify\common\services\interfaces\resources\IEventService', 'cmsgears\notify\common\services\resources\EventService' );
 	}
 
 	/**
@@ -98,11 +99,12 @@ class Notify extends Component {
 
 		$factory = Yii::$app->factory->getContainer();
 
+		$factory->set( 'eventService', 'cmsgears\notify\common\services\resources\EventService' );
 		$factory->set( 'reminderService', 'cmsgears\notify\common\services\resources\EventReminderService' );
 
-		$factory->set( 'activityService', 'cmsgears\notify\common\services\entities\ActivityService' );
-		$factory->set( 'notificationService', 'cmsgears\notify\common\services\entities\NotificationService' );
-		$factory->set( 'eventService', 'cmsgears\notify\common\services\entities\EventService' );
+		$factory->set( 'activityService', 'cmsgears\notify\common\services\resources\ActivityService' );
+		$factory->set( 'announcementService', 'cmsgears\notify\common\services\resources\AnnouncementService' );
+		$factory->set( 'notificationService', 'cmsgears\notify\common\services\resources\NotificationService' );
 	}
 
 	/**

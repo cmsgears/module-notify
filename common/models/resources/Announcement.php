@@ -47,11 +47,8 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  * @property string $description
  * @property string $type
  * @property integer $status
- * @property string $ip
- * @property integer $ipNum
- * @property string $agent
+ * @property integer $access
  * @property string $link
- * @property boolean $admin
  * @property string $adminLink
  * @property datetime $createdAt
  * @property datetime $modifiedAt
@@ -71,7 +68,62 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 
 	// Constants --------------
 
+	const STATUS_NEW		=   0;
+	const STATUS_APPROVED	= 100;
+	const STATUS_ACTIVE		= 200;
+	const STATUS_PAUSED		= 300;
+	const STATUS_EXPIRED	= 400;
+
+	// App Only
+	const ACCESS_APP		= 100; // Directly available on App without admin intervention
+
+	// Admin, App
+	const ACCESS_APP_ACT	= 200; // Available on App with admin intervention
+	const ACCESS_ADMIN		= 300; // Available only on Admin
+	const ACCESS_APP_ADMIN	= 400; // Available on both Admin and App
+
 	// Public -----------------
+
+	public static $statusMap = [
+		self::STATUS_NEW => 'New',
+		self::STATUS_APPROVED => 'Approved',
+		self::STATUS_ACTIVE => 'Active',
+		self::STATUS_PAUSED => 'Paused',
+		self::STATUS_EXPIRED => 'Expired'
+	];
+
+	// Used for external docs
+	public static $revStatusMap = [
+		'New' => self::STATUS_NEW,
+		'Approved' => self::STATUS_APPROVED,
+		'Active' => self::STATUS_ACTIVE,
+		'Paused' => self::STATUS_PAUSED,
+		'Expired' => self::STATUS_EXPIRED
+	];
+
+	// Used for url params
+	public static $urlRevStatusMap = [
+		'new' => self::STATUS_NEW,
+		'approved' => self::STATUS_APPROVED,
+		'active' => self::STATUS_ACTIVE,
+		'paused' => self::STATUS_PAUSED,
+		'expired' => self::STATUS_EXPIRED
+	];
+
+	public static $accessMap = [
+		self::ACCESS_APP => 'App',
+		self::ACCESS_APP_ACT => 'App Act',
+		self::ACCESS_ADMIN => 'Admin',
+		self::ACCESS_APP_ADMIN => 'App & Admin'
+	];
+
+	// Used for url params
+	public static $urlRevAccessMap = [
+		'app' => self::ACCESS_APP,
+		'appact' => self::ACCESS_APP_ACT,
+		'admin' => self::ACCESS_ADMIN,
+		'appadmin' => self::ACCESS_APP_ADMIN
+	];
 
 	// Protected --------------
 
@@ -133,13 +185,13 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 			[ 'siteId', 'required' ],
 			[ [ 'id', 'content', 'data',  'gridCache' ], 'safe' ],
 			// Text Limit
-			[ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
-			[ [ 'title', 'agent' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
+			[ [ 'parentType', 'type' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
+			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
 			[ [ 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxxLargeText ],
 			[ 'description', 'string', 'min' => 1, 'max' => Yii::$app->core->xtraLargeText ],
 			// Other
-			[ [ 'admin', 'gridCacheValid' ], 'boolean' ],
-			[ [ 'status', 'ipNum' ], 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ 'gridCacheValid', 'boolean' ],
+			[ [ 'status', 'access' ], 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ [ 'siteId', 'bannerId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ [ 'createdAt', 'modifiedAt', 'gridCachedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
@@ -161,11 +213,8 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 			'description' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DESCRIPTION ),
 			'type' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TYPE ),
 			'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
-			'ip' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_IP ),
-			'ipNum' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_IP_NUM ),
-			'agent' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_AGENT_BROWSER ),
+			'access' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ACC ),
 			'link' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
-			'admin' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
 			'adminLink' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW_ADMIN ),
 			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT ),
 			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA ),
@@ -180,6 +229,76 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 	// Validators ----------------------------
 
 	// Announcement --------------------------
+
+	/**
+	 * Returns string representation of [[$status]].
+	 *
+	 * @return string
+	 */
+	public function getStatusStr() {
+
+		return self::$statusMap[ $this->status ];
+	}
+
+	/**
+	 * Check whether announcement is new.
+	 *
+	 * @return boolean
+	 */
+	public function isNew() {
+
+		return $this->status == self::STATUS_NEW;
+	}
+
+	/**
+	 * Check whether announcement is approved.
+	 *
+	 * @return boolean
+	 */
+	public function isApproved() {
+
+		return $this->status == self::STATUS_APPROVED;
+	}
+
+	/**
+	 * Check whether announcement is active.
+	 *
+	 * @return boolean
+	 */
+	public function isActive() {
+
+		return $this->status == self::STATUS_ACTIVE;
+	}
+
+	/**
+	 * Check whether announcement is paused.
+	 *
+	 * @return boolean
+	 */
+	public function isPaused() {
+
+		return $this->status == self::STATUS_PAUSED;
+	}
+
+	/**
+	 * Check whether announcement is expired.
+	 *
+	 * @return boolean
+	 */
+	public function isExpired() {
+
+		return $this->status == self::STATUS_EXPIRED;
+	}
+
+	/**
+	 * Returns string representation of [[$access]].
+	 *
+	 * @return string
+	 */
+	public function getAccessStr() {
+
+		return self::$accessMap[ $this->access ];
+	}
 
 	// Static Methods ----------------------------------------------
 

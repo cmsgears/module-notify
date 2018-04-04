@@ -20,6 +20,8 @@ use cmsgears\notify\common\services\interfaces\resources\IEventReminderService;
 
 use cmsgears\core\common\services\base\ResourceService;
 
+use cmsgears\notify\common\services\traits\base\ToggleTrait;
+
 /**
  * EventReminderService provide service methods of event reminder.
  *
@@ -51,6 +53,8 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 
 	// Traits ------------------------------------------------------
 
+	use ToggleTrait;
+
 	// Constructor and Initialisation ------------------------------
 
 	// Instance methods --------------------------------------------
@@ -72,6 +76,9 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
+		$eventTable	= Yii::$app->factory->get( 'eventService' )->getModelTable();
+		$userTable	= Yii::$app->factory->get( 'userService' )->getModelTable();
+
 		// Sorting ----------
 
 		$sort = new Sort([
@@ -83,11 +90,17 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 					'label' => 'Id'
 				],
 				'event' => [
-					'asc' => [ "$modelTable.eventId" => SORT_ASC ],
-					'desc' => [ "$modelTable.eventId" => SORT_DESC ],
+					'asc' => [ "$eventTable.name" => SORT_ASC ],
+					'desc' => [ "$eventTable.name" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Event'
 				],
+	            'user' => [
+					'asc' => [ "`$userTable`.`firstName`" => SORT_ASC, "`$userTable`.`lastName`" => SORT_ASC ],
+					'desc' => [ "`$userTable`.`firstName`" => SORT_DESC, "`$userTable`.`lastName`" => SORT_DESC ],
+					'default' => SORT_DESC,
+	                'label' => 'User'
+	            ],
 				'title' => [
 					'asc' => [ "$modelTable.title" => SORT_ASC ],
 					'desc' => [ "$modelTable.title" => SORT_DESC ],
@@ -131,21 +144,33 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 		// Filters ----------
 
 		// Params
-		$consumed 	= Yii::$app->request->getQueryParam( 'consumed' );
-		$trash 		= Yii::$app->request->getQueryParam( 'trash' );
+		$cons	= Yii::$app->request->getQueryParam( 'consumed' );
+		$trash	= Yii::$app->request->getQueryParam( 'trash' );
 
 		// Filter - Consumed
-		if( isset( $consumed ) ) {
+		if( isset( $cons ) ) {
 
-			$filter = [ 'new' => 0, 'read' => 1 ];
-			$config[ 'conditions' ][ "$modelTable.consumed" ]	= $filter[ $consumed ];
+			switch( $cons ) {
+
+				case 'new': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ] = false;
+
+					break;
+				}
+				case 'read': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ] = true;
+
+					break;
+				}
+			}
 		}
 
 		// Filter - Trash
 		if( isset( $trash ) ) {
 
-			$filter = [ 'trash' => 1 ];
-			$config[ 'conditions' ][ "$modelTable.trash" ]	= $filter[ $trash ];
+			$config[ 'conditions' ][ "$modelTable.trash" ] = true;
 		}
 
 		// Searching --------
@@ -156,6 +181,7 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 
 			$search = [
 				'title' => "$modelTable.title",
+				'desc' => "$modelTable.description",
 				'content' => "$modelTable.content"
 			];
 
@@ -166,7 +192,10 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 
 		$config[ 'report-col' ]	= [
 			'title' => "$modelTable.title",
+			'desc' => "$modelTable.description",
 			'content' => "$modelTable.content",
+			'consumed' => "$modelTable.consumed",
+			'trash' => "$modelTable.trash",
 			'scheduledAt' => "$modelTable.scheduledAt"
 		];
 
@@ -177,14 +206,14 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 
 	public function getPageForAdmin() {
 
-		$modelTable	= self::$modelTable;
+		$modelTable	= $this->getModelTable();
 
 		return $this->getPage( [ 'conditions' => [ "NOW() > $modelTable.scheduledAt", "$modelTable.admin" => true ] ] );
 	}
 
 	public function getPageByUserId( $userId ) {
 
-		$modelTable	= self::$modelTable;
+		$modelTable	= $this->getModelTable();
 
 		return $this->getPage( [ 'conditions' => [ "NOW() > $modelTable.scheduledAt", "$modelTable.userId" => $userId ] ] );
 	}
@@ -231,52 +260,33 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 		]);
 	}
 
-	public function toggleRead( $model ) {
+	// Delete -------------
 
-		if( $model->isConsumed() ) {
+	public function deleteByEventId( $eventId, $config = [] ) {
 
-			return $this->markNew( $model );
-		}
+		$modelClass = self::$modelClass;
 
-		return $this->markConsumed( $model );
+		$modelClass::deleteByEventId( $eventId );
 	}
 
-	public function markNew( $model ) {
+	public function deleteByUserId( $userId, $config = [] ) {
 
-		$model->consumed = false;
+		$modelClass = self::$modelClass;
 
-		return parent::update( $model, [
-			'attributes' => [ 'consumed' ]
-		]);
+		$modelClass::deleteByUserId( $userId );
 	}
 
-	public function markConsumed( $model ) {
-
-		$model->consumed = true;
-
-		return parent::update( $model, [
-			'attributes' => [ 'consumed' ]
-		]);
-	}
-
-	public function markTrash( $model ) {
-
-		$model->trash = true;
-
-		return parent::update( $model, [
-			'attributes' => [ 'trash' ]
-		]);
-	}
+	// Bulk ---------------
 
 	public function applyBulkByUserId( $column, $action, $target, $userId ) {
 
 		foreach( $target as $id ) {
 
-			$reminder = $this->getById( $id );
+			$model = $this->getById( $id );
 
-			if( isset( $reminder ) && $reminder->userId == $userId ) {
+			if( isset( $model ) && $model->userId == $userId ) {
 
-				$this->applyBulk( $reminder, $column, $action, $target );
+				$this->applyBulk( $model, $column, $action, $target );
 			}
 		}
 	}
@@ -285,29 +295,19 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 
 		foreach( $target as $id ) {
 
-			$reminder = $this->getById( $id );
+			$model = $this->getById( $id );
 
-			if( isset( $reminder ) && $reminder->admin ) {
+			if( isset( $model ) && $model->admin ) {
 
-				$this->applyBulk( $reminder, $column, $action, $target );
+				$this->applyBulk( $model, $column, $action, $target );
 			}
 		}
 	}
-
-	// Delete -------------
-
-	// Bulk ---------------
 
 	protected function applyBulk( $model, $column, $action, $target, $config = [] ) {
 
 		switch( $column ) {
 
-			case 'id': {
-
-				$this->delete( $model );
-
-				break;
-			}
 			case 'consumed': {
 
 				switch( $action ) {
@@ -331,6 +331,20 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 			case 'trash': {
 
 				$this->markTrash( $model );
+
+				break;
+			}
+			case 'model': {
+
+				switch( $action ) {
+
+					case 'delete': {
+
+						$this->delete( $model );
+
+						break;
+					}
+				}
 
 				break;
 			}

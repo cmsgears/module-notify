@@ -82,7 +82,8 @@ class EventService extends ModelResourceService implements IEventService {
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$userTable = Yii::$app->get( 'userService' )->getModelTable();
+		$templateTable	= Yii::$app->factory->get( 'templateService' )->getModelTable();
+		$userTable		= Yii::$app->factory->get( 'userService' )->getModelTable();
 
 		// Sorting ----------
 
@@ -91,6 +92,12 @@ class EventService extends ModelResourceService implements IEventService {
 				'id' => [
 					'asc' => [ "$modelTable.id" => SORT_ASC ],
 					'desc' => [ "$modelTable.id" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Id'
+				],
+				'template' => [
+					'asc' => [ "$templateTable.name" => SORT_ASC ],
+					'desc' => [ "$templateTable.name" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Id'
 				],
@@ -160,6 +167,12 @@ class EventService extends ModelResourceService implements IEventService {
 					'default' => SORT_DESC,
 					'label' => 'Status'
 				],
+				'admin' => [
+					'asc' => [ "$modelTable.admin" => SORT_ASC ],
+					'desc' => [ "$modelTable.admin" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Admin'
+				],
 				'multi' => [
 					'asc' => [ "$modelTable.multiUser" => SORT_ASC ],
 					'desc' => [ "$modelTable.multiUser" => SORT_DESC ],
@@ -173,8 +186,8 @@ class EventService extends ModelResourceService implements IEventService {
 					'label' => 'Created At'
 				],
 				'udate' => [
-					'asc' => [ "$modelTable.updatedAt" => SORT_ASC ],
-					'desc' => [ "$modelTable.updatedAt" => SORT_DESC ],
+					'asc' => [ "$modelTable.modifiedAt" => SORT_ASC ],
+					'desc' => [ "$modelTable.modifiedAt" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Updated At'
 				],
@@ -202,31 +215,38 @@ class EventService extends ModelResourceService implements IEventService {
 
 		// Filters ----------
 
-		// Filter - Status
+		// Params
+		$type	= Yii::$app->request->getQueryParam( 'type' );
 		$status	= Yii::$app->request->getQueryParam( 'status' );
+		$multi	= Yii::$app->request->getQueryParam( 'multi' );
 
+		// Filter - Type
+		if( isset( $type ) ) {
+
+			$config[ 'conditions' ][ "$modelTable.type" ] = $type;
+		}
+
+		// Filter - Status
 		if( isset( $status ) && isset( $modelClass::$urlRevStatusMap[ $status ] ) ) {
 
 			$config[ 'conditions' ][ "$modelTable.status" ]	= $modelClass::$urlRevStatusMap[ $status ];
 		}
 
 		// Filter - Multi
-		$multi	= Yii::$app->request->getQueryParam( 'multi' );
-
 		if( isset( $multi ) ) {
 
-			$config[ 'conditions' ][ "$modelTable.multiUser" ]	= true;
+			$config[ 'conditions' ][ "$modelTable.multiUser" ] = true;
 		}
 
 		// Searching --------
 
-		$searchCol	= Yii::$app->request->getQueryParam( 'search' );
+		$searchCol = Yii::$app->request->getQueryParam( 'search' );
 
 		if( isset( $searchCol ) ) {
 
 			$search = [
 				'name' => "$modelTable.name",
-				'slug' => "$modelTable.slug",
+				'title' => "$modelTable.title",
 				'desc' => "$modelTable.description",
 				'content' => "$modelTable.content" ];
 
@@ -237,9 +257,10 @@ class EventService extends ModelResourceService implements IEventService {
 
 		$config[ 'report-col' ]	= [
 			'name' => "$modelTable.name",
-			'slug' => "$modelTable.slug",
+			'title' => "$modelTable.title",
 			'desc' => "$modelTable.description",
 			'content' => "$modelTable.content",
+			'type' => "$modelTable.type",
 			'status' => "$modelTable.status",
 			'multi' => "$modelTable.multiUser"
 		];
@@ -251,21 +272,21 @@ class EventService extends ModelResourceService implements IEventService {
 
 	public function getPageForAdmin() {
 
-		$modelTable	= self::$modelTable;
+		$modelTable	= $this->getModelTable();
 
 		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
 	}
 
 	public function getPageByUserId( $userId ) {
 
-		$modelTable	= self::$modelTable;
+		$modelTable	= $this->getModelTable();
 
 		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
 	}
 
 	public function getPageByParent( $parentId, $parentType, $admin = false ) {
 
-		$modelTable	= self::$modelTable;
+		$modelTable	= $this->getModelTable();
 
 		return $this->getPage( [ 'conditions' => [ "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType, "$modelTable.admin" => $admin ] ] );
 	}
@@ -273,19 +294,6 @@ class EventService extends ModelResourceService implements IEventService {
 	// Read ---------------
 
 	// Read - Models ---
-	public function getNewEvents() {
-
-		$modelClass	= static::$modelClass;
-
-		return $modelClass::findNewEvents();
-	}
-
-	public function getByParentId( $parentId ) {
-
-		$modelClass	= static::$modelClass;
-
-		return $modelClass::findByParentId( $parentId );
-	}
 
 	// Read - Lists ----
 
@@ -296,6 +304,13 @@ class EventService extends ModelResourceService implements IEventService {
 	// Create -------------
 
 	// Update -------------
+
+	public function update( $model, $config = [] ) {
+
+		return parent::update( $model, [
+			'attributes' => [ 'title', 'description', 'content' ]
+		]);
+	}
 
 	public function updateStatus( $model, $status ) {
 
@@ -325,9 +340,7 @@ class EventService extends ModelResourceService implements IEventService {
 
 					case 'trash': {
 
-						$model->status = Event::STATUS_TRASH;
-
-						$model->update();
+						$this->trash( $model );
 
 						break;
 					}

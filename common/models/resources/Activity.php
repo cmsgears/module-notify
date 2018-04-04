@@ -13,6 +13,7 @@ namespace cmsgears\notify\common\models\resources;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
+use yii\helpers\ArrayHelper;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
@@ -21,7 +22,7 @@ use cmsgears\notify\common\config\NotifyGlobal;
 use cmsgears\core\common\models\interfaces\base\IMultiSite;
 use cmsgears\core\common\models\interfaces\resources\IData;
 use cmsgears\core\common\models\interfaces\resources\IGridCache;
-use cmsgears\notify\common\models\interfaces\base\IStatusSwitch;
+use cmsgears\notify\common\models\interfaces\base\IToggle;
 
 use cmsgears\core\common\models\base\ModelResource;
 use cmsgears\core\common\models\entities\User;
@@ -30,7 +31,7 @@ use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
 use cmsgears\core\common\models\traits\resources\GridCacheTrait;
-use cmsgears\notify\common\models\traits\base\StatusSwitchTrait;
+use cmsgears\notify\common\models\traits\base\ToggleTrait;
 
 /**
  * Activity can be used to log user activities. A model can be optionally associated with
@@ -62,7 +63,7 @@ use cmsgears\notify\common\models\traits\base\StatusSwitchTrait;
  *
  * @since 1.0.0
  */
-class Activity extends ModelResource implements IData, IGridCache, IMultiSite, IStatusSwitch {
+class Activity extends ModelResource implements IData, IGridCache, IMultiSite, IToggle {
 
 	// Variables ---------------------------------------------------
 
@@ -89,7 +90,7 @@ class Activity extends ModelResource implements IData, IGridCache, IMultiSite, I
 	use DataTrait;
 	use GridCacheTrait;
 	use MultiSiteTrait;
-	use StatusSwitchTrait;
+	use ToggleTrait;
 
 	// Constructor and Initialisation ------------------------------
 
@@ -260,10 +261,14 @@ class Activity extends ModelResource implements IData, IGridCache, IMultiSite, I
 	// Delete -----------------
 
 	/**
-	 * Delete all entries related to a user
+	 * Delete all activities related to a user.
+	 *
+	 * @param integer $userId
+	 * @return integer Number of rows deleted.
 	 */
 	public static function deleteByUserId( $userId ) {
 
-		self::deleteAll( 'userId=:uid', [ ':uid' => $userId ] );
+		return self::deleteAll( 'userId=:uid', [ ':uid' => $userId ] );
 	}
+
 }

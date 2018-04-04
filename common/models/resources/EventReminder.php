@@ -18,14 +18,16 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\interfaces\base\IOwner;
 use cmsgears\core\common\models\interfaces\resources\IData;
+use cmsgears\notify\common\models\interfaces\base\IToggle;
 
 use cmsgears\core\common\models\base\Resource;
 use cmsgears\core\common\models\entities\User;
-use cmsgears\notify\common\models\entities\Event;
 use cmsgears\notify\common\models\base\NotifyTables;
+use cmsgears\notify\common\models\resources\Event;
 
 use cmsgears\core\common\models\traits\base\UserOwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
+use cmsgears\notify\common\models\traits\base\ToggleTrait;
 
 /**
  * Reminder will be triggered based on event configuration.
@@ -48,7 +50,7 @@ use cmsgears\core\common\models\traits\resources\DataTrait;
  * @property boolean $gridCacheValid
  * @property datetime $gridCachedAt
  */
-class EventReminder extends Resource implements IData, IOwner {
+class EventReminder extends Resource implements IData, IOwner, IToggle {
 
 	// Variables ---------------------------------------------------
 
@@ -73,6 +75,7 @@ class EventReminder extends Resource implements IData, IOwner {
 	// Traits ------------------------------------------------------
 
 	use DataTrait;
+	use ToggleTrait;
 	use UserOwnerTrait;
 
 	// Constructor and Initialisation ------------------------------

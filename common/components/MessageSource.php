@@ -1,13 +1,28 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\common\components;
 
 // Yii Imports
-use \Yii;
+use yii\base\Component;
+use yii\i18n\MessageFormatter;
 
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-class MessageSource extends \yii\base\Component {
+/**
+ * MessageSource stores and provide the messages and message templates available in
+ * Notify Module. These messages can be generic, errors, warnings and form fields label.
+ *
+ * @since 1.0.0
+ */
+class MessageSource extends Component {
 
 	// Variables ---------------------------------------------------
 
@@ -26,7 +41,16 @@ class MessageSource extends \yii\base\Component {
 
 	// Private ----------------
 
+	private $formatter;
+
 	// Constructor and Initialisation ------------------------------
+
+	public function init() {
+
+		parent::init();
+
+		$this->formatter = new MessageFormatter();
+	}
 
 	// Instance methods --------------------------------------------
 
@@ -36,8 +60,22 @@ class MessageSource extends \yii\base\Component {
 
 	// MessageSource -------------------------
 
-	public function getMessage( $messageKey, $params = [], $language = null ) {
+	/**
+	 * Find the message corresponding to given message key and returns the formatted
+	 * message using the message parameters and language.
+	 *
+	 * @param string $key
+	 * @param array $params
+	 * @param string $language
+	 * @return string
+	 */
+	public function getMessage( $key, $params = [], $language = null ) {
 
-		return $this->messageDb[ $messageKey ];
+		// Retrieve Message
+		$message = $this->messageDb[ $key ];
+
+		// Return formatted message
+		return $this->formatter->format( $message, $params, $language );
 	}
+
 }

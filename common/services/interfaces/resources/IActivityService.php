@@ -11,25 +11,22 @@ namespace cmsgears\notify\common\services\interfaces\resources;
 
 // CMG Imports
 use cmsgears\core\common\services\interfaces\base\IModelResourceService;
+use cmsgears\notify\common\services\interfaces\base\IBulk;
+use cmsgears\notify\common\services\interfaces\base\INotify;
+use cmsgears\notify\common\services\interfaces\base\IToggle;
 
 /**
  * IActivityService declares methods specific to activity model.
  *
  * @since 1.0.0
  */
-interface IActivityService extends IModelResourceService {
+interface IActivityService extends IModelResourceService, IBulk, INotify, IToggle {
 
 	// Data Provider ------
-
-	public function getPageByUserId( $userId );
 
 	// Read ---------------
 
 	// Read - Models ---
-
-	public function getRecent( $limit = 5, $config = [] );
-
-	public function getCount( $consumed = false );
 
 	// Read - Lists ----
 
@@ -41,25 +38,9 @@ interface IActivityService extends IModelResourceService {
 
 	// Update -------------
 
-	public function toggleRead( $notification );
-
-	public function markNew( $notification );
-
-	public function markConsumed( $notification );
-
-	public function markTrash( $notification );
-
-	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType );
-
-	public function applyBulkByUserId( $column, $action, $target, $userId );
-
-	public function applyBulkByAdmin( $column, $action, $target );
-
-	public function createActivity( $model );
-	public function updateActivity( $model );
-	public function deleteActivity( $model );
-
 	// Delete -------------
+
+	public function deleteByUserId( $userId, $config = [] );
 
 	// Bulk ---------------
 

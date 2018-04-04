@@ -10,11 +10,11 @@
 namespace cmsgears\notify\common\models\interfaces\base;
 
 /**
- * The IStatusSwitch interface provide methods specific to models supporting consumed and trash features.
+ * The IToggle interface provide methods specific to models supporting consumed and trash features.
  *
  * @since 1.0.0
  */
-interface IStatusSwitch {
+interface IToggle {
 
 	/**
 	 * Check whether activity status is new.

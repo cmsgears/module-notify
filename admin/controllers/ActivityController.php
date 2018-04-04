@@ -1,15 +1,30 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\admin\controllers;
 
 // Yii Imports
-use \Yii;
+use Yii;
 use yii\filters\VerbFilter;
 use yii\helpers\Url;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-class ActivityController extends \cmsgears\core\admin\controllers\base\Controller {
+use cmsgears\core\admin\controllers\base\Controller as BaseController;
+
+/**
+ * ActivityController provide actions specific to Activity model.
+ *
+ * @since 1.0.0
+ */
+class ActivityController extends BaseController {
 
 	// Variables ---------------------------------------------------
 
@@ -29,13 +44,18 @@ class ActivityController extends \cmsgears\core\admin\controllers\base\Controlle
 
 		parent::init();
 
-		$this->crudPermission 	= CoreGlobal::PERM_CORE;
-		$this->modelService		= Yii::$app->factory->get( 'activityService' );
+		// Permission
+		$this->crudPermission = CoreGlobal::PERM_CORE;
 
-		$this->sidebar 			= [ 'parent' => 'sidebar-activity', 'child' => 'activity' ];
+		// Services
+		$this->modelService = Yii::$app->factory->get( 'activityService' );
 
-		$this->returnUrl		= Url::previous( 'activities' );
-		$this->returnUrl		= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/activity/all' ], true );
+		// Sidebar
+		$this->sidebar = [ 'parent' => 'sidebar-activity', 'child' => 'activity' ];
+
+		// Return URL
+		$this->returnUrl = Url::previous( 'activities' );
+		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/activity/all' ], true );
 	}
 
 	// Instance methods --------------------------------------------
@@ -52,15 +72,15 @@ class ActivityController extends \cmsgears\core\admin\controllers\base\Controlle
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'index'  => [ 'permission' => $this->crudPermission ],
-					'all'    => [ 'permission' => $this->crudPermission ]
+					'index' => [ 'permission' => $this->crudPermission ],
+					'all' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
-				'class' => VerbFilter::className(),
+				'class' => VerbFilter::class,
 				'actions' => [
-					'index'  => [ 'get' ],
-					'all'   => [ 'get' ]
+					'index' => [ 'get' ],
+					'all' => [ 'get' ]
 				]
 			]
 		];
@@ -81,12 +101,13 @@ class ActivityController extends \cmsgears\core\admin\controllers\base\Controlle
 
 	public function actionAll() {
 
-		Url::remember( [ 'activity/all' ], 'activities' );
+		Url::remember( Yii::$app->request->getUrl(), 'activities' );
 
 		$dataProvider = $this->modelService->getPage();
 
 		return $this->render( 'all', [
-			 'dataProvider' => $dataProvider
+			'dataProvider' => $dataProvider
 		]);
 	}
+
 }

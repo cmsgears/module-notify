@@ -14,11 +14,13 @@ use Yii;
 use yii\data\Sort;
 
 // CMG Imports
-use cmsgears\notify\common\config\NotifyGlobal;
-
 use cmsgears\notify\common\services\interfaces\resources\IActivityService;
 
 use cmsgears\core\common\services\base\ModelResourceService;
+
+use cmsgears\notify\common\services\traits\base\BulkTrait;
+use cmsgears\notify\common\services\traits\base\NotifyTrait;
+use cmsgears\notify\common\services\traits\base\ToggleTrait;
 
 /**
  * ActivityService provide service methods of activity model.
@@ -49,6 +51,10 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 	// Traits ------------------------------------------------------
 
+	use BulkTrait;
+	use NotifyTrait;
+	use ToggleTrait;
+
 	// Constructor and Initialisation ------------------------------
 
 	// Instance methods --------------------------------------------
@@ -70,7 +76,7 @@ class ActivityService extends ModelResourceService implements IActivityService {
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$userTable = Yii::$app->get( 'userService' )->getModelTable();
+		$userTable = Yii::$app->factory->get( 'userService' )->getModelTable();
 
 		// Sorting ----------
 
@@ -100,11 +106,35 @@ class ActivityService extends ModelResourceService implements IActivityService {
 					'default' => SORT_DESC,
 					'label' => 'Type'
 				],
+				'ip' => [
+					'asc' => [ "$modelTable.ipNum" => SORT_ASC ],
+					'desc' => [ "$modelTable.ipNum" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'IP'
+				],
 				'agent' => [
 					'asc' => [ "$modelTable.agent" => SORT_ASC ],
 					'desc' => [ "$modelTable.agent" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Agent'
+				],
+				'admin' => [
+					'asc' => [ "$modelTable.admin" => SORT_ASC ],
+					'desc' => [ "$modelTable.admin" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Admin'
+				],
+				'consumed' => [
+					'asc' => [ "$modelTable.consumed" => SORT_ASC ],
+					'desc' => [ "$modelTable.consumed" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Consumed'
+				],
+				'trash' => [
+					'asc' => [ "$modelTable.trash" => SORT_ASC ],
+					'desc' => [ "$modelTable.trash" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Trash'
 				],
 				'cdate' => [
 					'asc' => [ "$modelTable.createdAt" => SORT_ASC ],
@@ -113,8 +143,8 @@ class ActivityService extends ModelResourceService implements IActivityService {
 					'label' => 'Created At'
 				],
 				'udate' => [
-					'asc' => [ "$modelTable.updatedAt" => SORT_ASC ],
-					'desc' => [ "$modelTable.updatedAt" => SORT_DESC ],
+					'asc' => [ "$modelTable.modifiedAt" => SORT_ASC ],
+					'desc' => [ "$modelTable.modifiedAt" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Updated At'
 				]
@@ -137,12 +167,40 @@ class ActivityService extends ModelResourceService implements IActivityService {
 		// Filters ----------
 
 		// Params
-		$type 	= Yii::$app->request->getQueryParam( 'type' );
+		$type	= Yii::$app->request->getQueryParam( 'type' );
+		$cons	= Yii::$app->request->getQueryParam( 'consumed' );
+		$trash	= Yii::$app->request->getQueryParam( 'trash' );
 
 		// Filter - Type
 		if( isset( $type ) ) {
 
-			$config[ 'conditions' ][ "$modelTable.type" ]	= $type;
+			$config[ 'conditions' ][ "$modelTable.type" ] = $type;
+		}
+
+		// Filter - Trash
+		if( isset( $cons ) ) {
+
+			switch( $cons ) {
+
+				case 'new': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ] = false;
+
+					break;
+				}
+				case 'read': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ] = true;
+
+					break;
+				}
+			}
+		}
+
+		// Filter - Trash
+		if( isset( $trash ) ) {
+
+			$config[ 'conditions' ][ "$modelTable.trash" ] = true;
 		}
 
 		// Searching --------
@@ -153,6 +211,7 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 			$search = [
 				'title' => "$modelTable.title",
+				'desc' => "$modelTable.description",
 				'content' => "$modelTable.content"
 			];
 
@@ -163,20 +222,16 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 		$config[ 'report-col' ]	= [
 			'title' => "$modelTable.title",
+			'desc' => "$modelTable.description",
 			'content' => "$modelTable.content",
-			'type' => "$modelTable.type"
+			'type' => "$modelTable.type",
+			'consumed' => "$modelTable.consumed",
+			'trash' => "$modelTable.trash"
 		];
 
 		// Result -----------
 
 		return parent::getPage( $config );
-	}
-
-	public function getPageByUserId( $userId ) {
-
-		$modelTable	= self::$modelTable;
-
-		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
 	}
 
 	// Read ---------------
@@ -202,156 +257,32 @@ class ActivityService extends ModelResourceService implements IActivityService {
 		return parent::create( $model, $config );
 	}
 
+	public function createByParams( $params = [], $config = [] ) {
+
+		$params[ 'link' ]		= isset( $params[ 'link' ] ) ? $params[ 'link' ] : null;
+		$params[ 'admin' ]		= isset( $params[ 'admin' ] ) ? $params[ 'admin' ] : false;
+		$params[ 'adminLink' ]	= isset( $params[ 'adminLink' ] ) ? $params[ 'adminLink' ] : null;
+
+		return parent::createByParams( $params, $config );
+	}
+
 	// Update -------------
 
 	public function update( $model, $config = [] ) {
 
 		return parent::update( $model, [
-			'attributes' => [ 'title', 'content' ]
+			'attributes' => [ 'title', 'description', 'content' ]
 		]);
-	}
-
-	public function toggleRead( $model ) {
-
-		if( $model->isConsumed() ) {
-
-			return $this->markNew( $model );
-		}
-
-		return $this->markConsumed( $model );
-	}
-
-	public function markNew( $model ) {
-
-		$model->consumed = false;
-
-		return parent::update( $model, [
-			'attributes' => [ 'consumed' ]
-		]);
-	}
-
-	public function markConsumed( $model ) {
-
-		$model->consumed = true;
-
-		return parent::update( $model, [
-			'attributes' => [ 'consumed' ]
-		]);
-	}
-
-	public function markTrash( $model ) {
-
-		$model->trash = true;
-
-		return parent::update( $model, [
-			'attributes' => [ 'trash' ]
-		]);
-	}
-
-	public function getRecent( $limit = 5, $config = [] ) {
-
-		$modelClass	= static::$modelClass;
-
-		$siteId = Yii::$app->core->siteId;
-
-		return $modelClass::find()->where( $config[ 'conditions' ] )->andWhere([ 'siteId' => $siteId ])->limit( $limit )->orderBy( 'createdAt DESC' )->all();
-	}
-
-	public function getCount( $consumed = false, $admin = false ) {
-
-		$modelClass	= static::$modelClass;
-
-		$siteId = Yii::$app->core->siteId;
-
-		return $modelClass::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
-	}
-
-	public function createActivity( $model, $parentType = null ) {
-
-		$title = $model->name ?? null;
-
-		$this->triggerActivity($model, NotifyGlobal::TEMPLATE_LOG_CREATE, $title, $parentType);
-
-	}
-
-	public function updateActivity( $model, $parentType = null ) {
-
-		$title = $model->name ?? null;
-
-		$this->triggerActivity($model, NotifyGlobal::TEMPLATE_LOG_UPDATE, $title, $parentType);
-
-	}
-
-	public function deleteActivity( $model, $parentType = null ) {
-
-		$title = $model->name ?? null;
-
-		$this->triggerActivity( $model, NotifyGlobal::TEMPLATE_LOG_DELETE, $title, $parentType );
-	}
-
-	// Activity
-	private function triggerActivity( $model, $templateSlug, $title, $parentType = null ) {
-
-		$user =	Yii::$app->user->getIdentity();
-
-		$userId		= isset( $user ) ? $user->id : "";
-		$firstName	= isset( $user ) ? $user->firstName : "";
-		$lastName	= isset( $user ) ? $user->lastName : "";
-		$userName	= $firstName . $lastName;
-		$modelName	= $model->name ?? '';
-
-		Yii::$app->eventManager->triggerActivity(
-			$templateSlug,
-			[ 'parentType' => $parentType, 'userName' => $userName, 'modelName' => "<b>$modelName</b>" ],
-			[
-				'parentId' => $model->id,
-				'parentType' => $parentType,
-				'userId' => $userId,
-				'title' => $title
-			]
-		);
-	}
-
-	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType ) {
-
-		foreach( $target as $id ) {
-
-			$notification = $this->getById( $id );
-
-			if( isset( $notification ) && $notification->parentId == $parentId && $notification->parentType == $parentType ) {
-
-				$this->applyBulk( $notification, $column, $action, $target );
-			}
-		}
-	}
-
-	public function applyBulkByUserId( $column, $action, $target, $userId ) {
-
-		foreach( $target as $id ) {
-
-			$notification = $this->getById( $id );
-
-			if( isset( $notification ) && $notification->userId == $userId ) {
-
-				$this->applyBulk( $notification, $column, $action, $target );
-			}
-		}
-	}
-
-	public function applyBulkByAdmin( $column, $action, $target ) {
-
-		foreach( $target as $id ) {
-
-			$notification = $this->getById( $id );
-
-			if( isset( $notification ) && $notification->admin ) {
-
-				$this->applyBulk( $notification, $column, $action, $target );
-			}
-		}
 	}
 
 	// Delete -------------
+
+	public function deleteByUserId( $userId, $config = [] ) {
+
+		$modelClass = self::$modelClass;
+
+		$modelClass::deleteByUserId( $userId );
+	}
 
 	// Bulk ---------------
 
@@ -359,12 +290,6 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 		switch( $column ) {
 
-			case 'id': {
-
-				$this->delete( $model );
-
-				break;
-			}
 			case 'consumed': {
 
 				switch( $action ) {
@@ -397,7 +322,7 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 					case 'delete': {
 
-						$this->delete( $model );
+						echo "delete" . $this->delete( $model );
 
 						break;
 					}

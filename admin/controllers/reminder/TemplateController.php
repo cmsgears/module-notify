@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\admin\controllers\reminder;
 
 // Yii Imports
@@ -11,7 +19,14 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\admin\models\forms\ReminderConfig;
 
-class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateController {
+use cmsgears\core\admin\controllers\base\TemplateController as BaseTemplateController;
+
+/**
+ * TemplateController provide actions specific to Reminder templates.
+ *
+ * @since 1.0.0
+ */
+class TemplateController extends BaseTemplateController {
 
 	// Variables ---------------------------------------------------
 
@@ -29,18 +44,18 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 		parent::init();
 
-		// Type
-		$this->type			= NotifyGlobal::TYPE_REMINDER;
+		// Template Type
+		$this->type = NotifyGlobal::TYPE_REMINDER;
 
 		// Sidebar
-		$this->sidebar 		= [ 'parent' => 'sidebar-reminder', 'child' => 'template' ];
+		$this->sidebar = [ 'parent' => 'sidebar-reminder', 'child' => 'rtemplate' ];
 
 		// Return Url
-		$this->returnUrl	= Url::previous( 'templates' );
-		$this->returnUrl	= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/reminder/template/all' ], true );
+		$this->returnUrl = Url::previous( 'templates' );
+		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/reminder/template/all' ], true );
 
 		// Breadcrumbs
-		$this->breadcrumbs	= [
+		$this->breadcrumbs = [
 			'base' => [
 				[ 'label' => 'Events', 'url' =>  [ '/notify/event/all' ] ],
 				[ 'label' => 'Reminders', 'url' =>  [ '/notify/reminder/all' ] ]
@@ -68,22 +83,24 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 	// TemplateController --------------------
 
-	public function actionAll() {
+	public function actionAll( $config = [] ) {
 
-		Url::remember( [ 'reminder/template/all' ], 'templates' );
+		Url::remember( Yii::$app->request->getUrl(), 'templates' );
 
-		return parent::actionAll();
+		return parent::actionAll( $config );
 	}
 
-	public function actionCreate() {
+	public function actionCreate( $config = [] ) {
 
 		$this->setViewPath( '@cmsgears/module-notify/admin/views/reminder/template' );
 
 		$modelClass		= $this->modelService->getModelClass();
 		$model			= new $modelClass;
-		$model->type 	= $this->type;
 
-		$config			= new ReminderConfig();
+		$model->type	= $this->type;
+		$model->siteId	= Yii::$app->core->siteId;
+
+		$config = new ReminderConfig();
 
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() )  && $config->load( Yii::$app->request->post(), 'ReminderConfig' ) &&
 			$model->validate() && $config->validate() ) {
@@ -94,7 +111,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 			$model->updateDataMeta( CoreGlobal::DATA_CONFIG, $config );
 
-			return $this->redirect( "update?id=$model->id" );
+			return $this->redirect( 'all' );
 		}
 
 		return $this->render( 'create', [
@@ -103,12 +120,12 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 		]);
 	}
 
-	public function actionUpdate( $id ) {
+	public function actionUpdate( $id, $config = [] ) {
 
 		$this->setViewPath( '@cmsgears/module-notify/admin/views/reminder/template' );
 
 		// Find Model
-		$model		= $this->modelService->getById( $id );
+		$model = $this->modelService->getById( $id );
 
 		// Update/Render if exist
 		if( isset( $model ) ) {
@@ -122,7 +139,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 				$model->updateDataMeta( CoreGlobal::DATA_CONFIG, $config );
 
-				return $this->refresh();
+				return $this->redirect( $this->returnUrl );
 			}
 
 			return $this->render( 'update', [
@@ -134,4 +151,5 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 		// Model not found
 		throw new NotFoundHttpException( Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_NOT_FOUND ) );
 	}
+
 }

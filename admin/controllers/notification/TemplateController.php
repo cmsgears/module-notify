@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\admin\controllers\notification;
 
 // Yii Imports
@@ -11,7 +19,14 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\admin\models\forms\NotificationConfig;
 
-class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateController {
+use cmsgears\core\admin\controllers\base\TemplateController as BaseTemplateController;
+
+/**
+ * TemplateController provide actions specific to Notification templates.
+ *
+ * @since 1.0.0
+ */
+class TemplateController extends BaseTemplateController {
 
 	// Variables ---------------------------------------------------
 
@@ -29,18 +44,18 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 		parent::init();
 
-		// Type
-		$this->type			= NotifyGlobal::TYPE_NOTIFICATION;
+		// Template Type
+		$this->type = NotifyGlobal::TYPE_NOTIFICATION;
 
 		// Sidebar
-		$this->sidebar 		= [ 'parent' => 'sidebar-notify', 'child' => 'template' ];
+		$this->sidebar = [ 'parent' => 'sidebar-notify', 'child' => 'template' ];
 
 		// Return Url
-		$this->returnUrl	= Url::previous( 'templates' );
-		$this->returnUrl	= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/template/all' ], true );
+		$this->returnUrl = Url::previous( 'templates' );
+		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/template/all' ], true );
 
 		// Breadcrumbs
-		$this->breadcrumbs	= [
+		$this->breadcrumbs = [
 			'base' => [ [ 'label' => 'Notifications', 'url' =>  [ '/notify/notification/all' ] ] ],
 			'all' => [ [ 'label' => 'Templates' ] ],
 			'create' => [ [ 'label' => 'Templates', 'url' => $this->returnUrl ], [ 'label' => 'Add' ] ],
@@ -65,24 +80,26 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 	// TemplateController --------------------
 
-	public function actionAll() {
+	public function actionAll( $config = [] ) {
 
 		Url::remember( Yii::$app->request->getUrl(), 'templates' );
 
-		return parent::actionAll();
+		return parent::actionAll( $config );
 	}
 
-	public function actionCreate() {
+	public function actionCreate( $config = [] ) {
 
 		$this->setViewPath( '@cmsgears/module-notify/admin/views/notification/template' );
 
 		$modelClass		= $this->modelService->getModelClass();
 		$model			= new $modelClass;
-		$model->type 	= $this->type;
 
-		$config			= new NotificationConfig();
+		$model->type	= $this->type;
+		$model->siteId	= Yii::$app->core->siteId;
 
-		if( $model->load( Yii::$app->request->post(), $model->getClassName() )  && $config->load( Yii::$app->request->post(), 'NotificationConfig' ) &&
+		$config = new NotificationConfig();
+
+		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $config->load( Yii::$app->request->post(), 'NotificationConfig' ) &&
 			$model->validate() && $config->validate() ) {
 
 			$this->modelService->create( $model );
@@ -91,7 +108,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 			$model->updateDataMeta( CoreGlobal::DATA_CONFIG, $config );
 
-			return $this->redirect( "update?id=$model->id" );
+			return $this->redirect( 'all' );
 		}
 
 		return $this->render( 'create', [
@@ -100,26 +117,26 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 		]);
 	}
 
-	public function actionUpdate( $id ) {
+	public function actionUpdate( $id, $config = [] ) {
 
 		$this->setViewPath( '@cmsgears/module-notify/admin/views/notification/template' );
 
 		// Find Model
-		$model		= $this->modelService->getById( $id );
+		$model = $this->modelService->getById( $id );
 
 		// Update/Render if exist
 		if( isset( $model ) ) {
 
 			$config	= new NotificationConfig( $model->getDataMeta( CoreGlobal::DATA_CONFIG ) );
 
-			if( $model->load( Yii::$app->request->post(), $model->getClassName() )  && $config->load( Yii::$app->request->post(), 'NotificationConfig' ) &&
+			if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $config->load( Yii::$app->request->post(), 'NotificationConfig' ) &&
 				$model->validate() && $config->validate() ) {
 
 				$this->modelService->update( $model );
 
 				$model->updateDataMeta( CoreGlobal::DATA_CONFIG, $config );
 
-				return $this->refresh();
+				return $this->redirect( $this->returnUrl );
 			}
 
 			return $this->render( 'update', [
@@ -131,4 +148,5 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 		// Model not found
 		throw new NotFoundHttpException( Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_NOT_FOUND ) );
 	}
+
 }

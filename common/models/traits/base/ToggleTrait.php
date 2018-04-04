@@ -14,14 +14,14 @@ use Yii;
 use yii\helpers\Url;
 
 /**
- * The models having siteId column and supporting multi-site must use this trait.
+ * The models having consumed and trash must use this trait.
  *
  * @property boolean $consumed
  * @property boolean $trash
  *
  * @since 1.0.0
  */
-trait StatusSwitchTrait {
+trait ToggleTrait {
 
 	// Variables ---------------------------------------------------
 
@@ -45,7 +45,7 @@ trait StatusSwitchTrait {
 
 	// Validators ----------------------------
 
-	// StatusSwitchTrait ---------------------
+	// ToggleTrait ---------------------------
 
 	/**
 	 * @inheritdoc
@@ -128,7 +128,7 @@ trait StatusSwitchTrait {
 
 	// CMG classes ---------------------------
 
-	// StatusSwitchTrait ---------------------
+	// ToggleTrait ---------------------------
 
 	// Read - Query -----------
 

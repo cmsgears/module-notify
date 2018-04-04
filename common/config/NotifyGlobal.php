@@ -23,20 +23,17 @@ class NotifyGlobal {
 	// Grouping by type ------------------------------------------------
 
 	const TYPE_ACTIVITY		= 'activity';
-
-	const TYPE_EVENT		= 'event';
-
 	const TYPE_NOTIFICATION	= 'notification';
-
 	const TYPE_ANNOUNCEMENT	= 'announcement';
 
+	const TYPE_EVENT		= 'event';
 	const TYPE_REMINDER		= 'reminder';
 
 	// Templates -------------------------------------------------------
 
-	const TEMPLATE_LOG_CREATE	= 'create';
-	const TEMPLATE_LOG_UPDATE	= 'update';
-	const TEMPLATE_LOG_DELETE	= 'delete';
+	const TEMPLATE_LOG_CREATE	= 'log-create';
+	const TEMPLATE_LOG_UPDATE	= 'log-update';
+	const TEMPLATE_LOG_DELETE	= 'log-delete';
 
 	// Config ----------------------------------------------------------
 

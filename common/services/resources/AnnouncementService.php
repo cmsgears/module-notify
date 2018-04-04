@@ -16,6 +16,8 @@ use yii\data\Sort;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
+use cmsgears\notify\common\models\resources\Announcement;
+
 use cmsgears\notify\common\services\interfaces\resources\IAnnouncementService;
 
 use cmsgears\core\common\services\base\ModelResourceService;
@@ -100,23 +102,11 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 					'default' => SORT_DESC,
 					'label' => 'Status'
 				],
-				'ip' => [
-					'asc' => [ "$modelTable.ip" => SORT_ASC ],
-					'desc' => [ "$modelTable.ip" => SORT_DESC ],
+				'access' => [
+					'asc' => [ "$modelTable.access" => SORT_ASC ],
+					'desc' => [ "$modelTable.access" => SORT_DESC ],
 					'default' => SORT_DESC,
-					'label' => 'IP'
-				],
-				'agent' => [
-					'asc' => [ "$modelTable.agent" => SORT_ASC ],
-					'desc' => [ "$modelTable.agent" => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'Agent'
-				],
-				'admin' => [
-					'asc' => [ "$modelTable.admin" => SORT_ASC ],
-					'desc' => [ "$modelTable.admin" => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'Admin'
+					'label' => 'Access'
 				],
 				'cdate' => [
 					'asc' => [ "$modelTable.createdAt" => SORT_ASC ],
@@ -148,6 +138,29 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 		// Filters ----------
 
+		// Params
+		$type	= Yii::$app->request->getQueryParam( 'type' );
+		$status	= Yii::$app->request->getQueryParam( 'status' );
+		$access	= Yii::$app->request->getQueryParam( 'access' );
+
+		// Filter - Type
+		if( isset( $type ) ) {
+
+			$config[ 'conditions' ][ "$modelTable.type" ] = $type;
+		}
+
+		// Filter - Status
+		if( isset( $status ) && isset( $modelClass::$urlRevStatusMap[ $status ] ) ) {
+
+			$config[ 'conditions' ][ "$modelTable.status" ]	= $modelClass::$urlRevStatusMap[ $status ];
+		}
+
+		// Filter - Access
+		if( isset( $access ) && isset( $modelClass::$urlRevAccessMap[ $access ] ) ) {
+
+			$config[ 'conditions' ][ "$modelTable.access" ]	= $modelClass::$urlRevAccessMap[ $access ];
+		}
+
 		// Searching --------
 
 		$searchCol = Yii::$app->request->getQueryParam( 'search' );
@@ -156,6 +169,7 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 			$search = [
 				'title' => "$modelTable.title",
+				'desc' => "$modelTable.description",
 				'content' => "$modelTable.content"
 			];
 
@@ -166,7 +180,9 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 		$config[ 'report-col' ]	= [
 			'title' => "$modelTable.title",
-			'content' => "$modelTable.content"
+			'desc' => "$modelTable.description",
+			'content' => "$modelTable.content",
+			'type' => "$modelTable.type"
 		];
 
 		// Result -----------
@@ -174,16 +190,22 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 		return parent::getPage( $config );
 	}
 
+	/**
+	 * Returns the data provider to show admin announcements. The results also include
+	 * application announcements that need admin intervention.
+	 *
+	 * @return \cmsgears\core\common\data\ActiveDataProvider
+	 */
 	public function getPageForAdmin() {
 
-		$modelTable	= self::$modelTable;
+		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
+		return $this->getPage( [ 'conditions' => [ "$modelTable.access >=" . Announcement::ACCESS_APP ] ] );
 	}
 
 	public function getPageByParent( $parentId, $parentType, $admin = false ) {
 
-		$modelTable	= self::$modelTable;
+		$modelTable	= $this->getModelTable();
 
 		return $this->getPage( [ 'conditions' => [ "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType, "$modelTable.admin" => $admin ] ] );
 	}
@@ -192,13 +214,23 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 	// Read - Models ---
 
-	public function getRecent( $limit = 5, $config = [] ) {
+	/**
+	 * It returns the most recent announcements that can be displayed on Admin.
+	 *
+	 * @param integer $limit
+	 * @param array $config
+	 * @return \cmsgears\notify\common\models\resources\Announcement
+	 */
+	public function getRecentByAdmin( $limit = 5, $config = [] ) {
 
 		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
 
 		$siteId = Yii::$app->core->siteId;
 
-		return $modelClass::find()->where( $config[ 'conditions' ] )->andWhere([ 'siteId' => $siteId ])->limit( $limit )->orderBy( 'createdAt DESC' )->all();
+		$config[ 'conditions' ][] = "$modelTable.access >=" . Announcement::ACCESS_ADMIN;
+
+		return $modelClass::find()->where( $config[ 'conditions' ] )->andWhere( [ 'siteId' => $siteId ] )->limit( $limit )->orderBy( 'createdAt DESC' )->all();
 	}
 
 	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
@@ -222,8 +254,6 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 		$siteId = isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
 
-		$model->agent	= Yii::$app->request->userAgent;
-		$model->ip		= Yii::$app->request->userIP;
 		$model->siteId	= $siteId;
 
 		return parent::create( $model, $config );
@@ -231,7 +261,7 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 	public function createByParams( $params = [], $config = [] ) {
 
-		$params[ 'admin' ]		= isset( $params[ 'admin' ] ) ? $params[ 'admin' ] : false;
+		$params[ 'link' ]		= isset( $params[ 'link' ] ) ? $params[ 'link' ] : null;
 		$params[ 'adminLink' ]	= isset( $params[ 'adminLink' ] ) ? $params[ 'adminLink' ] : null;
 
 		return parent::createByParams( $params, $config );
@@ -241,9 +271,46 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 	public function update( $model, $config = [] ) {
 
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$attributes	= isset( $config[ 'attributes' ] ) ? $config[ 'attributes' ] : [ 'title', 'description', 'content' ];
+
+		if( $admin ) {
+
+			$attributes[] = 'status';
+		}
+
 		return parent::update( $model, [
-			'attributes' => [ 'title', 'content' ]
+			'attributes' => $attributes
 		]);
+	}
+
+	public function updateStatus( $model, $status ) {
+
+		$model->status = $status;
+
+		return parent::update( $model, [
+			'attributes' => [ 'status' ]
+		]);
+	}
+
+	public function approve( $model ) {
+
+		return $this->updateStatus( $model, Announcement::STATUS_APPROVED );
+	}
+
+	public function activate( $model ) {
+
+		return $this->updateStatus( $model, Announcement::STATUS_ACTIVE );
+	}
+
+	public function pause( $model ) {
+
+		return $this->updateStatus( $model, Announcement::STATUS_PAUSED );
+	}
+
+	public function expire( $model ) {
+
+		return $this->updateStatus( $model, Announcement::STATUS_EXPIRED );
 	}
 
 	// Delete -------------
@@ -254,24 +321,11 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 		foreach( $target as $id ) {
 
-			$notification = $this->getById( $id );
+			$model = $this->getById( $id );
 
-			if( isset( $notification ) && $notification->parentId == $parentId && $notification->parentType == $parentType ) {
+			if( isset( $model ) && $model->parentId == $parentId && $model->parentType == $parentType ) {
 
-				$this->applyBulk( $notification, $column, $action, $target );
-			}
-		}
-	}
-
-	public function applyBulkByAdmin( $column, $action, $target ) {
-
-		foreach( $target as $id ) {
-
-			$notification = $this->getById( $id );
-
-			if( isset( $notification ) && $notification->admin ) {
-
-				$this->applyBulk( $notification, $column, $action, $target );
+				$this->applyBulk( $model, $column, $action, $target );
 			}
 		}
 	}
@@ -280,35 +334,35 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 		switch( $column ) {
 
-			case 'id': {
-
-				$this->delete( $model );
-
-				break;
-			}
-			case 'consumed': {
+			case 'status': {
 
 				switch( $action ) {
 
-					case 'new': {
+					case 'approved': {
 
-						$this->markNew( $model );
+						$this->approve( $model );
 
 						break;
 					}
-					case 'read': {
+					case 'active': {
 
-						$this->markConsumed( $model );
+						$this->activate( $model );
+
+						break;
+					}
+					case 'paused': {
+
+						$this->pause( $model );
+
+						break;
+					}
+					case 'expired': {
+
+						$this->expire( $model );
 
 						break;
 					}
 				}
-
-				break;
-			}
-			case 'trash': {
-
-				$this->markTrash( $model );
 
 				break;
 			}

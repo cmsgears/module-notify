@@ -11,13 +11,14 @@ namespace cmsgears\notify\common\services\interfaces\resources;
 
 // CMG Imports
 use cmsgears\core\common\services\interfaces\base\IResourceService;
+use cmsgears\notify\common\services\interfaces\base\IToggle;
 
 /**
  * IEventReminderService declares methods specific to event reminder.
  *
  * @since 1.0.0
  */
-interface IEventReminderService extends IResourceService {
+interface IEventReminderService extends IResourceService, IToggle {
 
 	// Data Provider ------
 
@@ -47,19 +48,15 @@ interface IEventReminderService extends IResourceService {
 
 	// Delete -------------
 
-	public function toggleRead( $model );
+	public function deleteByEventId( $eventId, $config = [] );
 
-	public function markNew( $model );
+	public function deleteByUserId( $userId, $config = [] );
 
-	public function markConsumed( $model );
-
-	public function markTrash( $model );
+	// Bulk ---------------
 
 	public function applyBulkByUserId( $column, $action, $target, $userId );
 
 	public function applyBulkByAdmin( $column, $action, $target );
-
-	// Bulk ---------------
 
 	// Notifications ------
 

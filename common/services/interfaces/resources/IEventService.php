@@ -31,10 +31,6 @@ interface IEventService extends IModelResourceService {
 
 	// Read - Models ---
 
-	public function getNewEvents();
-
-	public function getByParentId( $parentId );
-
 	// Read - Lists ----
 
 	// Read - Maps -----

@@ -48,6 +48,8 @@ use cmsgears\core\common\models\traits\mappers\FileTrait;
 
 use cmsgears\core\common\behaviors\AuthorBehavior;
 
+use cmsgears\core\common\utilities\DateUtil;
+
 /**
  * Event model represents an event on calendar. Scheduled reminders will be triggered for
  * the event according to it's configuration.
@@ -91,7 +93,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  * @since 1.0.0
  */
 class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, IMultiSite,
-	INameType, IOwner, ISlugType, ITemplate, IOwner, IVisual {
+	INameType, IOwner, ISlugType, ITemplate, IVisual {
 
 	// Variables ---------------------------------------------------
 
@@ -99,15 +101,6 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 
 	const STATUS_NEW	= 	  0;
 	const STATUS_TRASH	= 20000;
-
-	// Interval Units ---------
-
-	const UNIT_YEAR		= 0;
-	const UNIT_MONTH	= 1;
-	const UNIT_DAY		= 2;
-	const UNIT_HOUR		= 3;
-	const UNIT_MINUTE	= 4;
-	const UNIT_SECOND	= 5;
 
 	// Constants --------------
 
@@ -124,15 +117,6 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	public static $urlRevStatusMap = [
 		'new' => self::STATUS_NEW,
 		'trash' => self::STATUS_TRASH
-	];
-
-	public static $unitMap = [
-		self::UNIT_YEAR => 'year',
-		self::UNIT_MONTH => 'month',
-		self::UNIT_DAY => 'day',
-		self::UNIT_HOUR => 'hour',
-		self::UNIT_MINUTE => 'minute',
-		self::UNIT_SECOND => 'second'
 	];
 
 	// Public -----------------
@@ -314,7 +298,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	 */
 	public function getPreIntervalStr() {
 
-		return $this->preReminderInterval . self::$unitMap[ $this->preIntervalUnit ];
+		$unit = DateUtil::$durationMap[ $this->preIntervalUnit ];
+
+		return "$this->preReminderInterval $unit" . 's';
 	}
 
 	/**
@@ -324,7 +310,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	 */
 	public function getPostIntervalStr() {
 
-		return $this->postReminderInterval . self::$unitMap[ $this->postIntervalUnit ];
+		$unit = DateUtil::$durationMap[ $this->postIntervalUnit ];
+
+		return "$this->postReminderInterval $unit" . 's';
 	}
 
 	// Static Methods ----------------------------------------------
@@ -386,4 +374,5 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 
 		self::deleteAll( 'userId=:uid', [ ':uid' => $userId ] );
 	}
+
 }

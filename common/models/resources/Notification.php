@@ -22,7 +22,7 @@ use cmsgears\core\common\models\interfaces\base\IAuthor;
 use cmsgears\core\common\models\interfaces\base\IMultiSite;
 use cmsgears\core\common\models\interfaces\base\IOwner;
 use cmsgears\core\common\models\interfaces\resources\IData;
-use cmsgears\notify\common\models\interfaces\base\IStatusSwitch;
+use cmsgears\notify\common\models\interfaces\base\IToggle;
 
 use cmsgears\core\common\models\base\ModelResource;
 use cmsgears\core\common\models\entities\User;
@@ -32,7 +32,7 @@ use cmsgears\core\common\models\traits\base\AuthorTrait;
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
 use cmsgears\core\common\models\traits\base\UserOwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
-use cmsgears\notify\common\models\traits\base\StatusSwitchTrait;
+use cmsgears\notify\common\models\traits\base\ToggleTrait;
 
 use cmsgears\core\common\behaviors\AuthorBehavior;
 
@@ -68,7 +68,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  *
  * @since 1.0.0
  */
-class Notification extends ModelResource implements IAuthor, IData, IMultiSite, IOwner, IStatusSwitch {
+class Notification extends ModelResource implements IAuthor, IData, IMultiSite, IOwner, IToggle {
 
 	// Variables ---------------------------------------------------
 
@@ -95,7 +95,7 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 	use AuthorTrait;
 	use DataTrait;
 	use MultiSiteTrait;
-	use StatusSwitchTrait;
+	use ToggleTrait;
 	use UserOwnerTrait;
 
 	// Constructor and Initialisation ------------------------------
@@ -261,10 +261,14 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 	// Delete -----------------
 
 	/**
-	 * Delete all entries related to a user
+	 * Delete all notifications related to a user.
+	 *
+	 * @param integer $userId
+	 * @return integer Number of rows deleted.
 	 */
 	public static function deleteByUserId( $userId ) {
 
 		self::deleteAll( 'userId=:uid', [ ':uid' => $userId ] );
 	}
+
 }

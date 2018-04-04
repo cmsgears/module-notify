@@ -20,6 +20,10 @@ use cmsgears\notify\common\services\interfaces\resources\INotificationService;
 
 use cmsgears\core\common\services\base\ModelResourceService;
 
+use cmsgears\notify\common\services\traits\base\BulkTrait;
+use cmsgears\notify\common\services\traits\base\NotifyTrait;
+use cmsgears\notify\common\services\traits\base\ToggleTrait;
+
 /**
  * NotificationService provide service methods of notification model.
  *
@@ -51,6 +55,10 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 	// Traits ------------------------------------------------------
 
+	use BulkTrait;
+	use NotifyTrait;
+	use ToggleTrait;
+
 	// Constructor and Initialisation ------------------------------
 
 	// Instance methods --------------------------------------------
@@ -72,6 +80,8 @@ class NotificationService extends ModelResourceService implements INotificationS
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
+		$userTable = Yii::$app->factory->get( 'userService' )->getModelTable();
+
 		// Sorting ----------
 
 		$sort = new Sort([
@@ -82,6 +92,12 @@ class NotificationService extends ModelResourceService implements INotificationS
 					'default' => SORT_DESC,
 					'label' => 'Id'
 				],
+	            'user' => [
+					'asc' => [ "`$userTable`.`firstName`" => SORT_ASC, "`$userTable`.`lastName`" => SORT_ASC ],
+					'desc' => [ "`$userTable`.`firstName`" => SORT_DESC, "`$userTable`.`lastName`" => SORT_DESC ],
+					'default' => SORT_DESC,
+	                'label' => 'User'
+	            ],
 				'title' => [
 					'asc' => [ "$modelTable.title" => SORT_ASC ],
 					'desc' => [ "$modelTable.title" => SORT_DESC ],
@@ -155,23 +171,40 @@ class NotificationService extends ModelResourceService implements INotificationS
 		// Filters ----------
 
 		// Params
-		$consumed 	= Yii::$app->request->getQueryParam( 'consumed' );
-		$trash 		= Yii::$app->request->getQueryParam( 'trash' );
+		$type	= Yii::$app->request->getQueryParam( 'type' );
+		$cons	= Yii::$app->request->getQueryParam( 'consumed' );
+		$trash	= Yii::$app->request->getQueryParam( 'trash' );
+
+		// Filter - Type
+		if( isset( $type ) ) {
+
+			$config[ 'conditions' ][ "$modelTable.type" ] = $type;
+		}
 
 		// Filter - Consumed
-		if( isset( $consumed ) ) {
+		if( isset( $cons ) ) {
 
-			$filter = [ 'new' => 0, 'read' => 1 ];
+			switch( $cons ) {
 
-			$config[ 'conditions' ][ "$modelTable.consumed" ] = $filter[ $consumed ];
+				case 'new': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ] = false;
+
+					break;
+				}
+				case 'read': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ] = true;
+
+					break;
+				}
+			}
 		}
 
 		// Filter - Trash
 		if( isset( $trash ) ) {
 
-			$filter = [ 'trash' => 1 ];
-
-			$config[ 'conditions' ][ "$modelTable.trash" ] = $filter[ $trash ];
+			$config[ 'conditions' ][ "$modelTable.trash" ] = true;
 		}
 
 		// Searching --------
@@ -182,6 +215,7 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 			$search = [
 				'title' => "$modelTable.title",
+				'desc' => "$modelTable.description",
 				'content' => "$modelTable.content"
 			];
 
@@ -192,7 +226,9 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 		$config[ 'report-col' ]	= [
 			'title' => "$modelTable.title",
+			'desc' => "$modelTable.description",
 			'content' => "$modelTable.content",
+			'type' => "$modelTable.type",
 			'consumed' => "$modelTable.consumed",
 			'trash' => "$modelTable.trash"
 		];
@@ -202,75 +238,9 @@ class NotificationService extends ModelResourceService implements INotificationS
 		return parent::getPage( $config );
 	}
 
-	public function getPageForAdmin() {
-
-		$modelTable	= self::$modelTable;
-
-		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
-	}
-
-	public function getPageByUserId( $userId ) {
-
-		$modelTable	= self::$modelTable;
-
-		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
-	}
-
-	public function getPageByParent( $parentId, $parentType, $admin = false ) {
-
-		$modelTable	= self::$modelTable;
-
-		return $this->getPage( [ 'conditions' => [ "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType, "$modelTable.admin" => $admin ] ] );
-	}
-
 	// Read ---------------
 
 	// Read - Models ---
-
-	public function getRecent( $limit = 5, $config = [] ) {
-
-		$modelClass	= static::$modelClass;
-
-		$siteId = Yii::$app->core->siteId;
-
-		return $modelClass::find()->where( $config[ 'conditions' ] )->andWhere([ 'siteId' => $siteId ])->limit( $limit )->orderBy( 'createdAt DESC' )->all();
-	}
-
-	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
-
-		$modelClass	= static::$modelClass;
-
-		$siteId = Yii::$app->core->siteId;
-
-		return $modelClass::queryByParent( $parentId, $parentType )->andWhere( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt ASC' )->andWhere([ 'siteId' => $siteId ])->all();
-	}
-
-	public function getCount( $consumed = false, $admin = false ) {
-
-		$modelClass	= static::$modelClass;
-
-		$siteId = Yii::$app->core->siteId;
-
-		return $modelClass::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
-	}
-
-	public function getUserCount( $userId, $consumed = false, $admin = false ) {
-
-		$modelClass	= static::$modelClass;
-
-		$siteId = Yii::$app->core->siteId;
-
-		return $modelClass::queryByUserId( $userId )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
-	}
-
-	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
-
-		$modelClass	= static::$modelClass;
-
-		$siteId = Yii::$app->core->siteId;
-
-		return $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
-	}
 
 	// Read - Lists ----
 
@@ -293,6 +263,7 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 	public function createByParams( $params = [], $config = [] ) {
 
+		$params[ 'link' ]		= isset( $params[ 'link' ] ) ? $params[ 'link' ] : null;
 		$params[ 'admin' ]		= isset( $params[ 'admin' ] ) ? $params[ 'admin' ] : false;
 		$params[ 'adminLink' ]	= isset( $params[ 'adminLink' ] ) ? $params[ 'adminLink' ] : null;
 
@@ -304,87 +275,18 @@ class NotificationService extends ModelResourceService implements INotificationS
 	public function update( $model, $config = [] ) {
 
 		return parent::update( $model, [
-			'attributes' => [ 'title', 'content' ]
+			'attributes' => [ 'title', 'description', 'content' ]
 		]);
-	}
-
-	public function toggleRead( $model ) {
-
-		if( $model->isConsumed() ) {
-
-			return $this->markNew( $model );
-		}
-
-		return $this->markConsumed( $model );
-	}
-
-	public function markNew( $model ) {
-
-		$model->consumed = false;
-
-		return parent::update( $model, [
-			'attributes' => [ 'consumed' ]
-		]);
-	}
-
-	public function markConsumed( $model ) {
-
-		$model->consumed = true;
-
-		return parent::update( $model, [
-			'attributes' => [ 'consumed' ]
-		]);
-	}
-
-	public function markTrash( $model ) {
-
-		$model->trash = true;
-
-		return parent::update( $model, [
-			'attributes' => [ 'trash' ]
-		]);
-	}
-
-	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType ) {
-
-		foreach( $target as $id ) {
-
-			$notification = $this->getById( $id );
-
-			if( isset( $notification ) && $notification->parentId == $parentId && $notification->parentType == $parentType ) {
-
-				$this->applyBulk( $notification, $column, $action, $target );
-			}
-		}
-	}
-
-	public function applyBulkByUserId( $column, $action, $target, $userId ) {
-
-		foreach( $target as $id ) {
-
-			$notification = $this->getById( $id );
-
-			if( isset( $notification ) && $notification->userId == $userId ) {
-
-				$this->applyBulk( $notification, $column, $action, $target );
-			}
-		}
-	}
-
-	public function applyBulkByAdmin( $column, $action, $target ) {
-
-		foreach( $target as $id ) {
-
-			$notification = $this->getById( $id );
-
-			if( isset( $notification ) && $notification->admin ) {
-
-				$this->applyBulk( $notification, $column, $action, $target );
-			}
-		}
 	}
 
 	// Delete -------------
+
+	public function deleteByUserId( $userId, $config = [] ) {
+
+		$modelClass = self::$modelClass;
+
+		$modelClass::deleteByUserId( $userId );
+	}
 
 	/*
 	public function deleteByParent( $parentId, $parentType, $user = false ) {
@@ -413,12 +315,6 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 		switch( $column ) {
 
-			case 'id': {
-
-				$this->delete( $model );
-
-				break;
-			}
 			case 'consumed': {
 
 				switch( $action ) {
