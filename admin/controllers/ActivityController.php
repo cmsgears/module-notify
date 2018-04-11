@@ -92,7 +92,7 @@ class ActivityController extends BaseController {
 
 	// CMG parent classes --------------------
 
-	// NotificationController ----------------
+	// ActivityController --------------------
 
 	public function actionIndex() {
 

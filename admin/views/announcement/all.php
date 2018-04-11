@@ -1,7 +1,8 @@
 <?php
-// CMG Imports
-use cmsgears\notify\common\models\resources\Announcement;
+// Yii Imports
+use yii\helpers\Url;
 
+// CMG Imports
 use cmsgears\widgets\popup\Popup;
 
 use cmsgears\widgets\grid\DataGrid;
@@ -14,7 +15,7 @@ $moduleTemplates	= '@cmsgears/module-notify/admin/views/templates';
 $themeTemplates		= '@themes/admin/views/templates';
 ?>
 <?= DataGrid::widget([
-	'dataProvider' => $dataProvider, 'add' => false, 'addUrl' => 'create', 'data' => [ ],
+	'dataProvider' => $dataProvider, 'add' => true, 'addUrl' => 'create', 'data' => [ ],
 	'title' => 'Announcements', 'options' => [ 'class' => 'grid-data grid-data-admin' ],
 	'searchColumns' => [ 'title' => 'Title', 'desc' => 'Description', 'content' => 'Content' ],
 	'sortColumns' => [
@@ -29,8 +30,8 @@ $themeTemplates		= '@themes/admin/views/templates';
 		'title' => [ 'title' => 'Title', 'type' => 'text' ],
 		'desc' => [ 'title' => 'Description', 'type' => 'text' ],
 		'content' => [ 'title' => 'Content', 'type' => 'text' ],
-		'status' => [ 'title' => 'Status', 'type' => 'select', 'options' => Announcement::$statusMap ],
-		'access' => [ 'title' => 'Access', 'type' => 'select', 'options' => Announcement::$accessMap ],
+		'status' => [ 'title' => 'Status', 'type' => 'select', 'options' => $statusMap ],
+		'access' => [ 'title' => 'Access', 'type' => 'select', 'options' => $accessMap ],
 	],
 	'bulkPopup' => 'popup-grid-bulk',
 	'bulkActions' => [
@@ -38,19 +39,19 @@ $themeTemplates		= '@themes/admin/views/templates';
 		'model' => [ 'delete' => 'Delete' ]
 	],
 	'header' => false, 'footer' => true,
-	'grid' => true, 'columns' => [ 'root' => 'colf colf15', 'factor' => [ null, 'x3', null, 'x2', null, null, 'x5', null ] ],
+	'grid' => true, 'columns' => [ 'root' => 'colf colf15', 'factor' => [ null, 'x4', null, null, null, null, 'x5', null ] ],
 	'gridColumns' => [
 		'bulk' => 'Action',
 		'title' => 'Title',
 		'status' => [ 'title' => 'Status', 'generate' => function( $model ) { return $model->getStatusStr(); } ],
 		'access' => [ 'title' => 'Access', 'generate' => function( $model ) { return $model->getAccessStr(); } ],
 		'app' => [ 'title' => 'App', 'generate' => function( $model ) use( $coreProperties ) {
-			return isset( $model->adminLink ) ? "<a href=\"" . $coreProperties->getSiteUrl() . '/' . $model->link . "\">View</a>" : null;
-		} ],
+			return !empty( $model->adminLink ) ? "<a href=\"" . $coreProperties->getSiteUrl() . '/' . $model->link . "\">View</a>" : null;
+		}],
 		'admin' => [ 'title' => 'Admin', 'generate' => function( $model ) {
-			return isset( $model->adminLink ) ? "<a href=\"" . Url::to( [ $model->adminLink ] . "\">View</a>", true ) : null;
-		} ],
-		'content' => 'Content',
+			return !empty( $model->adminLink ) ? "<a href=\"" . Url::to( [ $model->adminLink ] . "\">View</a>", true ) : null;
+		}],
+		'description' => 'Description',
 		'actions' => 'Actions'
 	],
 	'gridCards' => [ 'root' => 'col col12', 'factor' => 'x3' ],
@@ -61,13 +62,13 @@ $themeTemplates		= '@themes/admin/views/templates';
 ]) ?>
 
 <?= Popup::widget([
-	'title' => 'Update Events', 'size' => 'medium',
+	'title' => 'Apply Bulk Action', 'size' => 'medium',
 	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'bulk',
 	'data' => [ 'model' => 'Event', 'app' => 'main', 'controller' => 'crud', 'action' => 'bulk', 'url' => "notify/announcement/bulk" ]
 ]) ?>
 
 <?= Popup::widget([
 	'title' => 'Delete Event', 'size' => 'medium',
-	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'bulk',
+	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'delete',
 	'data' => [ 'model' => 'Event', 'app' => 'main', 'controller' => 'crud', 'action' => 'delete', 'url' => "notify/announcement/delete?id=" ]
 ]) ?>

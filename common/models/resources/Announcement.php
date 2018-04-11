@@ -182,7 +182,7 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 		// Model Rules
 		$rules = [
 			// Required, Safe
-			[ 'siteId', 'required' ],
+			[ [ 'siteId', 'title' ], 'required' ],
 			[ [ 'id', 'content', 'data',  'gridCache' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
@@ -213,7 +213,7 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 			'description' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DESCRIPTION ),
 			'type' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TYPE ),
 			'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
-			'access' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ACC ),
+			'access' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ACCESS ),
 			'link' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
 			'adminLink' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW_ADMIN ),
 			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT ),

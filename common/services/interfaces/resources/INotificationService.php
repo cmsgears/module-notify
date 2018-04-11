@@ -42,7 +42,7 @@ interface INotificationService extends IModelResourceService, IBulk, INotify, IT
 
 	public function deleteByUserId( $userId, $config = [] );
 
-	// public function deleteByParent( $parentId, $parentType, $user = false );
+	public function deleteByParent( $parentId, $parentType, $config = [] );
 
 	// Bulk ---------------
 

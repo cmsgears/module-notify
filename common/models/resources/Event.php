@@ -99,6 +99,8 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 
 	// Globals -------------------------------
 
+	const TYPE_DEFAULT	= 'default';
+
 	const STATUS_NEW	= 	  0;
 	const STATUS_TRASH	= 20000;
 
@@ -205,7 +207,8 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 			[ [ 'preReminderCount', 'preReminderInterval', 'preIntervalUnit', 'postReminderCount', 'postReminderInterval', 'postIntervalUnit', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ [ 'admin', 'multiUser', 'gridCacheValid' ], 'boolean' ],
 			[ 'status', 'number', 'integerOnly' => true, 'min' => 0 ],
-			[ [ 'siteId', 'templateId', 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ 'templateId', 'number', 'integerOnly' => true, 'min' => 0, 'tooSmall' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_SELECT ) ],
+			[ [ 'siteId', 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ [ 'createdAt', 'modifiedAt', 'scheduledAt', 'triggeredAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
 
@@ -241,6 +244,26 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA ),
 			'gridCache' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_GRID_CACHE )
 		];
+	}
+
+	// yii\db\BaseActiveRecord
+
+	/**
+	 * @inheritdoc
+	 */
+	public function beforeSave( $insert ) {
+
+		if( parent::beforeSave( $insert ) ) {
+
+			if( $this->templateId <= 0 ) {
+
+				$this->templateId = null;
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	// CMG interfaces ------------------------

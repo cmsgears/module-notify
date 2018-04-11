@@ -91,29 +91,26 @@ class TemplateController extends BaseTemplateController {
 
 		$this->setViewPath( '@cmsgears/module-notify/admin/views/notification/template' );
 
-		$modelClass		= $this->modelService->getModelClass();
-		$model			= new $modelClass;
+		$model = $this->modelService->getModelObject();
 
 		$model->type	= $this->type;
 		$model->siteId	= Yii::$app->core->siteId;
 
-		$config = new NotificationConfig();
+		$modelConfig = new NotificationConfig();
 
-		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $config->load( Yii::$app->request->post(), 'NotificationConfig' ) &&
-			$model->validate() && $config->validate() ) {
+		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $modelConfig->load( Yii::$app->request->post(), 'NotificationConfig' ) &&
+			$model->validate() && $modelConfig->validate() ) {
 
-			$this->modelService->create( $model );
+			$this->model = $this->modelService->create( $model, [ 'admin' => true ] );
 
-			$model->refresh();
-
-			$model->updateDataMeta( CoreGlobal::DATA_CONFIG, $config );
+			$this->model->updateDataMeta( CoreGlobal::DATA_CONFIG, $modelConfig );
 
 			return $this->redirect( 'all' );
 		}
 
 		return $this->render( 'create', [
 			'model' => $model,
-			'config' => $config
+			'config' => $modelConfig
 		]);
 	}
 
@@ -127,21 +124,21 @@ class TemplateController extends BaseTemplateController {
 		// Update/Render if exist
 		if( isset( $model ) ) {
 
-			$config	= new NotificationConfig( $model->getDataMeta( CoreGlobal::DATA_CONFIG ) );
+			$modelConfig = new NotificationConfig( $model->getDataMeta( CoreGlobal::DATA_CONFIG ) );
 
-			if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $config->load( Yii::$app->request->post(), 'NotificationConfig' ) &&
-				$model->validate() && $config->validate() ) {
+			if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $modelConfig->load( Yii::$app->request->post(), 'NotificationConfig' ) &&
+				$model->validate() && $modelConfig->validate() ) {
 
-				$this->modelService->update( $model );
+				$this->model = $this->modelService->update( $model, [ 'admin' => true ] );
 
-				$model->updateDataMeta( CoreGlobal::DATA_CONFIG, $config );
+				$this->model->updateDataMeta( CoreGlobal::DATA_CONFIG, $modelConfig );
 
 				return $this->redirect( $this->returnUrl );
 			}
 
 			return $this->render( 'update', [
 				'model' => $model,
-				'config' => $config
+				'config' => $modelConfig
 			]);
 		}
 

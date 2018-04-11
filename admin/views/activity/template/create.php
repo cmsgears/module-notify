@@ -40,19 +40,14 @@ Editor::widget( [ 'selector' => '.content-editor', 'loadAssets' => true, 'fonts'
 						</div>
 					</div>
 					<div class="row">
-						<div class="col col2">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'admin', null, 'cmti cmti-checkbox' ) ?>
+						<div class="col col3">
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'storeContent', null, 'cmti cmti-checkbox' ) ?>
 						</div>
-						<div class="col col2">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'adminEmail', null, 'cmti cmti-checkbox' ) ?>
+						<div class="col col3">
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'storeData', null, 'cmti cmti-checkbox' ) ?>
 						</div>
-					</div>
-					<div class="row">
-						<div class="col col2">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'user', null, 'cmti cmti-checkbox' ) ?>
-						</div>
-						<div class="col col2">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'userEmail', null, 'cmti cmti-checkbox' ) ?>
+						<div class="col col3">
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'storeCache', null, 'cmti cmti-checkbox' ) ?>
 						</div>
 					</div>
 					<div class="row">

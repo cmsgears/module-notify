@@ -93,8 +93,8 @@ class NotificationService extends ModelResourceService implements INotificationS
 					'label' => 'Id'
 				],
 	            'user' => [
-					'asc' => [ "`$userTable`.`firstName`" => SORT_ASC, "`$userTable`.`lastName`" => SORT_ASC ],
-					'desc' => [ "`$userTable`.`firstName`" => SORT_DESC, "`$userTable`.`lastName`" => SORT_DESC ],
+					'asc' => [ "$userTable.name" => SORT_ASC ],
+					'desc' => [ "$userTable.name" => SORT_DESC ],
 					'default' => SORT_DESC,
 	                'label' => 'User'
 	            ],
@@ -288,26 +288,12 @@ class NotificationService extends ModelResourceService implements INotificationS
 		$modelClass::deleteByUserId( $userId );
 	}
 
-	/*
-	public function deleteByParent( $parentId, $parentType, $user = false ) {
+	public function deleteByParent( $parentId, $parentType, $config = [] ) {
 
-		$modelTable	= self::$modelTable;
+		$modelClass = self::$modelClass;
 
-		$userIds    = $this->getIdList( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
-		$creatorIds = $this->getIdList( [ 'conditions' => [ "$modelTable.createdBy" => $userId ] ] );
-
-		$models     = array_merge( $userIds, $creatorIds );
-
-		if( count( $models ) > 0 ) {
-
-			// Delete user notifications if any
-			$this->applyBulkByUserId( 'model', 'delete', $models, $userId );
-
-			// Delete admin notifications if any
-			$this->applyBulkByAdmin( 'model', 'delete', $models );
-		}
+		$modelClass::deleteByParent( $parentId, $parentType );
 	}
-	*/
 
 	// Bulk ---------------
 

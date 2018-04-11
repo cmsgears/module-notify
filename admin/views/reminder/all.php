@@ -60,13 +60,13 @@ $themeTemplates		= '@themes/admin/views/templates';
 ]) ?>
 
 <?= Popup::widget([
-	'title' => 'Update Reminders', 'size' => 'medium',
+	'title' => 'Apply Bulk Action', 'size' => 'medium',
 	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'bulk',
 	'data' => [ 'model' => 'Reminder', 'app' => 'main', 'controller' => 'crud', 'action' => 'bulk', 'url' => "notify/reminder/bulk" ]
 ]) ?>
 
 <?= Popup::widget([
 	'title' => 'Delete Reminder', 'size' => 'medium',
-	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'bulk',
+	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'delete',
 	'data' => [ 'model' => 'Reminder', 'app' => 'main', 'controller' => 'crud', 'action' => 'delete', 'url' => "notify/reminder/delete?id=" ]
 ]) ?>

@@ -14,7 +14,10 @@ use Yii;
 use yii\helpers\Url;
 
 // CMG Imports
+use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
+
+use cmsgears\notify\admin\models\forms\ActivityConfig;
 
 use cmsgears\core\admin\controllers\base\TemplateController as BaseTemplateController;
 
@@ -82,6 +85,65 @@ class TemplateController extends BaseTemplateController {
 		Url::remember( Yii::$app->request->getUrl(), 'templates' );
 
 		return parent::actionAll( $config );
+	}
+
+	public function actionCreate( $config = [] ) {
+
+		$this->setViewPath( '@cmsgears/module-notify/admin/views/activity/template' );
+
+		$model = $this->modelService->getModelObject();
+
+		$model->type	= $this->type;
+		$model->siteId	= Yii::$app->core->siteId;
+
+		$modelConfig = new ActivityConfig();
+
+		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $modelConfig->load( Yii::$app->request->post(), 'ActivityConfig' ) &&
+			$model->validate() && $modelConfig->validate() ) {
+
+			$this->model = $this->modelService->create( $model, [ 'admin' => true ] );
+
+			$this->model->updateDataMeta( CoreGlobal::DATA_CONFIG, $modelConfig );
+
+			return $this->redirect( 'all' );
+		}
+
+		return $this->render( 'create', [
+			'model' => $model,
+			'config' => $modelConfig
+		]);
+	}
+
+	public function actionUpdate( $id, $config = [] ) {
+
+		$this->setViewPath( '@cmsgears/module-notify/admin/views/activity/template' );
+
+		// Find Model
+		$model = $this->modelService->getById( $id );
+
+		// Update/Render if exist
+		if( isset( $model ) ) {
+
+			$modelConfig = new ActivityConfig( $model->getDataMeta( CoreGlobal::DATA_CONFIG ) );
+
+			if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $modelConfig->load( Yii::$app->request->post(), 'ActivityConfig' ) &&
+				$model->validate() && $modelConfig->validate() ) {
+
+				$this->model = $this->modelService->update( $model, [ 'admin' => true ] );
+
+				$this->model->updateDataMeta( CoreGlobal::DATA_CONFIG, $modelConfig );
+
+				return $this->redirect( $this->returnUrl );
+			}
+
+			return $this->render( 'update', [
+				'model' => $model,
+				'config' => $modelConfig
+			]);
+		}
+
+		// Model not found
+		throw new NotFoundHttpException( Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_NOT_FOUND ) );
 	}
 
 }

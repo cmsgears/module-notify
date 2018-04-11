@@ -18,8 +18,7 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\components\EventManager as BaseEventManager;
 
-use cmsgears\notify\common\models\entities\Notification;
-use cmsgears\notify\common\models\entities\Activity;
+use cmsgears\core\common\utilities\DateUtil;
 
 /**
  * EventManager triggers notifications, reminders and logs activities.
@@ -71,6 +70,9 @@ class EventManager extends BaseEventManager {
 
 	// Stats Collection -------
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getAdminStats() {
 
 		// Query
@@ -98,6 +100,9 @@ class EventManager extends BaseEventManager {
 		return $stats;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getUserStats() {
 
 		$user = Yii::$app->user->getIdentity();
@@ -161,7 +166,7 @@ class EventManager extends BaseEventManager {
 
 		$templateConfig = $template->getDataMeta( CoreGlobal::DATA_CONFIG );
 
-		$notification = new Notification();
+		$notification = $this->notificationService->getModelObject();
 
 		$notification->consumed	= false;
 		$notification->trash	= false;
@@ -223,7 +228,7 @@ class EventManager extends BaseEventManager {
 
 			foreach( $users as $userId ) {
 
-				$userNotification = new Notification();
+				$userNotification = $this->notificationService->getModelObject();
 
 				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'title', 'consumed', 'trash', 'link', 'content', 'createdBy' ] );
 
@@ -255,11 +260,14 @@ class EventManager extends BaseEventManager {
 		}
 	}
 
-	// Delete Notifications ---
+	public function deleteNotificationsByUserId( $userId, $config = [] ) {
 
-	public function deleteNotifications( $parentId, $parentType, $user = false ) {
+		$this->notificationService->deleteByUserId( $userId, $config );
+	}
 
-		return $this->notificationService->deleteByParent( $parentId, $parentType, $user );
+	public function deleteNotificationsByParent( $parentId, $parentType, $config = [] ) {
+
+		$this->notificationService->deleteByParent( $parentId, $parentType, $config );
 	}
 
 	// Reminder Trigger -------
@@ -272,59 +280,53 @@ class EventManager extends BaseEventManager {
 	// Activity Logger --------
 
 	/**
-	 * Trigger activity log on model creation.
-	 *
-	 * @param type $model
+	 * @inheritdoc
 	 */
-	public function logCreate( $model, $parentType, $config = [] ) {
+	public function logCreate( $model, $service, $config = [] ) {
 
-		$title = $model->name ?? null;
+		$title	= isset( $model->name ) ? $model->getClassName() . ' | ' . $model->name : $model->getClassName();
+		$title	= "Create - $title";
+		$slug	= isset( $config[ 'slug' ] ) ? $config[ 'slug' ] : NotifyGlobal::TEMPLATE_LOG_CREATE;
 
-		$this->logActivity( $model, NotifyGlobal::TEMPLATE_LOG_CREATE, $title, $parentType );
+		$this->logActivity( $model, $service, $slug, $title, $config );
 	}
 
 	/**
-	 * Trigger activity log on model update.
-	 *
-	 * @param type $model
+	 * @inheritdoc
 	 */
-	public function logUpdate( $model, $parentType, $config = [] ) {
+	public function logUpdate( $model, $service, $config = [] ) {
 
-		$title = $model->name ?? null;
+		$title	= isset( $model->name ) ? $model->getClassName() . ' | ' . $model->name : $model->getClassName();
+		$title	= "Update - $title";
+		$slug	= isset( $config[ 'slug' ] ) ? $config[ 'slug' ] : NotifyGlobal::TEMPLATE_LOG_UPDATE;
 
-		$this->logActivity( $model, NotifyGlobal::TEMPLATE_LOG_UPDATE, $title, $parentType );
+		$this->logActivity( $model, $service, $slug, $title, $config );
 	}
 
 	/**
-	 * Trigger activity log on model delete.
-	 *
-	 * @param type $model
+	 * @inheritdoc
 	 */
-	public function logDelete( $model, $parentType, $config = []  ) {
+	public function logDelete( $model, $service, $config = [] ) {
 
-		$title = $model->name ?? null;
+		$title	= isset( $model->name ) ? $model->getClassName() . ' | ' . $model->name : $model->getClassName();
+		$title	= "Delete - $title";
+		$slug	= isset( $config[ 'slug' ] ) ? $config[ 'slug' ] : NotifyGlobal::TEMPLATE_LOG_DELETE;
 
-		$this->logActivity( $model, NotifyGlobal::TEMPLATE_LOG_DELETE, $title, $parentType );
+		$this->logActivity( $model, $service, $slug, $title, $config );
 	}
 
 	// Activity
-	private function logActivity( $model, $slug, $title, $parentType ) {
+	private function logActivity( $model, $service, $slug, $title, $config = [] ) {
 
 		$user =	Yii::$app->user->getIdentity();
 
-		$userId		= isset( $user ) ? $user->id : null;
-		$userName	= isset( $user ) ? $user->getName() : null;
-
-		//$modelName	= $model->name ?? null;
-		//'modelName' => "<b>$modelName</b>"
-
 		$this->triggerActivity(
 			$slug,
-			[ 'model' => $model, 'parentType' => $parentType, 'userName' => $userName ],
+			[ 'model' => $model, 'service' => $service, 'user' => $user ],
 			[
 				'parentId' => $model->id,
-				'parentType' => $parentType,
-				'userId' => $userId,
+				'parentType' => $service->getParentType(),
+				'userId' => $user->getId(),
 				'title' => $title
 			]
 		);
@@ -362,27 +364,27 @@ class EventManager extends BaseEventManager {
 
 		$templateConfig = $template->getDataMeta( CoreGlobal::DATA_CONFIG );
 
-		$activity = new Activity();
+		$model		= $data[ 'model' ];
+		$gridData	= [];
+
+		$gridData[ 'content' ]	= $templateConfig->storeContent && $model->hasAttribute( 'content' ) ? $model->content : null;
+		$gridData[ 'data' ]		= $templateConfig->storeData && $model->hasAttribute( 'data' ) ? $model->data : null;
+		$gridData[ 'cache' ]	= $templateConfig->storeCache && $model->hasAttribute( 'cache' ) ? $model->cache : null;
+
+		$activity = $this->activityService->getModelObject();
+
+		$activity->userId		= $config[ 'userId' ];
+		$activity->parentId		= isset( $config[ 'parentId' ] ) ? $config[ 'parentId' ] : null;
+		$activity->parentType	= isset( $config[ 'parentType' ] ) ? $config[ 'parentType' ] : null;
+		$activity->admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 
 		$activity->consumed	= false;
-		$activity->admin	= true;
 		$activity->trash	= false;
-		$activity->content	= $message;
 
-		if( isset( $config[ 'userId' ] ) ) {
-
-			$activity->userId = $config[ 'userId' ];
-		}
-
-		if( isset( $config[ 'parentId' ] ) ) {
-
-			$activity->parentId = $config[ 'parentId' ];
-		}
-
-		if( isset( $config[ 'parentType' ] ) ) {
-
-			$activity->parentType = $config[ 'parentType' ];
-		}
+		$activity->content			= $message;
+		$activity->gridCache		= json_encode(  $gridData );
+		$activity->gridCacheValid	= true;
+		$activity->gridCachedAt		= DateUtil::getDateTime();
 
 		$activity->type = "log";
 
@@ -397,13 +399,12 @@ class EventManager extends BaseEventManager {
 
 		// Create Activity
 		$this->activityService->create( $activity, $config );
-	}
 
-	// Delete Activity ---
+		$user =	Yii::$app->user->getIdentity();
 
-	public function deleteActivity( $parentId, $parentType, $user = false ) {
+		$user->lastActivityAt = DateUtil::getDateTime();
 
-		return $this->activityService->deleteByParent( $parentId, $parentType, $user );
+		$user->update();
 	}
 
 }

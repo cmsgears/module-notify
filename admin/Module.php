@@ -59,7 +59,7 @@ class Module extends BaseModule {
 
 	public function getSidebarHtml() {
 
-		$path	= Yii::getAlias( '@cmsgears' ) . '/module-notify/admin/views/sidebar.php';
+		$path = Yii::getAlias( '@cmsgears' ) . '/module-notify/admin/views/sidebar.php';
 
 		return $path;
 	}

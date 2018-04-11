@@ -12,12 +12,14 @@ namespace cmsgears\notify\common\services\resources;
 // Yii Imports
 use Yii;
 use yii\data\Sort;
+use yii\helpers\ArrayHelper;
 
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\models\resources\Announcement;
 
+use cmsgears\core\common\services\interfaces\resources\IFileService;
 use cmsgears\notify\common\services\interfaces\resources\IAnnouncementService;
 
 use cmsgears\core\common\services\base\ModelResourceService;
@@ -49,11 +51,20 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 	// Protected --------------
 
+	protected $fileService;
+
 	// Private ----------------
 
 	// Traits ------------------------------------------------------
 
 	// Constructor and Initialisation ------------------------------
+
+	public function __construct( IFileService $fileService, $config = [] ) {
+
+		$this->fileService = $fileService;
+
+		parent::__construct( $config );
+	}
 
 	// Instance methods --------------------------------------------
 
@@ -252,9 +263,10 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 	public function create( $model, $config = [] ) {
 
-		$siteId = isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$banner = isset( $config[ 'banner' ] ) ? $config[ 'banner' ] : null;
 
-		$model->siteId	= $siteId;
+		// Save resources
+		$this->fileService->saveFiles( $model, [ 'bannerId' => $banner ] );
 
 		return parent::create( $model, $config );
 	}
@@ -272,12 +284,17 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 	public function update( $model, $config = [] ) {
 
 		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
-		$attributes	= isset( $config[ 'attributes' ] ) ? $config[ 'attributes' ] : [ 'title', 'description', 'content' ];
+		$attributes	= isset( $config[ 'attributes' ] ) ? $config[ 'attributes' ] : [ 'bannerId', 'title', 'description', 'link', 'adminLink', 'content' ];
+
+		$banner = isset( $config[ 'banner' ] ) ? $config[ 'banner' ] : null;
 
 		if( $admin ) {
 
-			$attributes[] = 'status';
+			$attributes	= ArrayHelper::merge( $attributes, [ 'status', 'access' ] );
 		}
+
+		// Save resources
+		$this->fileService->saveFiles( $model, [ 'bannerId' => $banner ] );
 
 		return parent::update( $model, [
 			'attributes' => $attributes
@@ -314,6 +331,14 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 	}
 
 	// Delete -------------
+
+	public function delete( $model, $config = [] ) {
+
+		// Delete resources
+		$this->fileService->deleteFiles( [ $model->banner ] );
+
+		return parent::delete( $model, $config );
+	}
 
 	// Bulk ---------------
 

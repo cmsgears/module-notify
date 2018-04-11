@@ -18,6 +18,7 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\models\resources\Event;
 
+use cmsgears\core\common\services\interfaces\resources\IFileService;
 use cmsgears\notify\common\services\interfaces\resources\IEventService;
 
 use cmsgears\core\common\services\base\ModelResourceService;
@@ -54,6 +55,8 @@ class EventService extends ModelResourceService implements IEventService {
 
 	// Protected --------------
 
+	protected $fileService;
+
 	// Private ----------------
 
 	// Traits ------------------------------------------------------
@@ -62,6 +65,13 @@ class EventService extends ModelResourceService implements IEventService {
 	use SlugTypeTrait;
 
 	// Constructor and Initialisation ------------------------------
+
+	public function __construct( IFileService $fileService, $config = [] ) {
+
+		$this->fileService	= $fileService;
+
+		parent::__construct( $config );
+	}
 
 	// Instance methods --------------------------------------------
 
@@ -102,8 +112,8 @@ class EventService extends ModelResourceService implements IEventService {
 					'label' => 'Id'
 				],
 	            'user' => [
-					'asc' => [ "`$userTable`.`firstName`" => SORT_ASC, "`$userTable`.`lastName`" => SORT_ASC ],
-					'desc' => [ "`$userTable`.`firstName`" => SORT_DESC, "`$userTable`.`lastName`" => SORT_DESC ],
+					'asc' => [ "$userTable.name" => SORT_ASC ],
+					'desc' => [ "$userTable.name" => SORT_DESC ],
 					'default' => SORT_DESC,
 	                'label' => 'User'
 	            ],
@@ -125,6 +135,18 @@ class EventService extends ModelResourceService implements IEventService {
 					'default' => SORT_DESC,
 					'label' => 'Type'
 				],
+				'icon' => [
+					'asc' => [ "$modelTable.icon" => SORT_ASC ],
+					'desc' => [ "$modelTable.icon" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Icon'
+				],
+				'title' => [
+					'asc' => [ "$modelTable.title" => SORT_ASC ],
+					'desc' => [ "$modelTable.title" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Title'
+				],
 				'prcount' => [
 					'asc' => [ "$modelTable.preReminderCount" => SORT_ASC ],
 					'desc' => [ "$modelTable.preReminderCount" => SORT_DESC ],
@@ -136,6 +158,12 @@ class EventService extends ModelResourceService implements IEventService {
 					'desc' => [ "$modelTable.preReminderInterval" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Pre Reminder Interval'
+				],
+				'pruinterval' => [
+					'asc' => [ "$modelTable.preIntervalUnit" => SORT_ASC ],
+					'desc' => [ "$modelTable.preIntervalUnit" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Pre Interval Interval'
 				],
 				'pscount' => [
 					'asc' => [ "$modelTable.postReminderCount" => SORT_ASC ],
@@ -149,23 +177,11 @@ class EventService extends ModelResourceService implements IEventService {
 					'default' => SORT_DESC,
 					'label' => 'Post Reminder Interval'
 				],
-				'pruinterval' => [
-					'asc' => [ "$modelTable.preIntervalUnit" => SORT_ASC ],
-					'desc' => [ "$modelTable.preIntervalUnit" => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'Pre Interval Interval'
-				],
 				'psuinterval' => [
 					'asc' => [ "$modelTable.postIntervalUnit" => SORT_ASC ],
 					'desc' => [ "$modelTable.postIntervalUnit" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Post Interval Interval'
-				],
-				'status' => [
-					'asc' => [ "$modelTable.status" => SORT_ASC ],
-					'desc' => [ "$modelTable.status" => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'Status'
 				],
 				'admin' => [
 					'asc' => [ "$modelTable.admin" => SORT_ASC ],
@@ -178,6 +194,12 @@ class EventService extends ModelResourceService implements IEventService {
 					'desc' => [ "$modelTable.multiUser" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Multi Users'
+				],
+				'status' => [
+					'asc' => [ "$modelTable.status" => SORT_ASC ],
+					'desc' => [ "$modelTable.status" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Status'
 				],
 				'cdate' => [
 					'asc' => [ "$modelTable.createdAt" => SORT_ASC ],
@@ -218,7 +240,7 @@ class EventService extends ModelResourceService implements IEventService {
 		// Params
 		$type	= Yii::$app->request->getQueryParam( 'type' );
 		$status	= Yii::$app->request->getQueryParam( 'status' );
-		$multi	= Yii::$app->request->getQueryParam( 'multi' );
+		$filter	= Yii::$app->request->getQueryParam( 'model' );
 
 		// Filter - Type
 		if( isset( $type ) ) {
@@ -232,10 +254,18 @@ class EventService extends ModelResourceService implements IEventService {
 			$config[ 'conditions' ][ "$modelTable.status" ]	= $modelClass::$urlRevStatusMap[ $status ];
 		}
 
-		// Filter - Multi
-		if( isset( $multi ) ) {
+		// Filter - Model
+		if( isset( $filter ) ) {
 
-			$config[ 'conditions' ][ "$modelTable.multiUser" ] = true;
+			switch( $filter ) {
+
+				case 'multi': {
+
+					$config[ 'conditions' ][ "$modelTable.multiUser" ] = true;
+
+					break;
+				}
+			}
 		}
 
 		// Searching --------
@@ -303,12 +333,41 @@ class EventService extends ModelResourceService implements IEventService {
 
 	// Create -------------
 
+	public function create( $model, $config = [] ) {
+
+		$avatar = isset( $config[ 'avatar' ] ) ? $config[ 'avatar' ] : null;
+		$banner = isset( $config[ 'banner' ] ) ? $config[ 'banner' ] : null;
+		$video	= isset( $config[ 'video' ] ) ? $config[ 'video' ] : null;
+
+		// Save resources
+		$this->fileService->saveFiles( $model, [ 'avatarId' => $banner, 'bannerId' => $banner, 'videoId' => $video ] );
+
+		return parent::create( $model, $config );
+	}
+
 	// Update -------------
 
 	public function update( $model, $config = [] ) {
 
+		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+
+		$attributes	= isset( $config[ 'attributes' ] ) ? $config[ 'attributes' ] : [
+			'templateId', 'avatarId', 'bannerId', 'videoId',
+			'name', 'slug', 'icon', 'title', 'description',
+			'preReminderCount', 'preReminderInterval', 'preIntervalUnit',
+			'postReminderCount', 'postReminderInterval', 'postIntervalUnit',
+			'multiUser', 'status', 'scheduledAt', 'content'
+		];
+
+		$avatar = isset( $config[ 'avatar' ] ) ? $config[ 'avatar' ] : null;
+		$banner = isset( $config[ 'banner' ] ) ? $config[ 'banner' ] : null;
+		$video	= isset( $config[ 'video' ] ) ? $config[ 'video' ] : null;
+
+		// Save resources
+		$this->fileService->saveFiles( $model, [ 'avatarId' => $avatar, 'bannerId' => $banner, 'videoId' => $video ] );
+
 		return parent::update( $model, [
-			'attributes' => [ 'title', 'description', 'content' ]
+			'attributes' => $attributes
 		]);
 	}
 

@@ -61,7 +61,7 @@ $themeTemplates		= '@themes/admin/views/templates';
 ]) ?>
 
 <?= Popup::widget([
-	'title' => 'Update Notifications', 'size' => 'medium',
+	'title' => 'Apply Bulk Action', 'size' => 'medium',
 	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid"  ), 'template' => 'bulk',
 	'data' => [ 'model' => 'Notification', 'app' => 'main', 'controller' => 'crud', 'action' => 'bulk', 'url' => "notify/notification/bulk" ]
 ]) ?>

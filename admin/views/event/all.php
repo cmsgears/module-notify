@@ -1,7 +1,5 @@
 <?php
 // CMG Imports
-use cmsgears\notify\common\models\resources\Event;
-
 use cmsgears\widgets\popup\Popup;
 
 use cmsgears\widgets\grid\DataGrid;
@@ -14,20 +12,24 @@ $moduleTemplates	= '@cmsgears/module-notify/admin/views/templates';
 $themeTemplates		= '@themes/admin/views/templates';
 ?>
 <?= DataGrid::widget([
-	'dataProvider' => $dataProvider, 'add' => false, 'addUrl' => 'create', 'data' => [ ],
+	'dataProvider' => $dataProvider, 'add' => true, 'addUrl' => 'create', 'data' => [ ],
 	'title' => 'Events', 'options' => [ 'class' => 'grid-data grid-data-admin' ],
 	'searchColumns' => [ 'name' => 'Name', 'title' => 'Title', 'desc' => 'Description', 'content' => 'Content' ],
 	'sortColumns' => [
-		'name' => 'Name', 'title' => 'Title', 'status' => 'Status', 'multi' => 'Group',
+		'name' => 'Name', 'icon' => 'Icon', 'title' => 'Title',
+		'template' => 'Template', 'multi' => 'Group', 'status' => 'Status',
 		'cdate' => 'Created At', 'udate' => 'Updated At', 'sdate' => 'Scheduled At'
 	],
-	'filters' => [ 'status' => [ 'new' => 'New', 'trash' => 'Trash' ], 'multi' => [ 'multi' => 'Group' ] ],
+	'filters' => [
+		'status' => [ 'new' => 'New', 'trash' => 'Trash' ],
+		'model' => [ 'multi' => 'Group' ]
+	],
 	'reportColumns' => [
 		'name' => [ 'title' => 'Name', 'type' => 'text' ],
 		'title' => [ 'title' => 'Title', 'type' => 'text' ],
 		'desc' => [ 'title' => 'Description', 'type' => 'text' ],
 		'content' => [ 'title' => 'Content', 'type' => 'text' ],
-		'status' => [ 'title' => 'Status', 'type' => 'select', 'options' => Event::$statusMap ],
+		'status' => [ 'title' => 'Status', 'type' => 'select', 'options' => $statusMap ],
 		'multi' => [ 'title' => 'Group', 'type' => 'flag' ]
 	],
 	'bulkPopup' => 'popup-grid-bulk',
@@ -57,13 +59,13 @@ $themeTemplates		= '@themes/admin/views/templates';
 ]) ?>
 
 <?= Popup::widget([
-	'title' => 'Update Events', 'size' => 'medium',
+	'title' => 'Apply Bulk Action', 'size' => 'medium',
 	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'bulk',
 	'data' => [ 'model' => 'Event', 'app' => 'main', 'controller' => 'crud', 'action' => 'bulk', 'url' => "notify/event/bulk" ]
 ]) ?>
 
 <?= Popup::widget([
 	'title' => 'Delete Event', 'size' => 'medium',
-	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'bulk',
+	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'delete',
 	'data' => [ 'model' => 'Event', 'app' => 'main', 'controller' => 'crud', 'action' => 'delete', 'url' => "notify/event/delete?id=" ]
 ]) ?>
