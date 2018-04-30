@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 // CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\notify\common\config\NotifyGlobal;
 
 $core	= Yii::$app->core;
 $user	= Yii::$app->user->getIdentity();
@@ -15,7 +15,7 @@ $ncount	= $stats[ 'notificationCount' ];
 $rcount	= $stats[ 'reminderCount' ];
 ?>
 
-<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
+<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( NotifyGlobal::PERM_NOTIFY_ADMIN ) ) { ?>
 	<div id="sidebar-activity" class="collapsible-tab has-children <?= $parent == 'sidebar-activity' ? 'active' : null ?>">
 		<div class="row tab-header">
 			<div class="tab-icon"><span class="cmti cmti-event"></span></div>
@@ -41,7 +41,7 @@ $rcount	= $stats[ 'reminderCount' ];
 	</div>
 <?php } ?>
 
-<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
+<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( NotifyGlobal::PERM_NOTIFY_ADMIN ) ) { ?>
 	<div id="sidebar-notify" class="collapsible-tab has-children <?= $parent == 'sidebar-notify' ? 'active' : null ?>">
 		<div class="row tab-header">
 			<div class="tab-icon"><span class="cmti cmti-flag"></span></div>
@@ -68,7 +68,7 @@ $rcount	= $stats[ 'reminderCount' ];
 	</div>
 <?php } ?>
 
-<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
+<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( NotifyGlobal::PERM_NOTIFY_ADMIN ) ) { ?>
 	<div id="sidebar-notify" class="collapsible-tab has-children <?= $parent == 'sidebar-announcement' ? 'active' : null ?>">
 		<div class="row tab-header">
 			<div class="tab-icon"><span class="fa fa-bullhorn"></span></div>
@@ -82,7 +82,7 @@ $rcount	= $stats[ 'reminderCount' ];
 	</div>
 <?php } ?>
 
-<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( CoreGlobal::PERM_CORE ) ) { ?>
+<?php if( $core->hasModule( 'notify' ) && $user->isPermitted( NotifyGlobal::PERM_NOTIFY_ADMIN ) ) { ?>
 	<div id="sidebar-reminder" class="collapsible-tab has-children <?= $parent == 'sidebar-reminder' ? 'active' : null ?>">
 		<div class="row tab-header">
 			<div class="tab-icon"><span class="cmti cmti-bell"></span></div>

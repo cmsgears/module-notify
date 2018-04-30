@@ -247,12 +247,17 @@ class EventManager extends BaseEventManager {
 		}
 
 		// Trigger for Model
-		if( !$templateConfig->admin && !$templateConfig->user ) {
+		if( $templateConfig->directEmail ) {
 
 			// Create Notification
 			$this->notificationService->create( $notification, $config );
 
-			if( isset( $config[ 'email' ] ) ) {
+			// Detect Email
+			$model		= $data[ 'model' ];
+			$service	= $data[ 'service' ];
+			$email		= method_exists( $service, 'getEmail' ) ? $service->getEmail : ( isset( $model->email ) ? $model->email : null );
+
+			if( isset( $email ) ) {
 
 				// Trigger Mail
 				Yii::$app->notifyMailer->sendDirectMail( $message, $config[ 'email' ] );

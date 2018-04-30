@@ -9,21 +9,17 @@
 
 namespace cmsgears\notify\admin\controllers\apix;
 
-// Yii Imports
-use Yii;
-use yii\filters\VerbFilter;
-
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\admin\controllers\base\Controller;
+use cmsgears\core\admin\controllers\apix\TemplateController as BaseTemplateController;
 
 /**
- * AnnouncementController provide actions specific to Announcement model.
+ * TemplateController provides actions specific to notify templates.
  *
  * @since 1.0.0
  */
-class AnnouncementController extends Controller {
+class TemplateController extends BaseTemplateController {
 
 	// Variables ---------------------------------------------------
 
@@ -43,9 +39,6 @@ class AnnouncementController extends Controller {
 
 		// Permissions
 		$this->crudPermission = NotifyGlobal::PERM_NOTIFY_ADMIN;
-
-		// Services
-		$this->modelService = Yii::$app->factory->get( 'announcementService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -56,40 +49,12 @@ class AnnouncementController extends Controller {
 
 	// yii\base\Component -----
 
-	public function behaviors() {
-
-		return [
-			'rbac' => [
-				'class' => Yii::$app->core->getRbacFilterClass(),
-				'actions' => [
-					'bulk' => [ 'permission' => $this->crudPermission ],
-					'delete' => [ 'permission' => $this->crudPermission ]
-				]
-			],
-			'verbs' => [
-				'class' => VerbFilter::class,
-				'actions' => [
-					'bulk' => [ 'post' ],
-					'delete' => [ 'post' ]
-				]
-			]
-		];
-	}
-
 	// yii\base\Controller ----
-
-	public function actions() {
-
-		return [
-			'bulk' => [ 'class' => 'cmsgears\core\common\actions\grid\Bulk' ],
-			'delete' => [ 'class' => 'cmsgears\core\common\actions\grid\Delete' ]
-		];
-	}
 
 	// CMG interfaces ------------------------
 
 	// CMG parent classes --------------------
 
-	// AnnouncementController ----------------
+	// TemplateController --------------------
 
 }

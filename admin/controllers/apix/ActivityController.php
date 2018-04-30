@@ -14,7 +14,7 @@ use Yii;
 use yii\filters\VerbFilter;
 
 // CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\admin\controllers\base\Controller;
 
@@ -41,8 +41,8 @@ class ActivityController extends Controller {
 
 		parent::init();
 
-		// Permission
-		$this->crudPermission = CoreGlobal::PERM_CORE;
+		// Permissions
+		$this->crudPermission = NotifyGlobal::PERM_NOTIFY_ADMIN;
 
 		// Services
 		$this->modelService = Yii::$app->factory->get( 'activityService' );

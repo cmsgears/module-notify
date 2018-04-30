@@ -41,6 +41,8 @@ class NotifyGlobal {
 
 	// Permissions -----------------------------------------------------
 
+	const PERM_NOTIFY_ADMIN	= 'admin-notify';
+
 	// Model Attributes ------------------------------------------------
 
 	// Default Maps ----------------------------------------------------

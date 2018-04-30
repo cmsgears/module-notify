@@ -52,7 +52,10 @@ class EventController extends BaseController {
 		parent::init();
 
 		// Permission
-		$this->crudPermission = CoreGlobal::PERM_CORE;
+		$this->crudPermission = NotifyGlobal::PERM_NOTIFY_ADMIN;
+
+		// Config
+		$this->apixBase = 'notify/event';
 
 		// Services
 		$this->modelService		= Yii::$app->factory->get( 'eventService' );

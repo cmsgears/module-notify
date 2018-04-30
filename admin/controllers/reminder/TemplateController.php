@@ -44,8 +44,12 @@ class TemplateController extends BaseTemplateController {
 
 		parent::init();
 
-		// Template Type
-		$this->type = NotifyGlobal::TYPE_REMINDER;
+		// Permission
+		$this->crudPermission = NotifyGlobal::PERM_NOTIFY_ADMIN;
+
+		// Config
+		$this->type		= NotifyGlobal::TYPE_REMINDER;
+		$this->apixBase	= 'notify/template';
 
 		// Sidebar
 		$this->sidebar = [ 'parent' => 'sidebar-reminder', 'child' => 'rtemplate' ];

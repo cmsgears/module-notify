@@ -6,6 +6,7 @@ use cmsgears\widgets\grid\DataGrid;
 
 $coreProperties = $this->context->getCoreProperties();
 $this->title	= 'Events | ' . $coreProperties->getSiteTitle();
+$apixBase		= $this->context->apixBase;
 
 // View Templates
 $moduleTemplates	= '@cmsgears/module-notify/admin/views/templates';
@@ -61,11 +62,11 @@ $themeTemplates		= '@themes/admin/views/templates';
 <?= Popup::widget([
 	'title' => 'Apply Bulk Action', 'size' => 'medium',
 	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'bulk',
-	'data' => [ 'model' => 'Event', 'app' => 'main', 'controller' => 'crud', 'action' => 'bulk', 'url' => "notify/event/bulk" ]
+	'data' => [ 'model' => 'Event', 'app' => 'main', 'controller' => 'crud', 'action' => 'bulk', 'url' => "$apixBase/bulk" ]
 ]) ?>
 
 <?= Popup::widget([
 	'title' => 'Delete Event', 'size' => 'medium',
 	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'delete',
-	'data' => [ 'model' => 'Event', 'app' => 'main', 'controller' => 'crud', 'action' => 'delete', 'url' => "notify/event/delete?id=" ]
+	'data' => [ 'model' => 'Event', 'app' => 'main', 'controller' => 'crud', 'action' => 'delete', 'url' => "$apixBase/delete?id=" ]
 ]) ?>

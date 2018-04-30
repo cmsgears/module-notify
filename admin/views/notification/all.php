@@ -9,6 +9,7 @@ use cmsgears\widgets\grid\DataGrid;
 
 $coreProperties = $this->context->getCoreProperties();
 $this->title	= 'Notifications | ' . $coreProperties->getSiteTitle();
+$apixBase		= $this->context->apixBase;
 
 // View Templates
 $moduleTemplates	= '@cmsgears/module-notify/admin/views/templates';
@@ -63,11 +64,11 @@ $themeTemplates		= '@themes/admin/views/templates';
 <?= Popup::widget([
 	'title' => 'Apply Bulk Action', 'size' => 'medium',
 	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid"  ), 'template' => 'bulk',
-	'data' => [ 'model' => 'Notification', 'app' => 'main', 'controller' => 'crud', 'action' => 'bulk', 'url' => "notify/notification/bulk" ]
+	'data' => [ 'model' => 'Notification', 'app' => 'main', 'controller' => 'crud', 'action' => 'bulk', 'url' => "$apixBase/bulk" ]
 ]) ?>
 
 <?= Popup::widget([
 	'title' => 'Delete Notification', 'size' => 'medium',
 	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'delete',
-	'data' => [ 'model' => 'Notification', 'app' => 'main', 'controller' => 'crud', 'action' => 'delete', 'url' => "notify/notification/delete?id=" ]
+	'data' => [ 'model' => 'Notification', 'app' => 'main', 'controller' => 'crud', 'action' => 'delete', 'url' => "$apixBase/delete?id=" ]
 ]) ?>

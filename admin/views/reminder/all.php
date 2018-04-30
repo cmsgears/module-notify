@@ -9,6 +9,7 @@ use cmsgears\widgets\grid\DataGrid;
 
 $coreProperties = $this->context->getCoreProperties();
 $this->title	= 'Reminders | ' . $coreProperties->getSiteTitle();
+$apixBase		= $this->context->apixBase;
 
 // View Templates
 $moduleTemplates	= '@cmsgears/module-notify/admin/views/templates';
@@ -62,11 +63,11 @@ $themeTemplates		= '@themes/admin/views/templates';
 <?= Popup::widget([
 	'title' => 'Apply Bulk Action', 'size' => 'medium',
 	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'bulk',
-	'data' => [ 'model' => 'Reminder', 'app' => 'main', 'controller' => 'crud', 'action' => 'bulk', 'url' => "notify/reminder/bulk" ]
+	'data' => [ 'model' => 'Reminder', 'app' => 'main', 'controller' => 'crud', 'action' => 'bulk', 'url' => "$apixBase/bulk" ]
 ]) ?>
 
 <?= Popup::widget([
 	'title' => 'Delete Reminder', 'size' => 'medium',
 	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'delete',
-	'data' => [ 'model' => 'Reminder', 'app' => 'main', 'controller' => 'crud', 'action' => 'delete', 'url' => "notify/reminder/delete?id=" ]
+	'data' => [ 'model' => 'Reminder', 'app' => 'main', 'controller' => 'crud', 'action' => 'delete', 'url' => "$apixBase/delete?id=" ]
 ]) ?>
