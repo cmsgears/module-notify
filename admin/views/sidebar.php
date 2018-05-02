@@ -77,6 +77,7 @@ $rcount	= $stats[ 'reminderCount' ];
 		<div class="tab-content clear <?= $parent == 'sidebar-announcement' ? 'expanded visible' : null ?>">
 			<ul>
 				<li class="announcement <?= $child == 'announcement' ? 'active' : null ?>"><?= Html::a( "Announcements", [ '/notify/announcement/all' ] ) ?></li>
+				<li class="template <?= $child == 'template' ? 'active' : null ?>"><?= Html::a( "Templates", [ '/notify/announcement/template/all' ] ) ?></li>
 			</ul>
 		</div>
 	</div>
