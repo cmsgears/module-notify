@@ -94,7 +94,7 @@ class EventParticipant extends Mapper {
 			// Required, Safe
 			[ [ 'eventId', 'userId' ], 'required' ],
 			// Unique
-			[ [ 'eventId', 'userId' ], 'unique', 'targetAttribute' => [ 'eventId', 'userId' ] ],
+			[ [ 'eventId', 'userId' ], 'unique', 'targetAttribute' => [ 'eventId', 'userId' ], 'comboNotUnique' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_EXIST ) ],
 			// Other
 			[ 'active', 'boolean' ],
 			[ [ 'eventId', 'userId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
