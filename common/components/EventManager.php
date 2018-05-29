@@ -325,15 +325,15 @@ class EventManager extends BaseEventManager {
 
 		$user =	Yii::$app->user->getIdentity();
 
+		$config['parentId'] = $model->id;
+		$config['parentType'] = $service->getParentType();
+		$config['userId'] = $user->getId();
+		$config['title'] = $title;
+		
 		$this->triggerActivity(
 			$slug,
 			[ 'model' => $model, 'service' => $service, 'user' => $user ],
-			[
-				'parentId' => $model->id,
-				'parentType' => $service->getParentType(),
-				'userId' => $user->getId(),
-				'title' => $title
-			]
+			$config
 		);
 	}
 
