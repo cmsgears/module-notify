@@ -47,7 +47,7 @@ $themeTemplates		= '@themes/admin/views/templates';
 		'bulk' => 'Action',
 		'title' => 'Title',
 		'alink' => [ 'title' => 'Follow', 'generate' => function( $model ) {
-			return isset( $model->adminLink ) ? "<a href=\"" . Url::to( [ $model->adminLink ] . "\">View</a>", true ) : null;
+			return isset( $model->adminLink ) ? "<a href='" . Url::to( [ $model->adminLink ], true) . "'>View</a>" : null;
 		} ],
 		'consumed' => [ 'title' => 'Read', 'generate' => function( $model ) { return $model->getConsumedStr(); } ],
 		'trash' => [ 'title' => 'Trash', 'generate' => function( $model ) { return $model->getTrashStr(); } ],
