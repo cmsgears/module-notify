@@ -43,6 +43,7 @@ class EventManager extends BaseEventManager {
 	protected $notificationService;
 	protected $reminderService;
 	protected $activityService;
+	protected $announcementService;
 
 	// Private ----------------
 
@@ -58,6 +59,7 @@ class EventManager extends BaseEventManager {
 		$this->notificationService	= Yii::$app->factory->get( 'notificationService' );
 		$this->reminderService		= Yii::$app->factory->get( 'reminderService' );
 		$this->activityService		= Yii::$app->factory->get( 'activityService' );
+		$this->announcementService	= Yii::$app->factory->get( 'announcementService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -106,6 +108,7 @@ class EventManager extends BaseEventManager {
 	public function getUserStats() {
 
 		$user = Yii::$app->user->getIdentity();
+		$site = Yii::$app->core->site;
 
 		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
 		$newNotifications	= $this->notificationService->getUserCount( $user->id, false, false );
@@ -113,14 +116,24 @@ class EventManager extends BaseEventManager {
 		$reminders		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
 		$newReminders	= $this->reminderService->getUserCount( $user->id, false, false );
 
+		$activities		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
+		$newActivities	= $this->activityService->getCount( false, true );
+
+		$announcements	= $this->announcementService->getRecentByParent( $site->id, CoreGlobal::TYPE_SITE );
+
 		// Results
-		$stats	= parent::getAdminStats();
+		$stats	= parent::getUserStats();
 
 		$stats[ 'notifications' ]		= $notifications;
 		$stats[ 'notificationCount' ]	= $newNotifications;
 
 		$stats[ 'reminders' ]		= $reminders;
 		$stats[ 'reminderCount' ]	= $newReminders;
+
+		$stats[ 'activities' ]		= $activities;
+		$stats[ 'activityCount' ]	= $newActivities;
+
+		$stats[ 'announcements' ] = $announcements;
 
 		return $stats;
 	}
@@ -132,15 +145,20 @@ class EventManager extends BaseEventManager {
 	 *
 	 * * Generates notification message using given template slug, models and config. Template manager will be used to generate this message.
 	 *
-	 * * Load the template config from it's data attribute.
+	 * * Load the template configuration from it's data attribute.
 	 *
 	 * * Configure notification attributes i.e. parentId, parentType, link and title.
 	 *
-	 * * Trigger notification for admin if template config for admin is set and also trigger mail to admin if required.
+	 * * Trigger notification for admin if template configuration for admin is set and also trigger mail to admin if required.
 	 *
 	 * * Trigger notification for multiple users and also trigger user mail if required.
 	 *
-	 * * Trgger notification for model in case admin or user are turned off. The provided email will be used to trigger mail.
+	 * * Trigger notification for model in case admin or user are turned off. The provided email will be used to trigger mail.
+	 *
+	 * @param string $slug - template slug
+	 * @param array $data - data passed to the template engine for generating the message
+	 * @param array $config - configuration to generate the notification
+	 * @return boolean
 	 */
 	public function triggerNotification( $slug, $data, $config = [] ) {
 
@@ -202,7 +220,7 @@ class EventManager extends BaseEventManager {
 		}
 
 		// Trigger for Admin
-		if( $templateConfig->admin ) {
+		if( $templateConfig->admin && $config[ 'admin' ] ) {
 
 			$notification->admin = true;
 
@@ -222,7 +240,7 @@ class EventManager extends BaseEventManager {
 		}
 
 		// Trigger for Users
-		if( $templateConfig->user ) {
+		if( $templateConfig->user && count( $config[ 'users' ] ) > 0 ) {
 
 			$users = $config[ 'users' ];
 
@@ -230,7 +248,7 @@ class EventManager extends BaseEventManager {
 
 				$userNotification = $this->notificationService->getModelObject();
 
-				$userNotification->copyForUpdateFrom( $notification, [ 'parentId', 'parentType', 'title', 'consumed', 'trash', 'link', 'content', 'createdBy' ] );
+				$userNotification->copyForUpdateFrom( $notification, [ 'createdBy', 'parentId', 'parentType', 'title', 'description', 'type', 'consumed', 'trash', 'link', 'content', 'data' ] );
 
 				$userNotification->userId	= $userId;
 				$userNotification->admin	= false;
@@ -247,10 +265,14 @@ class EventManager extends BaseEventManager {
 		}
 
 		// Trigger for Model
-		if( $templateConfig->directEmail ) {
+		if( $templateConfig->detectEmail && $config[ 'direct' ] ) {
+
+			$modelNotification = $this->notificationService->getModelObject();
+
+			$modelNotification->copyForUpdateFrom( $notification, [ 'createdBy', 'parentId', 'parentType', 'title', 'description', 'type', 'consumed', 'trash', 'link', 'content', 'data' ] );
 
 			// Create Notification
-			$this->notificationService->create( $notification, $config );
+			$this->notificationService->create( $modelNotification, $config );
 
 			// Detect Email
 			$model		= $data[ 'model' ];
@@ -263,6 +285,8 @@ class EventManager extends BaseEventManager {
 				Yii::$app->notifyMailer->sendDirectMail( $message, $config[ 'email' ] );
 			}
 		}
+
+		return true;
 	}
 
 	public function deleteNotificationsByUserId( $userId, $config = [] ) {
@@ -329,7 +353,7 @@ class EventManager extends BaseEventManager {
 		$config['parentType'] = $service->getParentType();
 		$config['userId'] = $user->getId();
 		$config['title'] = $title;
-		
+
 		$this->triggerActivity(
 			$slug,
 			[ 'model' => $model, 'service' => $service, 'user' => $user ],

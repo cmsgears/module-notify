@@ -23,9 +23,9 @@ class Mailer extends BaseMailer {
 
 	// Globals ----------------
 
-	const MAIL_ADMIN	= "admin";
-	const MAIL_USER		= "user";
-	const MAIL_DIRECT	= "direct";
+	const MAIL_ADMIN	= 'admin';
+	const MAIL_USER		= 'user';
+	const MAIL_DIRECT	= 'direct';
 
 	// Public -----------------
 
@@ -61,7 +61,7 @@ class Mailer extends BaseMailer {
 		$toEmail = $this->mailProperties->getContactEmail();
 
 		// Send Mail
-		$this->getMailer()->compose( self::MAIL_ADMIN, [ 'coreProperties' => $this->coreProperties, 'message' => $message ] )
+		$this->getMailer()->compose( self::MAIL_ADMIN, [ 'coreProperties' => $this->coreProperties, 'email' => $toEmail, 'message' => $message ] )
 			->setTo( $toEmail )
 			->setFrom( [ $fromEmail => $fromName ] )
 			->setSubject( "Notification | " . $this->coreProperties->getSiteName() )
@@ -91,7 +91,7 @@ class Mailer extends BaseMailer {
 		$fromName 	= $this->mailProperties->getSenderName();
 
 		// Send Mail
-		$this->getMailer()->compose( self::MAIL_DIRECT, [ 'coreProperties' => $this->coreProperties, 'message' => $message ] )
+		$this->getMailer()->compose( self::MAIL_DIRECT, [ 'coreProperties' => $this->coreProperties, 'email' => $email, 'message' => $message ] )
 			->setTo( $email )
 			->setFrom( [ $fromEmail => $fromName ] )
 			->setSubject( "Notification | " . $this->coreProperties->getSiteName() )

@@ -52,6 +52,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  * @property string $adminLink
  * @property datetime $createdAt
  * @property datetime $modifiedAt
+ * @property datetime $expiresAt
  * @property string $content
  * @property string $data
  * @property string $gridCache
@@ -193,7 +194,7 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 			[ 'gridCacheValid', 'boolean' ],
 			[ [ 'status', 'access' ], 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ [ 'siteId', 'bannerId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
-			[ [ 'createdAt', 'modifiedAt', 'gridCachedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
+			[ [ 'createdAt', 'modifiedAt', 'expiresAt', 'gridCachedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
 
 		return $rules;

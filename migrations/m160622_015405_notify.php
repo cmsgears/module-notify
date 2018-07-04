@@ -217,6 +217,7 @@ class m160622_015405_notify extends Migration {
 			'adminLink' => $this->string( Yii::$app->core->xxxLargeText )->defaultValue( null ),
 			'createdAt' => $this->dateTime()->notNull(),
 			'modifiedAt' => $this->dateTime(),
+			'expiresAt' => $this->dateTime(),
 			'content' => $this->mediumText(),
 			'data' => $this->mediumText(),
 			'gridCache' => $this->longText(),

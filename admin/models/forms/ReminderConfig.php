@@ -35,7 +35,7 @@ class ReminderConfig extends DataModel {
 
 	public $userEmail	= false;
 
-	public $detectEmail	= false;
+	public $direct		= false;
 
 	// Protected --------------
 
@@ -64,8 +64,8 @@ class ReminderConfig extends DataModel {
 	public function rules() {
 
 		$rules = [
-			[ [ 'admin', 'user', 'adminEmail', 'userEmail', 'detectEmail' ], 'required' ],
-			[ [ 'admin', 'user', 'adminEmail', 'userEmail', 'detectEmail' ], 'boolean' ]
+			[ [ 'admin', 'user', 'adminEmail', 'userEmail', 'direct' ], 'required' ],
+			[ [ 'admin', 'user', 'adminEmail', 'userEmail', 'direct' ], 'boolean' ]
 		];
 
 		return $rules;
@@ -78,7 +78,7 @@ class ReminderConfig extends DataModel {
 			'user' => 'User',
 			'adminEmail' => 'Admin Email',
 			'userEmail' => 'User Email',
-			'detectEmail' => 'Detect Email'
+			'direct' => 'Model'
 		];
 	}
 

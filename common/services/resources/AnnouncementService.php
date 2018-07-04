@@ -250,6 +250,8 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 		$siteId = Yii::$app->core->siteId;
 
+		$config[ 'conditions' ] = isset( $config[ 'conditions' ] ) ? $config[ 'conditions' ] : [];
+
 		return $modelClass::queryByParent( $parentId, $parentType )->andWhere( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt ASC' )->andWhere([ 'siteId' => $siteId ])->all();
 	}
 
@@ -284,7 +286,7 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 	public function update( $model, $config = [] ) {
 
 		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
-		$attributes	= isset( $config[ 'attributes' ] ) ? $config[ 'attributes' ] : [ 'bannerId', 'title', 'description', 'link', 'adminLink', 'content' ];
+		$attributes	= isset( $config[ 'attributes' ] ) ? $config[ 'attributes' ] : [ 'bannerId', 'title', 'description', 'link', 'adminLink', 'expiresAt', 'content' ];
 
 		$banner = isset( $config[ 'banner' ] ) ? $config[ 'banner' ] : null;
 
