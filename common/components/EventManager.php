@@ -190,6 +190,8 @@ class EventManager extends BaseEventManager {
 		$notification->trash	= false;
 		$notification->content	= $message;
 
+		$notification->type = $config['type'] ?? 'default';
+
 		if( isset( $config[ 'createdBy' ] ) ) {
 
 			$notification->createdBy = $config[ 'createdBy' ];
