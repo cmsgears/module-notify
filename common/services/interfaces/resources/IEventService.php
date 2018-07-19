@@ -43,7 +43,11 @@ interface IEventService extends IModelResourceService {
 
 	public function updateStatus( $model, $status );
 
-	public function trash( $model );
+	public function cancel( $model );
+
+	public function activate( $model );
+
+	public function expire( $model );
 
 	// Delete -------------
 

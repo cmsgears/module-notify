@@ -198,7 +198,7 @@ class EventReminder extends Resource implements IData, IOwner, IToggle {
 	 */
 	public static function queryWithEvent( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'event' ];
+		$config[ 'relations' ] = [ 'event' ];
 
 		return parent::queryWithAll( $config );
 	}
@@ -211,7 +211,7 @@ class EventReminder extends Resource implements IData, IOwner, IToggle {
 	 */
 	public static function queryWithUser( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'user' ];
+		$config[ 'relations' ] = [ 'user' ];
 
 		return parent::queryWithAll( $config );
 	}

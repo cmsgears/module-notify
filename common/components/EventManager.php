@@ -110,15 +110,19 @@ class EventManager extends BaseEventManager {
 		$user = Yii::$app->user->getIdentity();
 		$site = Yii::$app->core->site;
 
+		// User Notifications
 		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
 		$newNotifications	= $this->notificationService->getUserCount( $user->id, false, false );
 
+		// User Reminders
 		$reminders		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
 		$newReminders	= $this->reminderService->getUserCount( $user->id, false, false );
 
-		$activities		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
+		// User Activities
+		$activities		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
 		$newActivities	= $this->activityService->getCount( false, true );
 
+		// Site Announcements
 		$announcements	= $this->announcementService->getRecentByParent( $site->id, CoreGlobal::TYPE_SITE );
 
 		// Results

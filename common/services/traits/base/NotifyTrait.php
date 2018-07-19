@@ -46,7 +46,12 @@ trait NotifyTrait {
 
 		$siteId = Yii::$app->core->siteId;
 
-		return $modelClass::find()->where( $config[ 'conditions' ] )->andWhere( [ 'siteId' => $siteId ] )->limit( $limit )->orderBy( 'createdAt DESC' )->all();
+		return $modelClass::find()
+			->where( $config[ 'conditions' ] )
+			->andWhere( [ 'siteId' => $siteId ] )
+			->limit( $limit )
+			->orderBy( 'createdAt DESC' )
+			->all();
 	}
 
 	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
@@ -55,7 +60,11 @@ trait NotifyTrait {
 
 		$siteId = Yii::$app->core->siteId;
 
-		return $modelClass::queryByParent( $parentId, $parentType )->andWhere( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt ASC' )->andWhere([ 'siteId' => $siteId ])->all();
+		return $modelClass::queryByParent( $parentId, $parentType )
+			->andWhere( $config[ 'conditions' ] )
+			->limit( $limit )->orderBy( 'createdAt ASC' )
+			->andWhere( [ 'siteId' => $siteId ] )
+			->all();
 	}
 
 	public function getCount( $consumed = false, $admin = false ) {
@@ -64,7 +73,10 @@ trait NotifyTrait {
 
 		$siteId = Yii::$app->core->siteId;
 
-		return $modelClass::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
+		return $modelClass::find()
+			->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
+			->andWhere( [ 'siteId' => $siteId ] )
+			->count();
 	}
 
 	public function getUserCount( $userId, $consumed = false, $admin = false ) {
@@ -73,7 +85,10 @@ trait NotifyTrait {
 
 		$siteId = Yii::$app->core->siteId;
 
-		return $modelClass::queryByUserId( $userId )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
+		return $modelClass::queryByUserId( $userId )
+			->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
+			->andWhere( [ 'siteId' => $siteId ] )
+			->count();
 	}
 
 	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
@@ -82,7 +97,10 @@ trait NotifyTrait {
 
 		$siteId = Yii::$app->core->siteId;
 
-		return $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->andWhere([ 'siteId' => $siteId ])->count();
+		return $modelClass::queryByParent( $parentId, $parentType )
+			->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
+			->andWhere( [ 'siteId' => $siteId ] )
+			->count();
 	}
 
 }

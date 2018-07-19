@@ -72,16 +72,15 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 	const STATUS_NEW		=   0;
 	const STATUS_APPROVED	= 100;
 	const STATUS_ACTIVE		= 200;
-	const STATUS_PAUSED		= 300;
-	const STATUS_EXPIRED	= 400;
+	const STATUS_EXPIRED	= 300;
 
 	// App Only
 	const ACCESS_APP		= 100; // Directly available on App without admin intervention
 
 	// Admin, App
 	const ACCESS_APP_ACT	= 200; // Available on App with admin intervention
-	const ACCESS_ADMIN		= 300; // Available only on Admin
-	const ACCESS_APP_ADMIN	= 400; // Available on both Admin and App
+	const ACCESS_APP_ADMIN	= 300; // Available on both Admin and App
+	const ACCESS_ADMIN		= 400; // Available only on Admin
 
 	// Public -----------------
 
@@ -89,7 +88,6 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 		self::STATUS_NEW => 'New',
 		self::STATUS_APPROVED => 'Approved',
 		self::STATUS_ACTIVE => 'Active',
-		self::STATUS_PAUSED => 'Paused',
 		self::STATUS_EXPIRED => 'Expired'
 	];
 
@@ -98,7 +96,6 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 		'New' => self::STATUS_NEW,
 		'Approved' => self::STATUS_APPROVED,
 		'Active' => self::STATUS_ACTIVE,
-		'Paused' => self::STATUS_PAUSED,
 		'Expired' => self::STATUS_EXPIRED
 	];
 
@@ -107,23 +104,22 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 		'new' => self::STATUS_NEW,
 		'approved' => self::STATUS_APPROVED,
 		'active' => self::STATUS_ACTIVE,
-		'paused' => self::STATUS_PAUSED,
 		'expired' => self::STATUS_EXPIRED
 	];
 
 	public static $accessMap = [
 		self::ACCESS_APP => 'App',
 		self::ACCESS_APP_ACT => 'App Act',
-		self::ACCESS_ADMIN => 'Admin',
-		self::ACCESS_APP_ADMIN => 'App & Admin'
+		self::ACCESS_APP_ADMIN => 'App & Admin',
+		self::ACCESS_ADMIN => 'Admin'
 	];
 
 	// Used for url params
 	public static $urlRevAccessMap = [
 		'app' => self::ACCESS_APP,
 		'appact' => self::ACCESS_APP_ACT,
-		'admin' => self::ACCESS_ADMIN,
-		'appadmin' => self::ACCESS_APP_ADMIN
+		'appadmin' => self::ACCESS_APP_ADMIN,
+		'admin' => self::ACCESS_ADMIN
 	];
 
 	// Protected --------------
@@ -269,16 +265,6 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 	public function isActive() {
 
 		return $this->status == self::STATUS_ACTIVE;
-	}
-
-	/**
-	 * Check whether announcement is paused.
-	 *
-	 * @return boolean
-	 */
-	public function isPaused() {
-
-		return $this->status == self::STATUS_PAUSED;
 	}
 
 	/**

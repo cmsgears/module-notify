@@ -67,7 +67,7 @@ class NotificationController extends Controller {
 			'verbs' => [
 				'class' => VerbFilter::class,
 				'actions' => [
-					'index' => [ 'get', 'post' ],
+					'index' => [ 'get' ],
 					'all'  => [ 'get' ]
 				]
 			]

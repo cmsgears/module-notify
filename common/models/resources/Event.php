@@ -101,24 +101,37 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 
 	const TYPE_DEFAULT	= 'default';
 
-	const STATUS_NEW	= 	  0;
-	const STATUS_TRASH	= 20000;
+	const STATUS_NEW		= 	  0;
+	const STATUS_CANCELLED	= 	100;
+	const STATUS_ACTIVE		=  1000;
+	const STATUS_EXPIRED	=  2000;
 
 	// Constants --------------
 
+	public static $statusMinMap = [
+		self::STATUS_NEW => 'New',
+		self::STATUS_ACTIVE => 'Active'
+	];
+
 	public static $statusMap = [
 		self::STATUS_NEW => 'New',
-		self::STATUS_TRASH => 'Trash'
+		self::STATUS_CANCELLED => 'Cancelled',
+		self::STATUS_ACTIVE => 'Active',
+		self::STATUS_EXPIRED => 'Expired'
 	];
 
 	public static $revStatusMap = [
 		'New' => self::STATUS_NEW,
-		'Trash' => self::STATUS_TRASH
+		'Cancelled' => self::STATUS_CANCELLED,
+		'Active' => self::STATUS_ACTIVE,
+		'Expired' => self::STATUS_EXPIRED
 	];
 
 	public static $urlRevStatusMap = [
 		'new' => self::STATUS_NEW,
-		'trash' => self::STATUS_TRASH
+		'cancelled' => self::STATUS_CANCELLED,
+		'active' => self::STATUS_ACTIVE,
+		'expired' => self::STATUS_EXPIRED
 	];
 
 	// Public -----------------
@@ -242,7 +255,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 			'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
 			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT ),
 			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA ),
-			'gridCache' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_GRID_CACHE )
+			'gridCache' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_GRID_CACHE ),
+			'scheduleDate' => 'Schedule Date',
+			'scheduleTime' => 'Schedule Time'
 		];
 	}
 
@@ -336,6 +351,36 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 		$unit = DateUtil::$durationMap[ $this->postIntervalUnit ];
 
 		return "$this->postReminderInterval $unit" . 's';
+	}
+
+	public function isNew() {
+
+		return $this->status == self::STATUS_NEW;
+	}
+
+	public function isCancelled() {
+
+		return $this->status == self::STATUS_CANCELLED;
+	}
+
+	public function isActive() {
+
+		return $this->status == self::STATUS_ACTIVE;
+	}
+
+	public function isCancellable() {
+
+		return $this->status == self::STATUS_NEW || $this->status == self::STATUS_ACTIVE;
+	}
+
+	public function isActivable() {
+
+		return $this->status == self::STATUS_NEW || $this->status == self::STATUS_CANCELLED;
+	}
+
+	public function isEditable() {
+
+		return $this->status < self::STATUS_EXPIRED;
 	}
 
 	// Static Methods ----------------------------------------------

@@ -17,11 +17,11 @@ use yii\filters\VerbFilter;
 use cmsgears\core\frontend\controllers\base\Controller;
 
 /**
- * EventController provides actions specific to user reminders.
+ * AnnouncementController provides actions specific to site announcements.
  *
  * @since 1.0.0
  */
-class EventController extends Controller {
+class AnnouncementController extends Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -40,7 +40,7 @@ class EventController extends Controller {
 		parent::init();
 
 		// Services
-		$this->modelService	= Yii::$app->factory->get( 'eventService' );
+		$this->modelService	= Yii::$app->factory->get( 'announcementService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -77,7 +77,7 @@ class EventController extends Controller {
 
 	// CMG parent classes --------------------
 
-	// EventController -----------------------
+	// ActivityController --------------------
 
 	public function actionIndex() {
 
@@ -87,7 +87,7 @@ class EventController extends Controller {
 	public function actionAll() {
 
 		$user			= Yii::$app->user->getIdentity();
-		$dataProvider	= $this->modelService->getPageByUserId( $user->id );
+		$dataProvider	= $this->modelService->getPageForSite();
 
 		return $this->render( 'all', [
 			'dataProvider' => $dataProvider

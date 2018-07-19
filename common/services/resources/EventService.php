@@ -325,6 +325,18 @@ class EventService extends ModelResourceService implements IEventService {
 
 	// Read - Models ---
 
+	public function getByRangeUserId( $startDate, $endDate, $userId ) {
+
+		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
+
+		$conditions = [ "$modelTable.scheduledAt BETWEEN $startDate AND $endDate", 'userId' => $userId ];
+
+		$query = $modelClass::queryWithUser( $conditions );
+
+		return $query->all();
+	}
+
 	// Read - Lists ----
 
 	// Read - Maps -----
@@ -340,7 +352,7 @@ class EventService extends ModelResourceService implements IEventService {
 		$video	= isset( $config[ 'video' ] ) ? $config[ 'video' ] : null;
 
 		// Save resources
-		$this->fileService->saveFiles( $model, [ 'avatarId' => $banner, 'bannerId' => $banner, 'videoId' => $video ] );
+		$this->fileService->saveFiles( $model, [ 'avatarId' => $avatar, 'bannerId' => $banner, 'videoId' => $video ] );
 
 		return parent::create( $model, $config );
 	}
@@ -380,9 +392,29 @@ class EventService extends ModelResourceService implements IEventService {
 		]);
 	}
 
-	public function trash( $model ) {
+	public function cancel( $model ) {
 
-		return $this->updateStatus( $model, Event::STATUS_TRASH );
+		if( $model->isCancellable() ) {
+
+			return $this->updateStatus( $model, Event::STATUS_CANCELLED );
+		}
+
+		return false;
+	}
+
+	public function activate( $model ) {
+
+		if( $model->isActivable() ) {
+
+			return $this->updateStatus( $model, Event::STATUS_ACTIVE );
+		}
+
+		return false;
+	}
+
+	public function expire( $model ) {
+
+		return $this->updateStatus( $model, Event::STATUS_EXPIRED );
 	}
 
 	// Delete -------------
@@ -397,9 +429,15 @@ class EventService extends ModelResourceService implements IEventService {
 
 				switch( $action ) {
 
-					case 'trash': {
+					case 'cancelled': {
 
-						$this->trash( $model );
+						$this->cancel( $model );
+
+						break;
+					}
+					case 'active': {
+
+						$this->activate( $model );
 
 						break;
 					}

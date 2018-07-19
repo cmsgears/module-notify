@@ -15,6 +15,7 @@ use yii\data\Sort;
 use yii\helpers\ArrayHelper;
 
 // CMG Imports
+use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\models\resources\Announcement;
@@ -214,6 +215,15 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 		return $this->getPage( [ 'conditions' => [ "$modelTable.access >=" . Announcement::ACCESS_APP ] ] );
 	}
 
+	public function getPageForSite() {
+
+		$modelTable	= $this->getModelTable();
+
+		$siteId = Yii::$app->core->site->id;
+
+		return $this->getPage( [ 'conditions' => [ "$modelTable.parentId" => $siteId, "$modelTable.parentType" => CoreGlobal::TYPE_SITE, "$modelTable.access < " . Announcement::ACCESS_ADMIN ] ] );
+	}
+
 	public function getPageByParent( $parentId, $parentType, $admin = false ) {
 
 		$modelTable	= $this->getModelTable();
@@ -239,9 +249,14 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 		$siteId = Yii::$app->core->siteId;
 
-		$config[ 'conditions' ][] = "$modelTable.access >=" . Announcement::ACCESS_ADMIN;
+		$config[ 'conditions' ][] = "$modelTable.access >=" . Announcement::ACCESS_APP_ADMIN;
 
-		return $modelClass::find()->where( $config[ 'conditions' ] )->andWhere( [ 'siteId' => $siteId ] )->limit( $limit )->orderBy( 'createdAt DESC' )->all();
+		return $modelClass::find()
+			->where( $config[ 'conditions' ] )
+			->andWhere( [ 'siteId' => $siteId, 'status' => $modelClass::STATUS_ACTIVE ] )
+			->limit( $limit )
+			->orderBy( 'createdAt DESC' )
+			->all();
 	}
 
 	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
@@ -252,7 +267,11 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 		$config[ 'conditions' ] = isset( $config[ 'conditions' ] ) ? $config[ 'conditions' ] : [];
 
-		return $modelClass::queryByParent( $parentId, $parentType )->andWhere( $config[ 'conditions' ] )->limit( $limit )->orderBy( 'createdAt ASC' )->andWhere([ 'siteId' => $siteId ])->all();
+		return $modelClass::queryByParent( $parentId, $parentType )
+			->andWhere( $config[ 'conditions' ] )
+			->andWhere( [ 'siteId' => $siteId, 'status' => $modelClass::STATUS_ACTIVE ] )
+			->limit( $limit )->orderBy( 'createdAt ASC' )
+			->all();
 	}
 
 	// Read - Lists ----
@@ -322,11 +341,6 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 		return $this->updateStatus( $model, Announcement::STATUS_ACTIVE );
 	}
 
-	public function pause( $model ) {
-
-		return $this->updateStatus( $model, Announcement::STATUS_PAUSED );
-	}
-
 	public function expire( $model ) {
 
 		return $this->updateStatus( $model, Announcement::STATUS_EXPIRED );
@@ -374,12 +388,6 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 					case 'active': {
 
 						$this->activate( $model );
-
-						break;
-					}
-					case 'paused': {
-
-						$this->pause( $model );
 
 						break;
 					}

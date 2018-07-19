@@ -23,6 +23,8 @@ interface IAnnouncementService extends IModelResourceService {
 
 	public function getPageForAdmin();
 
+	public function getPageForSite();
+
 	public function getPageByParent( $parentId, $parentType, $admin = false );
 
 	// Read ---------------
@@ -48,8 +50,6 @@ interface IAnnouncementService extends IModelResourceService {
 	public function approve( $model );
 
 	public function activate( $model );
-
-	public function pause( $model );
 
 	public function expire( $model );
 

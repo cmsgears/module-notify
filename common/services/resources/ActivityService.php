@@ -14,6 +14,8 @@ use Yii;
 use yii\data\Sort;
 
 // CMG Imports
+use cmsgears\core\common\config\CoreGlobal;
+
 use cmsgears\notify\common\services\interfaces\resources\IActivityService;
 
 use cmsgears\core\common\services\base\ModelResourceService;
@@ -234,6 +236,31 @@ class ActivityService extends ModelResourceService implements IActivityService {
 		return parent::getPage( $config );
 	}
 
+	public function getPageByUserId( $userId ) {
+
+		$modelTable	= $this->getModelTable();
+
+		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId, "$modelTable.type" => CoreGlobal::TYPE_USER ] ] );
+	}
+
+	public function getPageByParent( $parentId, $parentType, $admin = false ) {
+
+		$modelTable	= $this->getModelTable();
+
+		$conditions = [ "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType ];
+
+		if( $admin ) {
+
+			$conditions[ "$modelTable.admin" ] = $admin;
+		}
+		else {
+
+			$conditions[ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
+		}
+
+		return $this->getPage( [ 'conditions' => $conditions ] );
+	}
+
 	// Read ---------------
 
 	// Read - Models ---
@@ -243,6 +270,52 @@ class ActivityService extends ModelResourceService implements IActivityService {
 	// Read - Maps -----
 
 	// Read - Others ---
+
+	public function getUserCount( $userId, $consumed = false, $admin = false ) {
+
+		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
+
+		$siteId = Yii::$app->core->siteId;
+
+		$conditions = [ "$modelTable.consumed" => $consumed, 'siteId' => $siteId ];
+
+		if( $admin ) {
+
+			$conditions[ "$modelTable.admin" ] = $admin;
+		}
+		else {
+
+			$conditions[ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
+		}
+
+		return $modelClass::queryByUserId( $userId )
+			->andWhere( $conditions )
+			->count();
+	}
+
+	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
+
+		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
+
+		$siteId = Yii::$app->core->siteId;
+
+		$conditions = [ "$modelTable.consumed" => $consumed, 'siteId' => $siteId ];
+
+		if( $admin ) {
+
+			$conditions[ "$modelTable.admin" ] = $admin;
+		}
+		else {
+
+			$conditions[ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
+		}
+
+		return $modelClass::queryByParent( $parentId, $parentType )
+			->andWhere( $conditions )
+			->count();
+	}
 
 	// Create -------------
 
