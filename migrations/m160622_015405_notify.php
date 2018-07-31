@@ -139,6 +139,8 @@ class m160622_015405_notify extends Migration {
 			'siteId' => $this->bigInteger( 20 )->notNull(),
 			'eventId' => $this->bigInteger( 20 )->notNull(),
 			'userId' => $this->bigInteger( 20 ),
+			'parentId' => $this->bigInteger( 20 ),
+			'parentType' => $this->string( Yii::$app->core->mediumText ),
 			'title' => $this->string( Yii::$app->core->xxLargeText )->notNull(),
 			'description' => $this->string( Yii::$app->core->xtraLargeText )->notNull(),
 			'link' => $this->string( Yii::$app->core->xxxLargeText )->defaultValue( null ),
@@ -156,8 +158,8 @@ class m160622_015405_notify extends Migration {
 
 		// Index for columns user
 		$this->createIndex( 'idx_' . $this->prefix . 'event_reminder_site', $this->prefix . 'notify_event_reminder', 'siteId' );
-
 		$this->createIndex( 'idx_' . $this->prefix . 'event_reminder_parent', $this->prefix . 'notify_event_reminder', 'eventId' );
+		$this->createIndex( 'idx_' . $this->prefix . 'event_reminder_mparent', $this->prefix . 'notify_event_reminder', 'parentId' );
 		$this->createIndex( 'idx_' . $this->prefix . 'event_reminder_user', $this->prefix . 'notify_event_reminder', 'userId' );
 	}
 

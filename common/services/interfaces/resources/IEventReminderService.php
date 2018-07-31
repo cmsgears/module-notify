@@ -10,7 +10,8 @@
 namespace cmsgears\notify\common\services\interfaces\resources;
 
 // CMG Imports
-use cmsgears\core\common\services\interfaces\base\IResourceService;
+use cmsgears\core\common\services\interfaces\base\IModelResourceService;
+use cmsgears\notify\common\services\interfaces\base\INotify;
 use cmsgears\notify\common\services\interfaces\base\IToggle;
 
 /**
@@ -18,23 +19,13 @@ use cmsgears\notify\common\services\interfaces\base\IToggle;
  *
  * @since 1.0.0
  */
-interface IEventReminderService extends IResourceService, IToggle {
+interface IEventReminderService extends IModelResourceService, INotify, IToggle {
 
 	// Data Provider ------
-
-	public function getPageForAdmin();
-
-	public function getPageByUserId( $userId );
 
 	// Read ---------------
 
 	// Read - Models ---
-
-	public function getRecent( $limit = 5, $config = [] );
-
-	public function getCount( $consumed = false, $admin = false );
-
-	public function getUserCount( $userId, $consumed = false, $admin = false );
 
 	// Read - Lists ----
 

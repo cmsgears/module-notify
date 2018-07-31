@@ -142,6 +142,42 @@ class EventManager extends BaseEventManager {
 		return $stats;
 	}
 
+	public function getModelStats( $parentId, $parentType ) {
+
+		$site = Yii::$app->core->site;
+
+		// Model Notifications
+		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
+		$newNotifications	= $this->notificationService->getCountByParent( $parentId, $parentType, false, false );
+
+		// Model Reminders
+		$reminders		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
+		$newReminders	= $this->reminderService->getCountByParent( $parentId, $parentType, false, false );
+
+		// Model Activities
+		$activities		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
+		$newActivities	= $this->activityService->getCountByParent( $parentId, $parentType, false, false );
+
+		// Site Announcements
+		$announcements	= $this->announcementService->getRecentByParent( $site->id, CoreGlobal::TYPE_SITE );
+
+		// Results
+		$stats	= parent::getModelStats( $parentId, $parentType );
+
+		$stats[ 'notifications' ]		= $notifications;
+		$stats[ 'notificationCount' ]	= $newNotifications;
+
+		$stats[ 'reminders' ]		= $reminders;
+		$stats[ 'reminderCount' ]	= $newReminders;
+
+		$stats[ 'activities' ]		= $activities;
+		$stats[ 'activityCount' ]	= $newActivities;
+
+		$stats[ 'announcements' ] = $announcements;
+
+		return $stats;
+	}
+
 	// Notification Trigger ---
 
 	/**

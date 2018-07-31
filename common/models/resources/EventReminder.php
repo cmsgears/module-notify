@@ -20,7 +20,7 @@ use cmsgears\core\common\models\interfaces\base\IOwner;
 use cmsgears\core\common\models\interfaces\resources\IData;
 use cmsgears\notify\common\models\interfaces\base\IToggle;
 
-use cmsgears\core\common\models\base\Resource;
+use cmsgears\core\common\models\base\ModelResource;
 use cmsgears\core\common\models\entities\User;
 use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\notify\common\models\resources\Event;
@@ -36,6 +36,8 @@ use cmsgears\notify\common\models\traits\base\ToggleTrait;
  * @property integer $siteId
  * @property integer $eventId
  * @property integer $userId
+ * @property integer $parentId
+ * @property string $parentType
  * @property string $title
  * @property string $description
  * @property string $link
@@ -50,7 +52,7 @@ use cmsgears\notify\common\models\traits\base\ToggleTrait;
  * @property boolean $gridCacheValid
  * @property datetime $gridCachedAt
  */
-class EventReminder extends Resource implements IData, IOwner, IToggle {
+class EventReminder extends ModelResource implements IData, IOwner, IToggle {
 
 	// Variables ---------------------------------------------------
 
@@ -101,12 +103,13 @@ class EventReminder extends Resource implements IData, IOwner, IToggle {
 			[ [ 'siteId', 'eventId', 'scheduledAt' ], 'required' ],
 			[ [ 'id', 'content', 'data', 'gridCache' ], 'safe' ],
 			// Text Limit
+			[ 'parentType', 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
 			[ [ 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxxLargeText ],
 			[ 'description', 'string', 'min' => 1, 'max' => Yii::$app->core->xtraLargeText ],
 			// Other
 			[ [ 'admin', 'consumed', 'trash', 'gridCacheValid' ], 'boolean' ],
-			[ [ 'eventId', 'userId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ [ 'eventId', 'userId', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ 'scheduledAt', 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
 

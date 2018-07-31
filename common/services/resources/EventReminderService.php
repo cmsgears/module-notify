@@ -18,8 +18,9 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\services\interfaces\resources\IEventReminderService;
 
-use cmsgears\core\common\services\base\ResourceService;
+use cmsgears\core\common\services\base\ModelResourceService;
 
+use cmsgears\notify\common\services\traits\base\NotifyTrait;
 use cmsgears\notify\common\services\traits\base\ToggleTrait;
 
 /**
@@ -27,7 +28,7 @@ use cmsgears\notify\common\services\traits\base\ToggleTrait;
  *
  * @since 1.0.0
  */
-class EventReminderService extends ResourceService implements IEventReminderService {
+class EventReminderService extends ModelResourceService implements IEventReminderService {
 
 	// Variables ---------------------------------------------------
 
@@ -53,6 +54,7 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 
 	// Traits ------------------------------------------------------
 
+	use NotifyTrait;
 	use ToggleTrait;
 
 	// Constructor and Initialisation ------------------------------
@@ -218,29 +220,75 @@ class EventReminderService extends ResourceService implements IEventReminderServ
 		return $this->getPage( [ 'conditions' => [ "NOW() > $modelTable.scheduledAt", "$modelTable.userId" => $userId ] ] );
 	}
 
+	public function getPageByParent( $parentId, $parentType, $admin = false ) {
+
+		$modelTable	= $this->getModelTable();
+
+		return $this->getPage( [ 'conditions' => [ "NOW() > $modelTable.scheduledAt", "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType, "$modelTable.admin" => $admin ] ] );
+	}
+
 	// Read ---------------
 
 	// Read - Models ---
+
+	// TODO: Check for options to show collaborative irrespective of siteId
 
 	public function getRecent( $limit = 5, $config = [] ) {
 
 		$modelClass	= static::$modelClass;
 
-		return $modelClass::find()->where( $config[ 'conditions' ] )->andWhere( "scheduledAt <= NOW()" )->limit( $limit )->orderBy( 'scheduledAt ASC' )->all();
+		$siteId = Yii::$app->core->siteId;
+
+		return $modelClass::find()
+			->where( $config[ 'conditions' ] )
+			->andWhere( "scheduledAt <= NOW()" )
+			->andWhere( [ 'siteId' => $siteId ] )
+			->limit( $limit )->orderBy( 'scheduledAt ASC' )
+			->all();
+	}
+
+	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
+
+		$modelClass	= static::$modelClass;
+
+		$siteId = Yii::$app->core->siteId;
+
+		return $modelClass::queryByParent( $parentId, $parentType )
+			->andWhere( $config[ 'conditions' ] )
+			->andWhere( "scheduledAt <= NOW()" )
+			->andWhere( [ 'siteId' => $siteId ] )
+			->limit( $limit )->orderBy( 'scheduledAt ASC' )
+			->all();
 	}
 
 	public function getCount( $consumed = false, $admin = false ) {
 
 		$modelClass	= static::$modelClass;
 
-		return $modelClass::find()->where( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+		return $modelClass::find()
+			->where( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
+			->count();
 	}
 
 	public function getUserCount( $userId, $consumed = false, $admin = false ) {
 
 		$modelClass	= static::$modelClass;
 
-		return $modelClass::queryByUserId( $userId )->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+		return $modelClass::queryByUserId( $userId )
+			->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
+			->count();
+	}
+
+	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
+
+		$modelClass	= static::$modelClass;
+
+		$siteId = Yii::$app->core->siteId;
+
+		return $modelClass::queryByParent( $parentId, $parentType )
+			->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
+			->andWhere( [ 'siteId' => $siteId ] )
+			->count();
 	}
 
 	// Read - Lists ----
