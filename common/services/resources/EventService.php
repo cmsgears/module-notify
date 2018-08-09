@@ -332,7 +332,7 @@ class EventService extends ModelResourceService implements IEventService {
 
 		$conditions = [ "$modelTable.scheduledAt BETWEEN $startDate AND $endDate", 'userId' => $userId ];
 
-		$query = $modelClass::queryWithUser( $conditions );
+		$query = $modelClass::queryWithUser( [ 'conditions' => $conditions ] );
 
 		return $query->all();
 	}
