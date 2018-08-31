@@ -307,7 +307,7 @@ class EventManager extends BaseEventManager {
 		}
 
 		// Trigger for Model
-		if( $templateConfig->detectEmail && $config[ 'direct' ] ) {
+		if( $templateConfig->directEmail && $config[ 'direct' ] ) {
 
 			$modelNotification = $this->notificationService->getModelObject();
 

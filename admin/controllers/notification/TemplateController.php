@@ -107,7 +107,7 @@ class TemplateController extends BaseTemplateController {
 
 			$this->model = $this->modelService->create( $model, [ 'admin' => true ] );
 
-			$this->modelService->updateDataMeta( $model, CoreGlobal::DATA_CONFIG, $modelConfig );
+			$this->modelService->updateDataMeta( $this->model, CoreGlobal::DATA_CONFIG, $modelConfig );
 
 			return $this->redirect( 'all' );
 		}
@@ -135,7 +135,7 @@ class TemplateController extends BaseTemplateController {
 
 				$this->model = $this->modelService->update( $model, [ 'admin' => true ] );
 
-				$this->modelService->updateDataMeta( $model, CoreGlobal::DATA_CONFIG, $modelConfig );
+				$this->modelService->updateDataMeta( $this->model, CoreGlobal::DATA_CONFIG, $modelConfig );
 
 				return $this->redirect( $this->returnUrl );
 			}
