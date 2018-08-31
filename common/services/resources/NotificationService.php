@@ -254,8 +254,8 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 		$siteId = isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
 
-		$model->agent	= Yii::$app->request->userAgent ??  $config[ 'agent' ];
-		$model->ip	= Yii::$app->request->userIP ?? $config[ 'ip' ];
+		$model->agent	= Yii::$app->request->userAgent ?? $config[ 'agent' ];
+		$model->ip		= Yii::$app->request->userIP ?? $config[ 'ip' ];
 		$model->siteId	= $siteId;
 
 		return parent::create( $model, $config );
