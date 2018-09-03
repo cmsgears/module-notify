@@ -53,7 +53,7 @@ class Mailer extends BaseMailer {
 
 	// Admin Mails --------
 
-	public function sendAdminMail( $message ) {
+	public function sendAdminMail( $message, $template ) {
 
 		$fromEmail 	= $this->mailProperties->getSenderEmail();
 		$fromName 	= $this->mailProperties->getSenderName();
@@ -71,7 +71,7 @@ class Mailer extends BaseMailer {
 
 	// App Mails ----------
 
-	public function sendUserMail( $message, $user ) {
+	public function sendUserMail( $message, $user, $template ) {
 
 		$fromEmail 	= $this->mailProperties->getSenderEmail();
 		$fromName 	= $this->mailProperties->getSenderName();
@@ -85,7 +85,7 @@ class Mailer extends BaseMailer {
 			->send();
 	}
 
-	public function sendDirectMail( $message, $email ) {
+	public function sendDirectMail( $message, $email, $template ) {
 
 		$fromEmail 	= $this->mailProperties->getSenderEmail();
 		$fromName 	= $this->mailProperties->getSenderName();
