@@ -53,7 +53,7 @@ class Mailer extends BaseMailer {
 
 	// Admin Mails --------
 
-	public function sendAdminMail( $message, $template ) {
+	public function sendAdminMail( $message, $template, $data ) {
 
 		$fromEmail 	= $this->mailProperties->getSenderEmail();
 		$fromName 	= $this->mailProperties->getSenderName();
@@ -61,7 +61,7 @@ class Mailer extends BaseMailer {
 		$toEmail = $this->mailProperties->getContactEmail();
 
 		// Send Mail
-		$this->getMailer()->compose( self::MAIL_ADMIN, [ 'coreProperties' => $this->coreProperties, 'email' => $toEmail, 'message' => $message ] )
+		$this->getMailer()->compose( self::MAIL_ADMIN, [ 'coreProperties' => $this->coreProperties, 'email' => $toEmail, 'message' => $message, 'data' => $data ] )
 			->setTo( $toEmail )
 			->setFrom( [ $fromEmail => $fromName ] )
 			->setSubject( "Notification | " . $this->coreProperties->getSiteName() )
@@ -71,13 +71,13 @@ class Mailer extends BaseMailer {
 
 	// App Mails ----------
 
-	public function sendUserMail( $message, $user, $template ) {
+	public function sendUserMail( $message, $user, $template, $data ) {
 
 		$fromEmail 	= $this->mailProperties->getSenderEmail();
 		$fromName 	= $this->mailProperties->getSenderName();
 
 		// Send Mail
-		$this->getMailer()->compose( self::MAIL_USER, [ 'coreProperties' => $this->coreProperties, 'message' => $message, 'user' => $user ] )
+		$this->getMailer()->compose( self::MAIL_USER, [ 'coreProperties' => $this->coreProperties, 'message' => $message, 'user' => $user, 'data' => $data  ] )
 			->setTo( $user->email )
 			->setFrom( [ $fromEmail => $fromName ] )
 			->setSubject( "Notification | " . $this->coreProperties->getSiteName() )
@@ -85,13 +85,13 @@ class Mailer extends BaseMailer {
 			->send();
 	}
 
-	public function sendDirectMail( $message, $email, $template ) {
+	public function sendDirectMail( $message, $email, $template, $data ) {
 
 		$fromEmail 	= $this->mailProperties->getSenderEmail();
 		$fromName 	= $this->mailProperties->getSenderName();
 
 		// Send Mail
-		$this->getMailer()->compose( self::MAIL_DIRECT, [ 'coreProperties' => $this->coreProperties, 'email' => $email, 'message' => $message ] )
+		$this->getMailer()->compose( self::MAIL_DIRECT, [ 'coreProperties' => $this->coreProperties, 'email' => $email, 'message' => $message, 'data' => $data  ] )
 			->setTo( $email )
 			->setFrom( [ $fromEmail => $fromName ] )
 			->setSubject( "Notification | " . $this->coreProperties->getSiteName() )

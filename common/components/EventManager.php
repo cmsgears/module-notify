@@ -277,7 +277,7 @@ class EventManager extends BaseEventManager {
 			if( $templateConfig->adminEmail ) {
 
 				// Trigger Mail
-				Yii::$app->notifyMailer->sendAdminMail( $message, $template );
+				Yii::$app->notifyMailer->sendAdminMail( $message, $template, $data );
 			}
 		}
 
@@ -301,7 +301,7 @@ class EventManager extends BaseEventManager {
 				if( $templateConfig->userEmail ) {
 
 					// Trigger Mail
-					Yii::$app->notifyMailer->sendUserMail( $message, $this->userService->getById( $userId ), $template );
+					Yii::$app->notifyMailer->sendUserMail( $message, $this->userService->getById( $userId ), $template, $data );
 				}
 			}
 		}
@@ -324,7 +324,7 @@ class EventManager extends BaseEventManager {
 			if( isset( $email ) ) {
 
 				// Trigger Mail
-				Yii::$app->notifyMailer->sendDirectMail( $message, $config[ 'email' ], $template );
+				Yii::$app->notifyMailer->sendDirectMail( $message, $config[ 'email' ], $template, $data );
 			}
 		}
 
