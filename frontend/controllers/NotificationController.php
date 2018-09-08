@@ -14,7 +14,7 @@ use Yii;
 use yii\filters\VerbFilter;
 
 // CMG Imports
-use cmsgears\core\frontend\controllers\base\Controller;
+use cmsgears\notify\frontend\controllers\base\Controller;
 
 /**
  * NotificationController provides actions specific to user notifications.
@@ -40,6 +40,7 @@ class NotificationController extends Controller {
 		parent::init();
 
 		// Config
+		$this->layout	= Yii::$app->notify->customLayout[ 'notification' ] ?? $this->layout;
 		$this->apixBase	= 'notify/notification';
 
 		// Services
@@ -89,8 +90,9 @@ class NotificationController extends Controller {
 
 	public function actionAll() {
 
-		$user			= Yii::$app->user->getIdentity();
-		$dataProvider	= $this->modelService->getPageByUserId( $user->id );
+		$user = Yii::$app->user->getIdentity();
+
+		$dataProvider = $this->modelService->getPageByUserId( $user->id );
 
 		return $this->render( 'all', [
 			'dataProvider' => $dataProvider

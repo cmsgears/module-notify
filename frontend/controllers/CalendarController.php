@@ -19,7 +19,7 @@ use cmsgears\core\common\config\CoreGlobal;
 
 use cmsgears\core\common\models\resources\File;
 
-use cmsgears\core\frontend\controllers\base\Controller;
+use cmsgears\notify\frontend\controllers\base\Controller;
 
 /**
  * CalendarController provides actions specific to user events.
@@ -45,6 +45,7 @@ class CalendarController extends Controller {
 		parent::init();
 
 		// Config
+		$this->layout	= Yii::$app->notify->customLayout[ 'calendar' ] ?? $this->layout;
 		$this->apixBase	= 'notify/calendar';
 
 		// Services
@@ -69,19 +70,19 @@ class CalendarController extends Controller {
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'index'	 => [ 'permission' => $this->crudPermission ],
-					'all'  => [ 'permission' => $this->crudPermission ],
-					'full'  => [ 'permission' => $this->crudPermission ],
-					'add'  => [ 'permission' => $this->crudPermission ],
-					'update'  => [ 'permission' => $this->crudPermission ]
+					'index' => [ 'permission' => $this->crudPermission ],
+					'all' => [ 'permission' => $this->crudPermission ],
+					'full' => [ 'permission' => $this->crudPermission ],
+					'add' => [ 'permission' => $this->crudPermission ],
+					'update' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
 				'class' => VerbFilter::class,
 				'actions' => [
 					'index' => [ 'get' ],
-					'all'  => [ 'get' ],
-					'full'  => [ 'get' ],
+					'all' => [ 'get' ],
+					'full' => [ 'get' ],
 					'add' => [ 'get', 'post' ],
 					'update' => [ 'get', 'post' ]
 				]
@@ -106,10 +107,11 @@ class CalendarController extends Controller {
 
 		Url::remember( Yii::$app->request->getUrl(), 'calendar' );
 
-		$modelClass		= $this->modelService->getModelClass();
+		$modelClass = $this->modelService->getModelClass();
 
-		$user			= Yii::$app->user->getIdentity();
-		$dataProvider	= $this->modelService->getPageByUserId( $user->id );
+		$user = Yii::$app->user->getIdentity();
+
+		$dataProvider = $this->modelService->getPageByUserId( $user->id );
 
 		return $this->render( 'all', [
 			'dataProvider' => $dataProvider,
@@ -124,7 +126,7 @@ class CalendarController extends Controller {
 
 	public function actionAdd() {
 
-		$user	= Yii::$app->user->getIdentity();
+		$user = Yii::$app->user->getIdentity();
 
 		$modelClass	= $this->modelService->getModelClass();
 		$model		= new $modelClass();
@@ -158,7 +160,7 @@ class CalendarController extends Controller {
 
 	public function actionUpdate( $id ) {
 
-		$user	= Yii::$app->user->getIdentity();
+		$user = Yii::$app->user->getIdentity();
 
 		$modelClass	= $this->modelService->getModelClass();
 		$model		= $this->modelService->getById( $id );

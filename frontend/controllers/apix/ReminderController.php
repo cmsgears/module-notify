@@ -60,6 +60,7 @@ class ReminderController extends Controller {
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
 					'toggle-read' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
+					'toggle-trash' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
 					'trash' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
 					'delete' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
 					'bulk' => [ 'permission' => $this->crudPermission ]
@@ -69,6 +70,7 @@ class ReminderController extends Controller {
 				'class' => VerbFilter::class,
 				'actions' => [
 					'toggle-read' => [ 'post' ],
+					'toggle-trash' => [ 'post' ],
 					'trash' => [ 'post' ],
 					'delete' => [ 'post' ],
 					'bulk' => [ 'post' ]
@@ -83,6 +85,7 @@ class ReminderController extends Controller {
 
 		return [
 			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\reminder\ToggleRead' ],
+			'toggle-trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleTrash' ],
 			'trash' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Trash' ],
 			'delete' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Delete' ],
 			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Bulk' ]

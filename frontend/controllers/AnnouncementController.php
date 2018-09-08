@@ -14,7 +14,7 @@ use Yii;
 use yii\filters\VerbFilter;
 
 // CMG Imports
-use cmsgears\core\frontend\controllers\base\Controller;
+use cmsgears\notify\frontend\controllers\base\Controller;
 
 /**
  * AnnouncementController provides actions specific to site announcements.
@@ -38,6 +38,9 @@ class AnnouncementController extends Controller {
 	public function init() {
 
 		parent::init();
+
+		// Config
+		$this->layout = Yii::$app->notify->customLayout[ 'announcement' ] ?? $this->layout;
 
 		// Services
 		$this->modelService	= Yii::$app->factory->get( 'announcementService' );
@@ -86,8 +89,7 @@ class AnnouncementController extends Controller {
 
 	public function actionAll() {
 
-		$user			= Yii::$app->user->getIdentity();
-		$dataProvider	= $this->modelService->getPageForSite();
+		$dataProvider = $this->modelService->getPageForSite();
 
 		return $this->render( 'all', [
 			'dataProvider' => $dataProvider

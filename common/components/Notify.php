@@ -10,7 +10,7 @@
 namespace cmsgears\notify\common\components;
 
 // CMG Imports
-use cmsgears\core\common\base\Component;
+use cmsgears\core\common\base\Config;
 
 
 /**
@@ -18,7 +18,7 @@ use cmsgears\core\common\base\Component;
  *
  * @since 1.0.0
  */
-class Notify extends Component {
+class Notify extends Config {
 
 	// Global -----------------
 

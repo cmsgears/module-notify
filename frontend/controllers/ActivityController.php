@@ -14,7 +14,7 @@ use Yii;
 use yii\filters\VerbFilter;
 
 // CMG Imports
-use cmsgears\core\frontend\controllers\base\Controller;
+use cmsgears\notify\frontend\controllers\base\Controller;
 
 /**
  * ActivityController provides actions specific to user reminders.
@@ -38,6 +38,9 @@ class ActivityController extends Controller {
 	public function init() {
 
 		parent::init();
+
+		// Config
+		$this->layout = Yii::$app->notify->customLayout[ 'activity' ] ?? $this->layout;
 
 		// Services
 		$this->modelService	= Yii::$app->factory->get( 'activityService' );
@@ -86,8 +89,9 @@ class ActivityController extends Controller {
 
 	public function actionAll() {
 
-		$user			= Yii::$app->user->getIdentity();
-		$dataProvider	= $this->modelService->getPageByUserId( $user->id );
+		$user = Yii::$app->user->getIdentity();
+
+		$dataProvider = $this->modelService->getPageByUserId( $user->id );
 
 		return $this->render( 'all', [
 			'dataProvider' => $dataProvider

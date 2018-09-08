@@ -44,6 +44,25 @@ trait ToggleTrait {
 		]);
 	}
 
+	public function toggleTrash( $model ) {
+
+		if( $model->isTrash() ) {
+
+			return $this->unTrash( $model );
+		}
+
+		return $this->markTrash( $model );
+	}
+
+	public function unTrash( $model ) {
+
+		$model->trash = false;
+
+		return parent::update( $model, [
+			'attributes' => [ 'trash' ]
+		]);
+	}
+
 	public function markTrash( $model ) {
 
 		$model->trash = true;
