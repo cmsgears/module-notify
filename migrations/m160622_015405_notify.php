@@ -174,7 +174,7 @@ class m160622_015405_notify extends Migration {
 			'parentId' => $this->bigInteger( 20 ),
 			'parentType' => $this->string( Yii::$app->core->mediumText ),
 			'title' => $this->string( Yii::$app->core->xxLargeText )->notNull(),
-			'description' => $this->string( Yii::$app->core->xtraLargeText )->notNull(),
+			'description' => $this->string( Yii::$app->core->xtraLargeText ),
 			'type' => $this->string( Yii::$app->core->mediumText )->notNull()->defaultValue( 'default' ),
 			'ip' => $this->string( Yii::$app->core->mediumText )->defaultValue( null ),
 			'ipNum' => $this->integer( 11 )->defaultValue( 0 ),
