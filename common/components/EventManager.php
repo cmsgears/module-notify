@@ -438,9 +438,9 @@ class EventManager extends BaseEventManager {
 		$model		= $data[ 'model' ];
 		$gridData	= [];
 
-		$gridData[ 'content' ]	= $templateConfig->storeContent && $model->hasAttribute( 'content' ) ? $model->content : null;
-		$gridData[ 'data' ]		= $templateConfig->storeData && $model->hasAttribute( 'data' ) ? $model->data : null;
-		$gridData[ 'cache' ]	= $templateConfig->storeCache && $model->hasAttribute( 'cache' ) ? $model->cache : null;
+		$gridData[ 'content' ]	= isset( $templateConfig->storeContent ) && $model->hasAttribute( 'content' ) ? $model->content : null;
+		$gridData[ 'data' ]		= isset( $templateConfig->storeData ) && $model->hasAttribute( 'data' ) ? $model->data : null;
+		$gridData[ 'cache' ]	= isset( $templateConfig->storeCache ) && $model->hasAttribute( 'cache' ) ? $model->cache : null;
 
 		$activity = $this->activityService->getModelObject();
 
