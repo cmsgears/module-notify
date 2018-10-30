@@ -9,10 +9,6 @@ use cmsgears\notify\common\config\NotifyGlobal;
 $core	= Yii::$app->core;
 $user	= Yii::$app->user->getIdentity();
 
-$stats	= Yii::$app->eventManager->getAdminStats();
-$acount	= $stats[ 'activityCount' ];
-$ncount	= $stats[ 'notificationCount' ];
-$rcount	= $stats[ 'reminderCount' ];
 ?>
 
 <?php if( $core->hasModule( 'notify' ) && $user->isPermitted( NotifyGlobal::PERM_NOTIFY_ADMIN ) ) { ?>
@@ -20,9 +16,7 @@ $rcount	= $stats[ 'reminderCount' ];
 		<div class="row tab-header">
 			<div class="tab-icon"><span class="cmti cmti-event"></span></div>
 			<div class="tab-title">Activities
-			<?php if( $acount > 0 ) { ?>
-					<span class="count-sidebar count-sidebar-header"><?= $acount ?></span>
-				<?php } ?>
+				<span class="count-sidebar count-sidebar-header count-activity">0</span>
 			</div>
 		</div>
 		<div class="tab-content clear <?= $parent == 'sidebar-activity' ? 'expanded visible' : null ?>">
@@ -30,9 +24,7 @@ $rcount	= $stats[ 'reminderCount' ];
 				<li class="activity <?= $child == 'activity' ? 'active' : null ?>">
 					<a href="<?= Url::toRoute( [ '/notify/activity/all' ], true ) ?>">
 						Activities
-						<?php if( $acount > 0 ) { ?>
-							<span class="count-sidebar count-sidebar-content "><?= $acount ?></span>
-						<?php } ?>
+						<span class="count-sidebar count-sidebar-content count-activity">0</span>
 					</a>
 				</li>
 				<li class="template <?= $child == 'template' ? 'active' : null ?>"><?= Html::a( "Templates", [ '/notify/activity/template/all' ] ) ?></li>
@@ -47,9 +39,7 @@ $rcount	= $stats[ 'reminderCount' ];
 			<div class="tab-icon"><span class="cmti cmti-flag"></span></div>
 			<div class="tab-title">
 				Notifications
-				<?php if( $ncount > 0 ) { ?>
-					<span class="count-sidebar count-sidebar-header count-notification"><?= $ncount ?></span>
-				<?php } ?>
+				<span class="count-sidebar count-sidebar-header count-notification">0</span>
 			</div>
 		</div>
 		<div class="tab-content clear <?= $parent == 'sidebar-notify' ? 'expanded visible' : null ?>">
@@ -57,9 +47,7 @@ $rcount	= $stats[ 'reminderCount' ];
 				<li class="notification <?= $child == 'notification' ? 'active' : null ?>">
 					<a href="<?= Url::toRoute( [ '/notify/notification/all' ], true ) ?>">
 						Notifications
-						<?php if( $ncount > 0 ) { ?>
-							<span class="count-sidebar count-sidebar-content count-notification"><?= $ncount ?></span>
-						<?php } ?>
+						<span class="count-sidebar count-sidebar-content count-notification">0</span>
 					</a>
 				</li>
 				<li class="template <?= $child == 'template' ? 'active' : null ?>"><?= Html::a( "Templates", [ '/notify/notification/template/all' ] ) ?></li>
@@ -89,9 +77,7 @@ $rcount	= $stats[ 'reminderCount' ];
 			<div class="tab-icon"><span class="cmti cmti-bell"></span></div>
 			<div class="tab-title">
 				Reminders
-				<?php if( $rcount > 0 ) { ?>
-					<span class="count-sidebar count-sidebar-header count-reminder"><?= $rcount ?></span>
-				<?php } ?>
+				<span class="count-sidebar count-sidebar-header count-reminder">0</span>
 			</div>
 		</div>
 		<div class="tab-content clear <?= $parent == 'sidebar-reminder' ? 'expanded visible' : null ?>">
@@ -100,9 +86,7 @@ $rcount	= $stats[ 'reminderCount' ];
 				<li class="reminder <?= $child == 'reminder' ? 'active' : null ?>">
 					<a href="<?= Url::toRoute( [ '/notify/reminder/all' ], true ) ?>">
 						Reminders
-						<?php if( $rcount > 0 ) { ?>
-							<span class="count-sidebar count-sidebar-content count-reminder"><?= $rcount ?></span>
-						<?php } ?>
+						<span class="count-sidebar count-sidebar-content count-reminder">0</span>
 					</a>
 				</li>
 				<li class="template <?= $child == 'etemplate' ? 'active' : null ?>"><?= Html::a( "Event Templates", [ '/notify/event/template/all' ] ) ?></li>
@@ -111,3 +95,4 @@ $rcount	= $stats[ 'reminderCount' ];
 		</div>
 	</div>
 <?php } ?>
+
