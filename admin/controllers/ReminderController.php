@@ -62,7 +62,9 @@ class ReminderController extends BaseController {
 
 		// Breadcrumbs
 		$this->breadcrumbs = [
-			'base' => [ [ 'label' => 'Events', 'url' =>  [ '/notify/event/all' ] ] ],
+			'base' => [
+				[ 'label' => 'Home', 'url' => Url::toRoute( '/dashboard' ) ]
+			],
 			'all' => [ [ 'label' => 'Reminders' ] ]
 		];
 	}

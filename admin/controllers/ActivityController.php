@@ -59,6 +59,14 @@ class ActivityController extends BaseController {
 		// Return URL
 		$this->returnUrl = Url::previous( 'activities' );
 		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/activity/all' ], true );
+
+		// Breadcrumbs
+		$this->breadcrumbs = [
+			'base' => [
+				[ 'label' => 'Home', 'url' => Url::toRoute( '/dashboard' ) ]
+			],
+			'all' => [ [ 'label' => 'Activities' ] ]
+		];
 	}
 
 	// Instance methods --------------------------------------------

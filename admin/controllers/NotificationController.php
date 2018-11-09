@@ -60,6 +60,9 @@ class NotificationController extends BaseController {
 
 		// Breadcrumbs
 		$this->breadcrumbs = [
+			'base' => [
+				[ 'label' => 'Home', 'url' => Url::toRoute( '/dashboard' ) ]
+			],
 			'all' => [ [ 'label' => 'Notifications' ] ]
 		];
 	}

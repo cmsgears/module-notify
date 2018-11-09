@@ -65,6 +65,9 @@ class AnnouncementController extends Controller {
 
 		// Breadcrumbs
 		$this->breadcrumbs = [
+			'base' => [
+				[ 'label' => 'Home', 'url' => Url::toRoute( '/dashboard' ) ]
+			],
 			'all' => [ [ 'label' => 'Announcements' ] ],
 			'create' => [ [ 'label' => 'Announcements', 'url' => $this->returnUrl ], [ 'label' => 'Add' ] ],
 			'update' => [ [ 'label' => 'Announcements', 'url' => $this->returnUrl ], [ 'label' => 'Update' ] ],

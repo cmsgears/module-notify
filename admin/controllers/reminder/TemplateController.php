@@ -61,13 +61,12 @@ class TemplateController extends BaseTemplateController {
 		// Breadcrumbs
 		$this->breadcrumbs = [
 			'base' => [
-				[ 'label' => 'Events', 'url' =>  [ '/notify/event/all' ] ],
-				[ 'label' => 'Reminders', 'url' =>  [ '/notify/reminder/all' ] ]
+				[ 'label' => 'Home', 'url' => Url::toRoute( '/dashboard' ) ]
 			],
-			'all' => [ [ 'label' => 'Templates' ] ],
-			'create' => [ [ 'label' => 'Templates', 'url' => $this->returnUrl ], [ 'label' => 'Add' ] ],
-			'update' => [ [ 'label' => 'Templates', 'url' => $this->returnUrl ], [ 'label' => 'Update' ] ],
-			'delete' => [ [ 'label' => 'Templates', 'url' => $this->returnUrl ], [ 'label' => 'Delete' ] ]
+			'all' => [ [ 'label' => 'Reminder Templates' ] ],
+			'create' => [ [ 'label' => 'Reminder Templates', 'url' => $this->returnUrl ], [ 'label' => 'Add' ] ],
+			'update' => [ [ 'label' => 'Reminder Templates', 'url' => $this->returnUrl ], [ 'label' => 'Update' ] ],
+			'delete' => [ [ 'label' => 'Reminder Templates', 'url' => $this->returnUrl ], [ 'label' => 'Delete' ] ]
 		];
 	}
 

@@ -70,6 +70,9 @@ class EventController extends BaseController {
 
 		// Breadcrumbs
 		$this->breadcrumbs = [
+			'base' => [
+				[ 'label' => 'Home', 'url' => Url::toRoute( '/dashboard' ) ]
+			],
 			'all' => [ [ 'label' => 'Events' ] ],
 			'create' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Add' ] ],
 			'update' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Update' ] ],
