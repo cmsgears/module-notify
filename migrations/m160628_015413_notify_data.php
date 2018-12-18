@@ -20,7 +20,7 @@ use cmsgears\core\common\models\entities\Permission;
 
 use cmsgears\core\common\utilities\DateUtil;
 
-class m160622_015413_notify_data extends Migration {
+class m160628_015413_notify_data extends Migration {
 
 	// Public Variables
 
@@ -124,7 +124,7 @@ class m160622_015413_notify_data extends Migration {
 
 	public function down() {
 
-		echo "m160622_015413_notify_data will be deleted with m160621_014408_core and m160622_015405_notify.\n";
+		echo "m160628_015413_notify_data will be deleted with m160621_014408_core and m160628_015405_notify.\n";
 
 		return true;
 	}

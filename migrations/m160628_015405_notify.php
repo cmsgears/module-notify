@@ -16,7 +16,7 @@ use cmsgears\core\common\base\Migration;
  *
  * @since 1.0.0
  */
-class m160622_015405_notify extends Migration {
+class m160628_015405_notify extends Migration {
 
 	// Public Variables
 

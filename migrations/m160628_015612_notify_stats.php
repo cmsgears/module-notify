@@ -19,7 +19,7 @@ use cmsgears\notify\common\models\base\NotifyTables;
  *
  * @since 1.0.0
  */
-class m160622_015612_notify_stats extends Migration {
+class m160628_015612_notify_stats extends Migration {
 
 	// Public Variables
 
