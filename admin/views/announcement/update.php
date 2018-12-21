@@ -56,9 +56,11 @@ Editor::widget( [ 'selector' => '.content-editor', 'loadAssets' => true, 'fonts'
 			</div>
 			<div class="box-content">
 				<div class="box-content">
-					<div class="row row-medium padding padding-small-v">
-						<label>Banner</label>
-						<?= ImageUploader::widget( [ 'model' => $banner ] ) ?>
+					<div class="row padding padding-small-v">
+						<div class="col col12x4">
+							<label>Banner</label>
+							<?= ImageUploader::widget( [ 'model' => $banner ] ) ?>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -74,14 +76,11 @@ Editor::widget( [ 'selector' => '.content-editor', 'loadAssets' => true, 'fonts'
 				</div>
 			</div>
 		</div>
-
 		<div class="filler-height filler-height-medium"></div>
-
 		<div class="align align-right">
 			<?= Html::a( 'View All', $returnUrl, [ 'class' => 'btn btn-medium' ] ); ?>
 			<input class="frm-element-medium" type="submit" value="Update" />
 		</div>
-
 		<div class="filler-height filler-height-medium"></div>
 		<?php ActiveForm::end(); ?>
 	</div>
