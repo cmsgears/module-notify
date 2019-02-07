@@ -7,10 +7,8 @@ use yii\helpers\Url;
 use cmsgears\notify\common\config\NotifyGlobal;
 
 $core	= Yii::$app->core;
-$user	= Yii::$app->user->getIdentity();
-
+$user	= Yii::$app->core->getUser();
 ?>
-
 <?php if( $core->hasModule( 'notify' ) && $user->isPermitted( NotifyGlobal::PERM_NOTIFY_ADMIN ) ) { ?>
 	<div id="sidebar-activity" class="collapsible-tab has-children <?= $parent == 'sidebar-activity' ? 'active' : null ?>">
 		<div class="row tab-header">
@@ -95,4 +93,3 @@ $user	= Yii::$app->user->getIdentity();
 		</div>
 	</div>
 <?php } ?>
-
