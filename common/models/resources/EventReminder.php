@@ -1,27 +1,45 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\common\models\resources;
 
 // Yii Imports
 use Yii;
 
 // CMG Imports
-use cmsgears\notify\common\models\base\NotifyTables;
+use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\common\models\interfaces\IOwner;
+use cmsgears\core\common\models\interfaces\base\IOwner;
+use cmsgears\core\common\models\interfaces\resources\IData;
+use cmsgears\notify\common\models\interfaces\base\IToggle;
 
+use cmsgears\core\common\models\base\ModelResource;
 use cmsgears\core\common\models\entities\User;
-use cmsgears\notify\common\models\entities\Event;
+use cmsgears\notify\common\models\base\NotifyTables;
+use cmsgears\notify\common\models\resources\Event;
 
+use cmsgears\core\common\models\traits\base\UserOwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
+use cmsgears\notify\common\models\traits\base\ToggleTrait;
 
 /**
- * Reminder Entity
+ * Reminder will be triggered based on event configuration.
  *
  * @property integer $id
  * @property integer $siteId
  * @property integer $eventId
  * @property integer $userId
+ * @property integer $parentId
+ * @property string $parentType
  * @property string $title
+ * @property string $description
  * @property string $link
  * @property boolean $admin
  * @property string $adminLink
@@ -30,8 +48,11 @@ use cmsgears\core\common\models\traits\resources\DataTrait;
  * @property date $scheduledAt
  * @property string $content
  * @property string $data
+ * @property string $gridCache
+ * @property boolean $gridCacheValid
+ * @property datetime $gridCachedAt
  */
-class EventReminder extends \cmsgears\core\common\models\base\Entity implements IOwner {
+class EventReminder extends ModelResource implements IData, IOwner, IToggle {
 
 	// Variables ---------------------------------------------------
 
@@ -49,11 +70,15 @@ class EventReminder extends \cmsgears\core\common\models\base\Entity implements 
 
 	// Protected --------------
 
+	protected $modelType = NotifyGlobal::TYPE_REMINDER;
+
 	// Private ----------------
 
 	// Traits ------------------------------------------------------
 
 	use DataTrait;
+	use ToggleTrait;
+	use UserOwnerTrait;
 
 	// Constructor and Initialisation ------------------------------
 
@@ -72,16 +97,20 @@ class EventReminder extends \cmsgears\core\common\models\base\Entity implements 
 	 */
 	public function rules() {
 
+		// Model Rules
 		$rules = [
 			// Required, Safe
-			[ [ 'eventId', 'scheduledAt' ], 'required' ],
-			[ [ 'id', 'siteId' ], 'safe' ],
+			[ [ 'siteId', 'eventId', 'scheduledAt' ], 'required' ],
+			[ [ 'id', 'content', 'data', 'gridCache' ], 'safe' ],
 			// Text Limit
-			[ [ 'title', 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
+			[ 'parentType', 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
+			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
+			[ [ 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxxLargeText ],
+			[ 'description', 'string', 'min' => 1, 'max' => Yii::$app->core->xtraLargeText ],
 			// Other
-			[ [ 'admin', 'consumed', 'trash' ], 'boolean' ],
-			[ [ 'scheduledAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ],
-			[ [ 'eventId', 'userId' ], 'number', 'integerOnly' => true, 'min' => 1 ]
+			[ [ 'admin', 'consumed', 'trash', 'gridCacheValid' ], 'boolean' ],
+			[ [ 'eventId', 'userId', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ 'scheduledAt', 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
 
 		return $rules;
@@ -93,33 +122,18 @@ class EventReminder extends \cmsgears\core\common\models\base\Entity implements 
 	public function attributeLabels() {
 
 		return [
-			'eventId' => 'Event',
+			'eventId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_E ),
 			'userId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_USER ),
 			'title' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TITLE ),
 			'link' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
 			'admin' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
 			'adminLink' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW_ADMIN ),
-			'consumed' => 'Consumed',
-			'trash' => 'Trash',
-			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT )
+			'consumed' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONSUMED ),
+			'trash' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TRASH ),
+			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT ),
+			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA ),
+			'gridCache' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_GRID_CACHE )
 		];
-	}
-
-	// IOwner -----------------
-
-	public function isOwner( $user = null, $strict = false ) {
-
-		if( !isset( $user ) && !$strict ) {
-
-			$user	= Yii::$app->user->getIdentity();
-		}
-
-		if( isset( $user ) ) {
-
-			return $this->userId == $user->id;
-		}
-
-		return false;
 	}
 
 	// CMG parent classes --------------------
@@ -128,66 +142,24 @@ class EventReminder extends \cmsgears\core\common\models\base\Entity implements 
 
 	// Reminder ---------------------------------
 
+	/**
+	 * Returns the event associated with the reminder.
+	 *
+	 * @return \cmsgears\notify\common\models\entities\Event
+	 */
 	public function getEvent() {
 
-		return $this->hasOne( Event::className(), [ 'id' => 'eventId' ] );
+		return $this->hasOne( Event::class, [ 'id' => 'eventId' ] );
 	}
 
+	/**
+	 * Returns the host user associated with the notification.
+	 *
+	 * @return \cmsgears\core\common\models\entities\User
+	 */
 	public function getUser() {
 
-		return $this->hasOne( User::className(), [ 'id' => 'userId' ] );
-	}
-
-	public function isNew() {
-
-		return !$this->consumed;
-	}
-
-	public function isConsumed() {
-
-		return $this->consumed;
-	}
-
-	public function getConsumedStr() {
-
-		return Yii::$app->formatter->asBoolean( $this->consumed );
-	}
-
-	public function isTrash() {
-
-		return $this->trash;
-	}
-
-	public function getTrashStr() {
-
-		return Yii::$app->formatter->asBoolean( $this->trash );
-	}
-
-	public function toHtml() {
-
-		$content	= "<li class='new'>";
-
-		if( $this->isConsumed() ) {
-
-			$content	= "<li class='consumed'>";
-		}
-
-		if( $this->isTrash() ) {
-
-			$content	= "<li class='trash'>";
-		}
-
-		if( !empty( $this->link ) ) {
-
-			$link		 = Url::toRoute( [ $this->link ], true );
-			$content	.= "<a href='$link'>$this->content</a></li>";
-		}
-		else {
-
-			$content	.= "$this->content</li>";
-		}
-
-		return $content;
+		return $this->hasOne( User::class, [ 'id' => 'userId' ] );
 	}
 
 	// Static Methods ----------------------------------------------
@@ -201,7 +173,7 @@ class EventReminder extends \cmsgears\core\common\models\base\Entity implements 
 	 */
 	public static function tableName() {
 
-		return NotifyTables::TABLE_EVENT_REMINDER;
+		return NotifyTables::getTableName( NotifyTables::TABLE_EVENT_REMINDER );
 	}
 
 	// CMG parent classes --------------------
@@ -210,6 +182,9 @@ class EventReminder extends \cmsgears\core\common\models\base\Entity implements 
 
 	// Read - Query -----------
 
+	/**
+	 * @inheritdoc
+	 */
 	public static function queryWithHasOne( $config = [] ) {
 
 		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'event', 'user' ];
@@ -218,20 +193,38 @@ class EventReminder extends \cmsgears\core\common\models\base\Entity implements 
 		return parent::queryWithAll( $config );
 	}
 
+	/**
+	 * Return query to find the reminder with event.
+	 *
+	 * @param array $config
+	 * @return \yii\db\ActiveQuery to query with event.
+	 */
 	public static function queryWithEvent( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'event' ];
+		$config[ 'relations' ] = [ 'event' ];
 
 		return parent::queryWithAll( $config );
 	}
 
+	/**
+	 * Return query to find the reminder with user.
+	 *
+	 * @param array $config
+	 * @return \yii\db\ActiveQuery to query with user.
+	 */
 	public static function queryWithUser( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'user' ];
+		$config[ 'relations' ] = [ 'user' ];
 
 		return parent::queryWithAll( $config );
 	}
 
+	/**
+	 * Return query to find the reminder using user id.
+	 *
+	 * @param array $config
+	 * @return \yii\db\ActiveQuery to query using user id.
+	 */
 	public static function queryByUserId( $userId ) {
 
 		return static::find()->where( 'userId=:uid', [ ':uid' => $userId ] );
@@ -245,16 +238,25 @@ class EventReminder extends \cmsgears\core\common\models\base\Entity implements 
 
 	// Delete -----------------
 
+	/**
+	 * Delete all the participant models specific to given event id.
+	 *
+	 * @param integer $eventId
+	 * @return integer Number of rows.
+	 */
 	public static function deleteByEventId( $eventId ) {
 
-		return self::deleteAll( [ 'eventId' => $eventId ] );
+		return self::deleteAll( 'eventId=:id', [ ':id' => $eventId ] );
 	}
 
 	/**
-	 * Delete all entries related to a user
+	 * Delete all the participant models specific to given user id.
+	 *
+	 * @param integer $userId
+	 * @return integer Number of rows.
 	 */
 	public static function deleteByUserId( $userId ) {
 
-		self::deleteAll( 'userId=:uid', [ ':uid' => $userId ] );
+		return self::deleteAll( 'userId=:id', [ ':id' => $userId ] );
 	}
 }

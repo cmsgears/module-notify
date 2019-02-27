@@ -1,26 +1,41 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\common\models\mappers;
 
 // Yii Imports
 use Yii;
+use yii\db\Expression;
+use yii\behaviors\TimestampBehavior;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
+use cmsgears\core\common\models\base\Mapper;
 use cmsgears\core\common\models\entities\User;
 use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\notify\common\models\entities\Event;
 
 
 /**
- * EventParticipant Entity
+ * EventParticipant maps the event and it's participants i.e. users.
  *
- * @property long $id
- * @property long $eventId
- * @property long $userId
+ * @property integer $id
+ * @property integer $eventId
+ * @property integer $userId
  * @property boolean $active
+ * @property datetime $createdAt
+ * @property datetime $modifiedAt
+ *
+ * @since 1.0.0
  */
-class EventParticipant extends \cmsgears\core\common\models\base\Entity {
+class EventParticipant extends Mapper {
 
 	// Variables ---------------------------------------------------
 
@@ -52,6 +67,21 @@ class EventParticipant extends \cmsgears\core\common\models\base\Entity {
 
 	// yii\base\Component -----
 
+	/**
+	 * @inheritdoc
+	 */
+    public function behaviors() {
+
+        return [
+            'timestampBehavior' => [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'createdAt',
+                'updatedAtAttribute' => 'modifiedAt',
+                'value' => new Expression('NOW()')
+            ]
+        ];
+    }
+
 	// yii\base\Model ---------
 
 	/**
@@ -59,12 +89,19 @@ class EventParticipant extends \cmsgears\core\common\models\base\Entity {
 	 */
 	public function rules() {
 
-		return [
+		// Model Rules
+		$rules = [
+			// Required, Safe
 			[ [ 'eventId', 'userId' ], 'required' ],
+			// Unique
+			[ [ 'eventId', 'userId' ], 'unique', 'targetAttribute' => [ 'eventId', 'userId' ], 'comboNotUnique' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_EXIST ) ],
+			// Other
+			[ 'active', 'boolean' ],
 			[ [ 'eventId', 'userId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
-			[ [ 'eventId', 'userId' ], 'unique', 'targetAttribute' => [ 'eventId', 'userId' ] ],
-			[ 'active', 'boolean' ]
+			[ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
+
+		return $rules;
 	}
 
 	/**
@@ -87,16 +124,31 @@ class EventParticipant extends \cmsgears\core\common\models\base\Entity {
 
 	// EventParticipant ----------------------
 
+	/**
+	 * Return the corresponding event associated with the participant.
+	 *
+	 * @return \cmsgears\notify\common\models\entities\Event
+	 */
 	public function getEvent() {
 
-		return $this->hasOne( Event::className(), [ 'id' => 'eventId' ] );
+		return $this->hasOne( Event::class, [ 'id' => 'eventId' ] );
 	}
 
-	public function getParticipant() {
+	/**
+	 * Return the corresponding user associated with the participant.
+	 *
+	 * @return \cmsgears\core\common\models\entities\User
+	 */
+	public function getUser() {
 
-		return $this->hasOne( User::className(), [ 'id' => 'userId' ] );
+		return $this->hasOne( User::class, [ 'id' => 'userId' ] );
 	}
 
+	/**
+	 * Returns string representation of active flag.
+	 *
+	 * @return string
+	 */
 	public function getActiveStr() {
 
 		return Yii::$app->formatter->asBoolean( $this->active );
@@ -113,23 +165,32 @@ class EventParticipant extends \cmsgears\core\common\models\base\Entity {
 	 */
 	public static function tableName() {
 
-		return NotifyTables::TABLE_EVENT_PARTICIPANT;
+		return NotifyTables::getTableName( NotifyTables::TABLE_EVENT_PARTICIPANT );
 	}
 
 	// CMG parent classes --------------------
 
-	// SiteMember ----------------------------
+	// EventParticipant ----------------------
 
 	// Read - Query -----------
 
+	/**
+	 * @inheritdoc
+	 */
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'event', 'participant' ];
+		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'event', 'user' ];
 		$config[ 'relations' ]	= $relations;
 
 		return parent::queryWithAll( $config );
 	}
 
+	/**
+	 * Return query to find the participant with event.
+	 *
+	 * @param array $config
+	 * @return \yii\db\ActiveQuery to query with event.
+	 */
 	public static function queryWithEvent( $config = [] ) {
 
 		$config[ 'relations' ]	= [ 'event' ];
@@ -137,9 +198,15 @@ class EventParticipant extends \cmsgears\core\common\models\base\Entity {
 		return parent::queryWithAll( $config );
 	}
 
-	public static function queryWithParticipant( $config = [] ) {
+	/**
+	 * Return query to find the participant with user.
+	 *
+	 * @param array $config
+	 * @return \yii\db\ActiveQuery to query with user.
+	 */
+	public static function queryWithUser( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'participant' ];
+		$config[ 'relations' ]	= [ 'user' ];
 
 		return parent::queryWithAll( $config );
 	}
@@ -152,13 +219,25 @@ class EventParticipant extends \cmsgears\core\common\models\base\Entity {
 
 	// Delete -----------------
 
+	/**
+	 * Delete all the participant models specific to given event id.
+	 *
+	 * @param integer $eventId
+	 * @return integer Number of rows.
+	 */
 	public static function deleteByEventId( $eventId ) {
 
-		self::deleteAll( 'eventId=:id', [ ':id' => $eventId ] );
+		return self::deleteAll( 'eventId=:id', [ ':id' => $eventId ] );
 	}
 
-	public static function deleteByUserId( $participantId ) {
+	/**
+	 * Delete all the participant models specific to given user id.
+	 *
+	 * @param integer $userId
+	 * @return integer Number of rows.
+	 */
+	public static function deleteByUserId( $userId ) {
 
-		self::deleteAll( 'userId=:id', [ ':id' => $participantId ] );
+		return self::deleteAll( 'userId=:id', [ ':id' => $userId ] );
 	}
 }

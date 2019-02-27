@@ -1,15 +1,26 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\common\actions\reminder;
 
 // Yii Imports
 use Yii;
 
 // CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\notify\common\actions\notify\ToggleRead as BaseToggleRead;
 
-use cmsgears\core\common\utilities\AjaxUtil;
-
-class ToggleRead extends \cmsgears\core\common\base\Action {
+/**
+ * ToggleRead mark the activity read or unread.
+ *
+ * @since 1.0.0
+ */
+class ToggleRead extends BaseToggleRead {
 
 	// Variables ---------------------------------------------------
 
@@ -19,14 +30,6 @@ class ToggleRead extends \cmsgears\core\common\base\Action {
 
 	// Public -----------------
 
-	public $user	= true;
-
-	public $admin	= false;
-
-	public $parentType;
-
-	public $parentId;
-
 	// Protected --------------
 
 	// Variables -----------------------------
@@ -34,8 +37,6 @@ class ToggleRead extends \cmsgears\core\common\base\Action {
 	// Public -----------------
 
 	// Protected --------------
-
-	protected $reminderService;
 
 	// Private ----------------
 
@@ -47,7 +48,7 @@ class ToggleRead extends \cmsgears\core\common\base\Action {
 
 		parent::init();
 
-		$this->reminderService	= Yii::$app->factory->get( 'reminderService' );
+		$this->notifyService = Yii::$app->factory->get( 'reminderService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -62,47 +63,4 @@ class ToggleRead extends \cmsgears\core\common\base\Action {
 
 	// ToggleRead ----------------------------
 
-	public function run( $id ) {
-
-		$reminder	= $this->reminderService->getById( $id );
-
-		if( isset( $reminder ) ) {
-
-			$new	= 0;
-
-			if( isset( $this->parentType ) && isset( $this->parentId ) ) {
-
-				if( $reminder->parentType == $this->parentType && $reminder->parentId == $this->parentId ) {
-
-					$reminder	= $this->reminderService->toggleRead( $reminder );
-				}
-
-				$new 	= $this->reminderService->getCountByParent( $this->parentId, $this->parentType, false, false );
-			}
-			else if( $this->admin ) {
-
-				$reminder	= $this->reminderService->toggleRead( $reminder );
-				$new 			= $this->reminderService->getCount( false, $this->admin );
-			}
-			else if( $this->user ) {
-
-				$user	= Yii::$app->user->getIdentity();
-
-				if( $reminder->userId == $user->id ) {
-
-					$reminder	= $this->reminderService->toggleRead( $reminder );
-				}
-
-				$new 	= $this->reminderService->getUserCount( $user->id, false, false );
-			}
-
-			$data	= [ 'unread' => $new, 'consumed' => $reminder->isConsumed() ];
-
-			// Trigger Ajax Success
-			return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ), $data );
-		}
-
-		// Trigger Ajax Failure
-		return AjaxUtil::generateFailure( Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_REQUEST ) );
-	}
 }

@@ -1,41 +1,32 @@
 <?php
+// Yii Imports
 use yii\helpers\Html;
 use yii\helpers\Url;
 
-$logoUrl		= Yii::getAlias( "@web" );
-$logoUrl		= Url::to( $logoUrl. "/images/logo-mail.png", true );
+$siteName	= Html::encode( $coreProperties->getSiteName() );
+$logoUrl	= Url::to( "@web/images/logo-mail.png", true );
+$siteUrl	= Html::encode( $coreProperties->getSiteUrl() );
+$homeUrl	= $siteUrl;
+$siteBkg	= "$siteUrl/images/banner-mail.jpg";
 
-$logo 			= "<img class='logo' style='height:35px;float:right; margin-top:6px; margin-right:53px' src='$logoUrl'>";
-$siteName		= $coreProperties->getSiteName();
-$siteUrl		= $coreProperties->getSiteUrl();
+$includes	= Yii::getAlias( '@cmsgears' ) . '/common/mails/views/includes';
 ?>
-<table cellspacing='0' cellpadding='2' border='0' align='center' width='805px' style='font-family: Calibri; color: #4f4f4f; font-size: 14px; font-weight: 400;'>
-	<tbody>
-		<tr>
-			<td>
-				<div style='width:100%; margin:0 auto; min-height:45px; background-color:#f6f9f4; text-align: center;'>
-					<?= $logo ?>
-				</div>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<div style='margin-top:60px;'>Dear Admin,</div>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<br/>A new notification is triggerred for site admin:
-			</td>
-		</tr>
-		<tr>
-			<td> <br/>Message: <?= $message ?></td>
-		</tr>
-		<tr>
-			<td>
-				<div style='line-height:15px; margin:0px; padding:0px; margin-top:30px;'>Sincerely,</div>
-				<div style='line-height:15px; margin:0px; padding:0px; margin-top:3px;'><?=$siteName?> Team</div>
-			</td>
-		</tr>
-	</tbody>
+<?php "$includes/header.php"; ?>
+<table cellspacing="0" cellpadding="0" border="0" margin="0" padding="0" width="80%" align="center" class="ctmax">
+	<tr><td height="40"></td></tr>
+	<tr>
+		<td><font face="'Roboto', Arial, sans-serif">Dear Administrator,</font></td>
+	</tr>
+	<tr><td height="20"></td></tr>
+	<tr>
+		<td>
+			<font face="'Roboto', Arial, sans-serif">Notification is triggered for you. The details are as mentioned below:</font>
+		</td>
+	</tr>
+	<tr><td height="20"></td></tr>
+	<tr>
+		<td> <font face="'Roboto', Arial, sans-serif">Message: <?= $message ?></font></td>
+	</tr>
+	<tr><td height="40"></td></tr>
 </table>
+<?php "$includes/footer.php"; ?>

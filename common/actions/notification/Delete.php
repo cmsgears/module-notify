@@ -1,15 +1,26 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\common\actions\notification;
 
 // Yii Imports
 use Yii;
 
 // CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\notify\common\actions\notify\Delete as BaseDelete;
 
-use cmsgears\core\common\utilities\AjaxUtil;
-
-class Delete extends \cmsgears\core\common\base\Action {
+/**
+ * Delete process delete action of Activity.
+ *
+ * @since 1.0.0
+ */
+class Delete extends BaseDelete {
 
 	// Variables ---------------------------------------------------
 
@@ -19,14 +30,6 @@ class Delete extends \cmsgears\core\common\base\Action {
 
 	// Public -----------------
 
-	public $user	= true;
-
-	public $admin	= false;
-
-	public $parentType;
-
-	public $parentId;
-
 	// Protected --------------
 
 	// Variables -----------------------------
@@ -34,8 +37,6 @@ class Delete extends \cmsgears\core\common\base\Action {
 	// Public -----------------
 
 	// Protected --------------
-
-	protected $notificationService;
 
 	// Private ----------------
 
@@ -47,7 +48,7 @@ class Delete extends \cmsgears\core\common\base\Action {
 
 		parent::init();
 
-		$this->notificationService	= Yii::$app->factory->get( 'notificationService' );
+		$this->notifyService = Yii::$app->factory->get( 'notificationService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -62,47 +63,4 @@ class Delete extends \cmsgears\core\common\base\Action {
 
 	// Delete --------------------------------
 
-	public function run( $id ) {
-
-		$notification	= $this->notificationService->getById( $id );
-
-		if( isset( $notification ) ) {
-
-			$new	= 0;
-
-			if( isset( $this->parentType ) && isset( $this->parentId ) ) {
-
-				if( $notification->parentType == $this->parentType && $notification->parentId == $this->parentId ) {
-
-					$notification	= $this->notificationService->delete( $notification );
-				}
-
-				$new 	= $this->notificationService->getCountByParent( $this->parentId, $this->parentType, false, false );
-			}
-			else if( $this->admin ) {
-
-				$notification	= $this->notificationService->delete( $notification );
-				$new 			= $this->notificationService->getCount( false, $this->admin );
-			}
-			else if( $this->user ) {
-
-				$user	= Yii::$app->user->getIdentity();
-
-				if( $notification->userId == $user->id ) {
-
-					$notification	= $this->notificationService->delete( $notification );
-				}
-
-				$new 	= $this->notificationService->getUserCount( $user->id, false, false );
-			}
-
-			$data	= [ 'unread' => $new ];
-
-			// Trigger Ajax Success
-			return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ), $data );
-		}
-
-		// Trigger Ajax Failure
-		return AjaxUtil::generateFailure( Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_REQUEST ) );
-	}
 }

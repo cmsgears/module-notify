@@ -1,11 +1,29 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\admin\controllers\apix;
 
 // Yii Imports
 use Yii;
 use yii\filters\VerbFilter;
 
-class EventController extends \cmsgears\core\admin\controllers\base\Controller {
+// CMG Imports
+use cmsgears\notify\common\config\NotifyGlobal;
+
+use cmsgears\core\admin\controllers\base\Controller;
+
+/**
+ * EventController provide actions specific to Event model.
+ *
+ * @since 1.0.0
+ */
+class EventController extends Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -24,10 +42,10 @@ class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 		parent::init();
 
 		// Permissions
-		$this->crudPermission 	= CoreGlobal::PERM_CORE;
+		$this->crudPermission = NotifyGlobal::PERM_NOTIFY_ADMIN;
 
 		// Services
-		$this->modelService		= Yii::$app->factory->get( 'eventService' );
+		$this->modelService = Yii::$app->factory->get( 'eventService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -50,7 +68,7 @@ class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 				]
 			],
 			'verbs' => [
-				'class' => VerbFilter::className(),
+				'class' => VerbFilter::class,
 				'actions' => [
 					'bulk' => [ 'post' ],
 					'trash' => [ 'post' ],

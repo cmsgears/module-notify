@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\common\services\resources;
 
 // Yii Imports
@@ -8,15 +16,19 @@ use yii\data\Sort;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\notify\common\models\base\NotifyTables;
-use cmsgears\notify\common\models\resources\EventReminder;
-
 use cmsgears\notify\common\services\interfaces\resources\IEventReminderService;
 
+use cmsgears\core\common\services\base\ModelResourceService;
+
+use cmsgears\notify\common\services\traits\base\NotifyTrait;
+use cmsgears\notify\common\services\traits\base\ToggleTrait;
+
 /**
- * The class EventReminderService is base class to perform database activities for EventReminder Entity.
+ * EventReminderService provide service methods of event reminder.
+ *
+ * @since 1.0.0
  */
-class EventReminderService extends \cmsgears\core\common\services\base\EntityService implements IEventReminderService {
+class EventReminderService extends ModelResourceService implements IEventReminderService {
 
 	// Variables ---------------------------------------------------
 
@@ -27,8 +39,6 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 	// Public -----------------
 
 	public static $modelClass	= '\cmsgears\notify\common\models\resources\EventReminder';
-
-	public static $modelTable	= NotifyTables::TABLE_EVENT_REMINDER;
 
 	public static $parentType	= NotifyGlobal::TYPE_REMINDER;
 
@@ -43,6 +53,9 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 	// Private ----------------
 
 	// Traits ------------------------------------------------------
+
+	use NotifyTrait;
+	use ToggleTrait;
 
 	// Constructor and Initialisation ------------------------------
 
@@ -62,18 +75,34 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 
 	public function getPage( $config = [] ) {
 
-		$modelTable	= self::$modelTable;
+		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
+
+		$eventTable	= Yii::$app->factory->get( 'eventService' )->getModelTable();
+		$userTable	= Yii::$app->factory->get( 'userService' )->getModelTable();
 
 		// Sorting ----------
 
 		$sort = new Sort([
 			'attributes' => [
+				'id' => [
+					'asc' => [ "$modelTable.id" => SORT_ASC ],
+					'desc' => [ "$modelTable.id" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Id'
+				],
 				'event' => [
-					'asc' => [ "$modelTable.eventId" => SORT_ASC ],
-					'desc' => [ "$modelTable.eventId" => SORT_DESC ],
+					'asc' => [ "$eventTable.name" => SORT_ASC ],
+					'desc' => [ "$eventTable.name" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Event'
 				],
+	            'user' => [
+					'asc' => [ "$userTable.name" => SORT_ASC ],
+					'desc' => [ "$userTable.name" => SORT_DESC ],
+					'default' => SORT_DESC,
+	                'label' => 'User'
+	            ],
 				'title' => [
 					'asc' => [ "$modelTable.title" => SORT_ASC ],
 					'desc' => [ "$modelTable.title" => SORT_DESC ],
@@ -117,21 +146,33 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 		// Filters ----------
 
 		// Params
-		$consumed 	= Yii::$app->request->getQueryParam( 'consumed' );
-		$trash 		= Yii::$app->request->getQueryParam( 'trash' );
+		$cons	= Yii::$app->request->getQueryParam( 'consumed' );
+		$trash	= Yii::$app->request->getQueryParam( 'trash' );
 
 		// Filter - Consumed
-		if( isset( $consumed ) ) {
+		if( isset( $cons ) ) {
 
-			$filter = [ 'new' => 0, 'read' => 1 ];
-			$config[ 'conditions' ][ "$modelTable.consumed" ]	= $filter[ $consumed ];
+			switch( $cons ) {
+
+				case 'new': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ] = false;
+
+					break;
+				}
+				case 'read': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ] = true;
+
+					break;
+				}
+			}
 		}
 
 		// Filter - Trash
 		if( isset( $trash ) ) {
 
-			$filter = [ 'trash' => 1 ];
-			$config[ 'conditions' ][ "$modelTable.trash" ]	= $filter[ $trash ];
+			$config[ 'conditions' ][ "$modelTable.trash" ] = true;
 		}
 
 		// Searching --------
@@ -140,7 +181,11 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 
 		if( isset( $searchCol ) ) {
 
-			$search = [ 'title' => "$modelTable.title", 'content' => "$modelTable.content" ];
+			$search = [
+				'title' => "$modelTable.title",
+				'desc' => "$modelTable.description",
+				'content' => "$modelTable.content"
+			];
 
 			$config[ 'search-col' ] = $search[ $searchCol ];
 		}
@@ -148,7 +193,11 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 		// Reporting --------
 
 		$config[ 'report-col' ]	= [
-			'title' => "$modelTable.title", 'content' => "$modelTable.content",
+			'title' => "$modelTable.title",
+			'desc' => "$modelTable.description",
+			'content' => "$modelTable.content",
+			'consumed' => "$modelTable.consumed",
+			'trash' => "$modelTable.trash",
 			'scheduledAt' => "$modelTable.scheduledAt"
 		];
 
@@ -159,35 +208,87 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 
 	public function getPageForAdmin() {
 
-		$modelTable	= self::$modelTable;
+		$modelTable	= $this->getModelTable();
 
 		return $this->getPage( [ 'conditions' => [ "NOW() > $modelTable.scheduledAt", "$modelTable.admin" => true ] ] );
 	}
 
 	public function getPageByUserId( $userId ) {
 
-		$modelTable	= self::$modelTable;
+		$modelTable	= $this->getModelTable();
 
 		return $this->getPage( [ 'conditions' => [ "NOW() > $modelTable.scheduledAt", "$modelTable.userId" => $userId ] ] );
+	}
+
+	public function getPageByParent( $parentId, $parentType, $admin = false ) {
+
+		$modelTable	= $this->getModelTable();
+
+		return $this->getPage( [ 'conditions' => [ "NOW() > $modelTable.scheduledAt", "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType, "$modelTable.admin" => $admin ] ] );
 	}
 
 	// Read ---------------
 
 	// Read - Models ---
 
+	// TODO: Check for options to show collaborative irrespective of siteId
+
 	public function getRecent( $limit = 5, $config = [] ) {
 
-		return EventReminder::find()->where( $config[ 'conditions' ] )->andWhere( "scheduledAt <= NOW()" )->limit( $limit )->orderBy( 'scheduledAt ASC' )->all();
+		$modelClass	= static::$modelClass;
+
+		$siteId = Yii::$app->core->siteId;
+
+		return $modelClass::find()
+			->where( $config[ 'conditions' ] )
+			->andWhere( "scheduledAt <= NOW()" )
+			->andWhere( [ 'siteId' => $siteId ] )
+			->limit( $limit )->orderBy( 'scheduledAt ASC' )
+			->all();
+	}
+
+	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
+
+		$modelClass	= static::$modelClass;
+
+		$siteId = Yii::$app->core->siteId;
+
+		return $modelClass::queryByParent( $parentId, $parentType )
+			->andWhere( $config[ 'conditions' ] )
+			->andWhere( "scheduledAt <= NOW()" )
+			->andWhere( [ 'siteId' => $siteId ] )
+			->limit( $limit )->orderBy( 'scheduledAt ASC' )
+			->all();
 	}
 
 	public function getCount( $consumed = false, $admin = false ) {
 
-		return EventReminder::find()->where( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+		$modelClass	= static::$modelClass;
+
+		return $modelClass::find()
+			->where( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
+			->count();
 	}
 
 	public function getUserCount( $userId, $consumed = false, $admin = false ) {
 
-		return EventReminder::queryByUserId( $userId )->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )->count();
+		$modelClass	= static::$modelClass;
+
+		return $modelClass::queryByUserId( $userId )
+			->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
+			->count();
+	}
+
+	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
+
+		$modelClass	= static::$modelClass;
+
+		$siteId = Yii::$app->core->siteId;
+
+		return $modelClass::queryByParent( $parentId, $parentType )
+			->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
+			->andWhere( [ 'siteId' => $siteId ] )
+			->count();
 	}
 
 	// Read - Lists ----
@@ -207,65 +308,46 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 		]);
 	}
 
-	public function toggleRead( $model ) {
+	// Delete -------------
 
-		if( $model->isConsumed() ) {
+	public function deleteByEventId( $eventId, $config = [] ) {
 
-			return $this->markNew( $model );
-		}
+		$modelClass = self::$modelClass;
 
-		return $this->markConsumed( $model );
+		$modelClass::deleteByEventId( $eventId );
 	}
 
-	public function markNew( $model ) {
+	public function deleteByUserId( $userId, $config = [] ) {
 
-		$model->consumed = false;
+		$modelClass = self::$modelClass;
 
-		return parent::update( $model, [
-			'attributes' => [ 'consumed' ]
-		]);
+		$modelClass::deleteByUserId( $userId );
 	}
 
-	public function markConsumed( $model ) {
-
-		$model->consumed = true;
-
-		return parent::update( $model, [
-				'attributes' => [ 'consumed' ]
-		]);
-	}
-
-	public function markTrash( $model ) {
-
-		$model->trash = true;
-
-		return parent::update( $model, [
-				'attributes' => [ 'trash' ]
-		]);
-	}
+	// Bulk ---------------
 
 	public function applyBulkByUserId( $column, $action, $target, $userId ) {
 
-		foreach ( $target as $id ) {
+		foreach( $target as $id ) {
 
-			$reminder = $this->getById( $id );
+			$model = $this->getById( $id );
 
-			if( isset( $reminder ) && $reminder->userId == $userId ) {
+			if( isset( $model ) && $model->userId == $userId ) {
 
-				$this->applyBulk( $reminder, $column, $action, $target );
+				$this->applyBulk( $model, $column, $action, $target );
 			}
 		}
 	}
 
 	public function applyBulkByAdmin( $column, $action, $target ) {
 
-		foreach ( $target as $id ) {
+		foreach( $target as $id ) {
 
-			$reminder = $this->getById( $id );
+			$model = $this->getById( $id );
 
-			if( isset( $reminder ) && $reminder->admin ) {
+			if( isset( $model ) && $model->admin ) {
 
-				$this->applyBulk( $reminder, $column, $action, $target );
+				$this->applyBulk( $model, $column, $action, $target );
 			}
 		}
 	}
@@ -274,12 +356,6 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 
 		switch( $column ) {
 
-			case 'id': {
-
-				$this->delete( $model );
-
-				break;
-			}
 			case 'consumed': {
 
 				switch( $action ) {
@@ -306,10 +382,28 @@ class EventReminderService extends \cmsgears\core\common\services\base\EntitySer
 
 				break;
 			}
+			case 'model': {
+
+				switch( $action ) {
+
+					case 'delete': {
+
+						$this->delete( $model );
+
+						break;
+					}
+				}
+
+				break;
+			}
 		}
 	}
 
-	// Delete -------------
+	// Notifications ------
+
+	// Cache --------------
+
+	// Additional ---------
 
 	// Static Methods ----------------------------------------------
 

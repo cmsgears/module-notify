@@ -1,15 +1,30 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\admin\controllers;
 
 // Yii Imports
-use \Yii;
+use Yii;
 use yii\filters\VerbFilter;
 use yii\helpers\Url;
 
 // CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\notify\common\config\NotifyGlobal;
 
-class NotificationController extends \cmsgears\core\admin\controllers\base\Controller {
+use cmsgears\core\admin\controllers\base\Controller as BaseController;
+
+/**
+ * NotificationController provide actions specific to Notification model.
+ *
+ * @since 1.0.0
+ */
+class NotificationController extends BaseController {
 
 	// Variables ---------------------------------------------------
 
@@ -23,27 +38,31 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 
 	// Constructor and Initialisation ------------------------------
 
-	// Constructor and Initialisation ------------------------------
-
 	public function init() {
 
 		parent::init();
 
 		// Permission
-		$this->crudPermission 	= CoreGlobal::PERM_CORE;
+		$this->crudPermission = NotifyGlobal::PERM_NOTIFY_ADMIN;
+
+		// Config
+		$this->apixBase = 'notify/notification';
 
 		// Services
-		$this->modelService		= Yii::$app->factory->get( 'notificationService' );
+		$this->modelService = Yii::$app->factory->get( 'notificationService' );
 
 		// Sidebar
-		$this->sidebar 			= [ 'parent' => 'sidebar-notify', 'child' => 'notification' ];
+		$this->sidebar = [ 'parent' => 'sidebar-notify', 'child' => 'notification' ];
 
 		// Return Url
-		$this->returnUrl		= Url::previous( 'notifications' );
-		$this->returnUrl		= isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/all' ], true );
+		$this->returnUrl = Url::previous( 'notifications' );
+		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/all' ], true );
 
 		// Breadcrumbs
-		$this->breadcrumbs		= [
+		$this->breadcrumbs = [
+			'base' => [
+				[ 'label' => 'Home', 'url' => Url::toRoute( '/dashboard' ) ]
+			],
 			'all' => [ [ 'label' => 'Notifications' ] ]
 		];
 	}
@@ -67,7 +86,7 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 				]
 			],
 			'verbs' => [
-				'class' => VerbFilter::className(),
+				'class' => VerbFilter::class,
 				'actions' => [
 					'index' => [ 'get' ],
 					'all' => [ 'get' ]
@@ -96,7 +115,8 @@ class NotificationController extends \cmsgears\core\admin\controllers\base\Contr
 		$dataProvider = $this->modelService->getPageForAdmin();
 
 		return $this->render( 'all', [
-			 'dataProvider' => $dataProvider
+			'dataProvider' => $dataProvider
 		]);
 	}
+
 }

@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\admin\controllers\apix;
 
 // Yii Imports
@@ -6,9 +14,16 @@ use Yii;
 use yii\filters\VerbFilter;
 
 // CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\notify\common\config\NotifyGlobal;
 
-class ActivityController extends \cmsgears\core\admin\controllers\base\Controller {
+use cmsgears\core\admin\controllers\base\Controller;
+
+/**
+ * ActivityController provide actions specific to Activity model.
+ *
+ * @since 1.0.0
+ */
+class ActivityController extends Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -27,10 +42,10 @@ class ActivityController extends \cmsgears\core\admin\controllers\base\Controlle
 		parent::init();
 
 		// Permissions
-		$this->crudPermission 	= CoreGlobal::PERM_CORE;
+		$this->crudPermission = NotifyGlobal::PERM_NOTIFY_ADMIN;
 
 		// Services
-		$this->modelService		= Yii::$app->factory->get( 'activityService' );
+		$this->modelService = Yii::$app->factory->get( 'activityService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -48,15 +63,17 @@ class ActivityController extends \cmsgears\core\admin\controllers\base\Controlle
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
 					'toggle-read' => [ 'permission' => $this->crudPermission ],
+					'read' => [ 'permission' => $this->crudPermission ],
 					'trash' => [ 'permission' => $this->crudPermission ],
 					'delete' => [ 'permission' => $this->crudPermission ],
 					'bulk' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
-				'class' => VerbFilter::className(),
+				'class' => VerbFilter::class,
 				'actions' => [
 					'toggle-read' => [ 'post' ],
+					'read' => [ 'post' ],
 					'trash' => [ 'post' ],
 					'delete' => [ 'post' ],
 					'bulk' => [ 'post' ]
@@ -71,6 +88,7 @@ class ActivityController extends \cmsgears\core\admin\controllers\base\Controlle
 
 		return [
 			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\activity\ToggleRead', 'admin' => true ],
+			'read' => [ 'class' => 'cmsgears\notify\common\actions\activity\Read', 'admin' => true ],
 			'trash' => [ 'class' => 'cmsgears\notify\common\actions\activity\Trash', 'admin' => true ],
 			'delete' => [ 'class' => 'cmsgears\notify\common\actions\activity\Delete', 'admin' => true ],
 			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\activity\Bulk', 'admin' => true ]
@@ -81,6 +99,6 @@ class ActivityController extends \cmsgears\core\admin\controllers\base\Controlle
 
 	// CMG parent classes --------------------
 
-	// NotificationController ----------------
+	// ActivityController --------------------
 
 }

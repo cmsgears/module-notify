@@ -1,15 +1,26 @@
 <?php
+/**
+ * This file is part of CMSGears Framework. Please view License file distributed
+ * with the source code for license details.
+ *
+ * @link https://www.cmsgears.org/
+ * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
+ */
+
 namespace cmsgears\notify\common\actions\activity;
 
 // Yii Imports
 use Yii;
 
 // CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\notify\common\actions\notify\Bulk as BaseBulk;
 
-use cmsgears\core\common\utilities\AjaxUtil;
-
-class Bulk extends \cmsgears\core\common\base\Action {
+/**
+ * Bulk process bulk actions of Activity.
+ *
+ * @since 1.0.0
+ */
+class Bulk extends BaseBulk {
 
 	// Variables ---------------------------------------------------
 
@@ -19,14 +30,6 @@ class Bulk extends \cmsgears\core\common\base\Action {
 
 	// Public -----------------
 
-	public $user	= true;
-
-	public $admin	= false;
-
-	public $parentType;
-
-	public $parentId;
-
 	// Protected --------------
 
 	// Variables -----------------------------
@@ -34,8 +37,6 @@ class Bulk extends \cmsgears\core\common\base\Action {
 	// Public -----------------
 
 	// Protected --------------
-
-	protected $activityService;
 
 	// Private ----------------
 
@@ -47,7 +48,7 @@ class Bulk extends \cmsgears\core\common\base\Action {
 
 		parent::init();
 
-		$this->activityService	= Yii::$app->factory->get( 'activityService' );
+		$this->notifyService = Yii::$app->factory->get( 'activityService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -60,41 +61,6 @@ class Bulk extends \cmsgears\core\common\base\Action {
 
 	// CMG parent classes --------------------
 
-	// Delete --------------------------------
+	// Bulk ----------------------------------
 
-	public function run() {
-
-		$action	= Yii::$app->request->post( 'action' );
-		$column	= Yii::$app->request->post( 'column' );
-		$target	= Yii::$app->request->post( 'target' );
-
-		if( isset( $action ) && isset( $column ) && isset( $target ) ) {
-
-			if( isset( $this->parentType ) && isset( $this->parentId ) ) {
-
-				$target	= preg_split( '/,/', $target );
-
-				$this->activityService->applyBulkByParent( $column, $action, $target, $this->parentId, $this->parentType );
-			}
-			else if( $this->admin ) {
-
-				$target	= preg_split( '/,/', $target );
-
-				$this->activityService->applyBulkByAdmin( $column, $action, $target );
-			}
-			else if( $this->user ) {
-
-				$user	= Yii::$app->user->getIdentity();
-				$target	= preg_split( '/,/', $target );
-
-				$this->activityService->applyBulkByUserId( $column, $action, $target, $user->id );
-			}
-
-			// Trigger Ajax Success
-			return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ) );
-		}
-
-		// Trigger Ajax Failure
-		return AjaxUtil::generateFailure( Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_REQUEST ) );
-	}
 }
