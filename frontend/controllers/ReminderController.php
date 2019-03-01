@@ -13,15 +13,12 @@ namespace cmsgears\notify\frontend\controllers;
 use Yii;
 use yii\filters\VerbFilter;
 
-// CMG Imports
-use cmsgears\notify\frontend\controllers\base\Controller;
-
 /**
  * ReminderController provides actions specific to user reminders.
  *
  * @since 1.0.0
  */
-class ReminderController extends Controller {
+class ReminderController extends \cmsgears\notify\frontend\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -60,15 +57,15 @@ class ReminderController extends Controller {
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'index'	 => [ 'permission' => $this->crudPermission ],
-					'all'  => [ 'permission' => $this->crudPermission ]
+					'index' => [ 'permission' => $this->crudPermission ],
+					'all' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
 				'class' => VerbFilter::class,
 				'actions' => [
 					'index' => [ 'get', 'post' ],
-					'all'  => [ 'get' ]
+					'all' => [ 'get' ]
 				]
 			]
 		];
@@ -89,7 +86,7 @@ class ReminderController extends Controller {
 
 	public function actionAll() {
 
-		$user = Yii::$app->user->getIdentity();
+		$user = Yii::$app->core->getUser();
 
 		$dataProvider = $this->modelService->getPageByUserId( $user->id );
 

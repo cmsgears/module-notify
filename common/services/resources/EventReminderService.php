@@ -18,8 +18,6 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\services\interfaces\resources\IEventReminderService;
 
-use cmsgears\core\common\services\base\ModelResourceService;
-
 use cmsgears\notify\common\services\traits\base\NotifyTrait;
 use cmsgears\notify\common\services\traits\base\ToggleTrait;
 
@@ -28,7 +26,7 @@ use cmsgears\notify\common\services\traits\base\ToggleTrait;
  *
  * @since 1.0.0
  */
-class EventReminderService extends ModelResourceService implements IEventReminderService {
+class EventReminderService extends \cmsgears\core\common\services\base\ModelResourceService implements IEventReminderService {
 
 	// Variables ---------------------------------------------------
 
@@ -38,9 +36,9 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\resources\EventReminder';
+	public static $modelClass = '\cmsgears\notify\common\models\resources\EventReminder';
 
-	public static $parentType	= NotifyGlobal::TYPE_REMINDER;
+	public static $parentType = NotifyGlobal::TYPE_REMINDER;
 
 	// Protected --------------
 

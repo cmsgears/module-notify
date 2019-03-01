@@ -15,17 +15,14 @@ use Yii;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\core\common\base\Action;
-
 use cmsgears\core\common\utilities\AjaxUtil;
-use cmsgears\notify\common\config\NotifyGlobal;
 
 /**
  * Read mark the model read.
  *
  * @since 1.0.0
  */
-class Stats extends Action {
+class Stats extends \cmsgears\core\common\base\Action {
 
 	// Variables ---------------------------------------------------
 
@@ -70,22 +67,28 @@ class Stats extends Action {
 
 	// ToggleRead ----------------------------
 
-	public function run( ) {
+	public function run( $type = null ) {
 
-		$user = Yii::$app->core->getUser();
+		$data = null;
 
-		$notifyFlag	= $user->isPermitted( NotifyGlobal::PERM_NOTIFY_ADMIN );
-		
-		if( $notifyFlag ) {
+		// Stats for specific parent
+		if( isset( $this->parentType ) && isset( $this->parentId ) ) {
 
-			$data	= Yii::$app->eventManager->getAdminStats();
+			$data = Yii::$app->eventManager->getModelStats( $this->parentId, $this->parentType, $type );
+		}
+		// Stats for admin
+		else if( $this->admin ) {
 
-			// Trigger Ajax Success
-			return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ), $data );
+			$data = Yii::$app->eventManager->getAdminStats( $type );
+		}
+		// Stats for User
+		else if( $this->user ) {
+
+			$data = Yii::$app->eventManager->getUserStats( $type );
 		}
 
-		// Trigger Ajax Failure
-		return AjaxUtil::generateFailure( Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_REQUEST ) );
+		// Trigger Ajax Success
+		return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ), $data );
 	}
 
 }

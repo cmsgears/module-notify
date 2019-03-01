@@ -7,18 +7,21 @@
  * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
  */
 
-namespace cmsgears\notify\frontend\controllers;
+namespace cmsgears\notify\frontend\controllers\apix;
 
 // Yii Imports
 use Yii;
 use yii\filters\VerbFilter;
 
+// CMG Imports
+use cmsgears\core\common\config\CoreGlobal;
+
 /**
- * ActivityController provides actions specific to user reminders.
+ * StatsController provide actions specific to Notify Module stats specific to User.
  *
  * @since 1.0.0
  */
-class ActivityController extends \cmsgears\notify\frontend\controllers\base\Controller {
+class StatsController extends \cmsgears\core\admin\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -36,11 +39,8 @@ class ActivityController extends \cmsgears\notify\frontend\controllers\base\Cont
 
 		parent::init();
 
-		// Config
-		$this->layout = Yii::$app->notify->customLayout[ 'activity' ] ?? $this->layout;
-
-		// Services
-		$this->modelService	= Yii::$app->factory->get( 'activityService' );
+		// Permission
+		$this->crudPermission = CoreGlobal::PERM_USER;
 	}
 
 	// Instance methods --------------------------------------------
@@ -57,15 +57,13 @@ class ActivityController extends \cmsgears\notify\frontend\controllers\base\Cont
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'index'	 => [ 'permission' => $this->crudPermission ],
-					'all'  => [ 'permission' => $this->crudPermission ]
+					'stats' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
 				'class' => VerbFilter::class,
 				'actions' => [
-					'index' => [ 'get', 'post' ],
-					'all'  => [ 'get' ]
+					'stats' => [ 'get', 'post' ]
 				]
 			]
 		];
@@ -73,26 +71,17 @@ class ActivityController extends \cmsgears\notify\frontend\controllers\base\Cont
 
 	// yii\base\Controller ----
 
+	public function actions() {
+
+		return [
+			'stats' => [ 'class' => 'cmsgears\notify\common\actions\notify\Stats' ]
+		];
+	}
+
 	// CMG interfaces ------------------------
 
 	// CMG parent classes --------------------
 
-	// ActivityController --------------------
-
-	public function actionIndex() {
-
-		return $this->redirect( [ 'all' ] );
-	}
-
-	public function actionAll() {
-
-		$user = Yii::$app->core->getUser();
-
-		$dataProvider = $this->modelService->getPageByUserId( $user->id );
-
-		return $this->render( 'all', [
-			'dataProvider' => $dataProvider
-		]);
-	}
+	// StatsController -----------------------
 
 }

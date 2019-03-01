@@ -16,8 +16,6 @@ use yii\filters\VerbFilter;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\core\common\controllers\base\Controller;
-
 use cmsgears\core\common\utilities\AjaxUtil;
 use cmsgears\core\common\utilities\DateUtil;
 
@@ -26,7 +24,7 @@ use cmsgears\core\common\utilities\DateUtil;
  *
  * @since 1.0.0
  */
-class CalendarController extends Controller {
+class CalendarController extends \cmsgears\core\frontend\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -44,8 +42,11 @@ class CalendarController extends Controller {
 
 		parent::init();
 
-		$this->crudPermission	= CoreGlobal::PERM_USER;
-		$this->modelService 	= Yii::$app->factory->get( 'eventService' );
+		// Permission
+		$this->crudPermission = CoreGlobal::PERM_USER;
+
+		// Services
+		$this->modelService = Yii::$app->factory->get( 'eventService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -62,7 +63,7 @@ class CalendarController extends Controller {
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'delete' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
+					'delete' => [ 'permission' => $this->crudPermission ],
 					'bulk' => [ 'permission' => $this->crudPermission ],
 					'events' => [ 'permission' => $this->crudPermission ],
 					'event' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ]
@@ -98,7 +99,7 @@ class CalendarController extends Controller {
 
 	public function actionEvents() {
 
-		$user = Yii::$app->user->GetIdentity();
+		$user = Yii::$app->core->getUser();
 
 		$startDate	= Yii::$app->request->post( 'startDate' );
 		$endDate	= Yii::$app->request->post( 'endDate' );

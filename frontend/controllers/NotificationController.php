@@ -13,15 +13,12 @@ namespace cmsgears\notify\frontend\controllers;
 use Yii;
 use yii\filters\VerbFilter;
 
-// CMG Imports
-use cmsgears\notify\frontend\controllers\base\Controller;
-
 /**
  * NotificationController provides actions specific to user notifications.
  *
  * @since 1.0.0
  */
-class NotificationController extends Controller {
+class NotificationController extends \cmsgears\notify\frontend\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -90,7 +87,7 @@ class NotificationController extends Controller {
 
 	public function actionAll() {
 
-		$user = Yii::$app->user->getIdentity();
+		$user = Yii::$app->core->getUser();
 
 		$dataProvider = $this->modelService->getPageByUserId( $user->id );
 

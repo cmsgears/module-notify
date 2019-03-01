@@ -16,14 +16,12 @@ use yii\filters\VerbFilter;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\core\common\controllers\base\Controller;
-
 /**
  * NotificationController provides actions specific to user notifications.
  *
  * @since 1.0.0
  */
-class NotificationController extends Controller {
+class NotificationController extends \cmsgears\core\frontend\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -41,8 +39,11 @@ class NotificationController extends Controller {
 
 		parent::init();
 
-		$this->crudPermission	= CoreGlobal::PERM_USER;
-		$this->modelService 	= Yii::$app->factory->get( 'notificationService' );
+		// Permission
+		$this->crudPermission = CoreGlobal::PERM_USER;
+
+		// Services
+		$this->modelService = Yii::$app->factory->get( 'notificationService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -59,10 +60,10 @@ class NotificationController extends Controller {
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'toggle-read' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
-					'toggle-trash' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
-					'trash' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
-					'delete' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
+					'toggle-read' => [ 'permission' => $this->crudPermission ],
+					'toggle-trash' => [ 'permission' => $this->crudPermission ],
+					'trash' => [ 'permission' => $this->crudPermission ],
+					'delete' => [ 'permission' => $this->crudPermission ],
 					'bulk' => [ 'permission' => $this->crudPermission ]
 				]
 			],

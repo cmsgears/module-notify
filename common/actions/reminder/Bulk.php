@@ -12,15 +12,12 @@ namespace cmsgears\notify\common\actions\reminder;
 // Yii Imports
 use Yii;
 
-// CMG Imports
-use cmsgears\notify\common\actions\notify\Bulk as BaseBulk;
-
 /**
  * Bulk process bulk actions of Activity.
  *
  * @since 1.0.0
  */
-class Bulk extends BaseBulk {
+class Bulk extends \cmsgears\notify\common\actions\notify\Bulk {
 
 	// Variables ---------------------------------------------------
 

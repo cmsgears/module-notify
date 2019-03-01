@@ -13,15 +13,12 @@ namespace cmsgears\notify\frontend\controllers;
 use Yii;
 use yii\filters\VerbFilter;
 
-// CMG Imports
-use cmsgears\notify\frontend\controllers\base\Controller;
-
 /**
  * AnnouncementController provides actions specific to site announcements.
  *
  * @since 1.0.0
  */
-class AnnouncementController extends Controller {
+class AnnouncementController extends \cmsgears\notify\frontend\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 

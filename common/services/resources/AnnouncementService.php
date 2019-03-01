@@ -23,14 +23,12 @@ use cmsgears\notify\common\models\resources\Announcement;
 use cmsgears\core\common\services\interfaces\resources\IFileService;
 use cmsgears\notify\common\services\interfaces\resources\IAnnouncementService;
 
-use cmsgears\core\common\services\base\ModelResourceService;
-
 /**
  * AnnouncementService provide service methods of announcement model.
  *
  * @since 1.0.0
  */
-class AnnouncementService extends ModelResourceService implements IAnnouncementService {
+class AnnouncementService extends \cmsgears\core\common\services\base\ModelResourceService implements IAnnouncementService {
 
 	// Variables ---------------------------------------------------
 
@@ -40,9 +38,9 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\resources\Announcement';
+	public static $modelClass = '\cmsgears\notify\common\models\resources\Announcement';
 
-	public static $parentType	= NotifyGlobal::TYPE_ANNOUNCEMENT;
+	public static $parentType = NotifyGlobal::TYPE_ANNOUNCEMENT;
 
 	// Protected --------------
 

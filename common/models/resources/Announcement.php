@@ -75,12 +75,12 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 	const STATUS_EXPIRED	= 300;
 
 	// App Only
-	const ACCESS_APP		= 100; // Directly available on App without admin intervention
+	const ACCESS_APP = 200; // Directly available on App without admin intervention, added by App
 
 	// Admin, App
-	const ACCESS_APP_ACT	= 200; // Available on App with admin intervention
-	const ACCESS_APP_ADMIN	= 300; // Available on both Admin and App
-	const ACCESS_ADMIN		= 400; // Available only on Admin
+	const ACCESS_APP_ACT	=  500; // Available on App with admin intervention, added by either Admin or App
+	const ACCESS_APP_ADMIN	=  800; // Available on both Admin and App, added by Admin
+	const ACCESS_ADMIN		= 1000; // Available only on Admin, added by Admin
 
 	// Public -----------------
 

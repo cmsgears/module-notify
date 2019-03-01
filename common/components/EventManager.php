@@ -16,8 +16,6 @@ use Yii;
 use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\common\components\EventManager as BaseEventManager;
-
 use cmsgears\core\common\utilities\DateUtil;
 
 /**
@@ -25,7 +23,7 @@ use cmsgears\core\common\utilities\DateUtil;
  *
  * @since 1.0.0
  */
-class EventManager extends BaseEventManager {
+class EventManager extends \cmsgears\core\common\components\EventManager {
 
 	// Variables ---------------------------------------------------
 
@@ -75,29 +73,30 @@ class EventManager extends BaseEventManager {
 	/**
 	 * @inheritdoc
 	 */
-	public function getAdminStats() {
-
-		// Query
-		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
-		$newNotifications	= $this->notificationService->getCount( false, true );
-
-		$reminders		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
-		$newReminders	= $this->reminderService->getCount( false, true );
-
-		$activities		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
-		$newActivities	= $this->activityService->getCount( false, true );
+	public function getAdminStats( $type = null ) {
 
 		// Results
-		$stats	= parent::getAdminStats();
+		$stats = parent::getAdminStats( $type );
 
-		$stats[ 'notifications' ]		= $notifications;
-		$stats[ 'notificationCount' ]	= $newNotifications;
+		if( empty( $type ) || $type == 'notification' ) {
 
-		$stats[ 'reminders' ]		= $reminders;
-		$stats[ 'reminderCount' ]	= $newReminders;
+			$stats[ 'notifications' ]		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
+			$stats[ 'notificationCount' ]	= $this->notificationService->getCount( false, true );
+		}
 
-		$stats[ 'activities' ]		= $activities;
-		$stats[ 'activityCount' ]	= $newActivities;
+		if( empty( $type ) || $type == 'reminder' ) {
+
+			$stats[ 'reminders' ]		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
+			$stats[ 'reminderCount' ]	= $this->reminderService->getCount( false, true );
+		}
+
+		if( empty( $type ) || $type == 'activity' ) {
+
+			$stats[ 'activities' ]		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
+			$stats[ 'activityCount' ]	= count( $stats[ 'activities' ] );
+
+			//$stats[ 'activityCount' ]	= $this->activityService->getCount( false, true );
+		}
 
 		return $stats;
 	}
@@ -105,75 +104,75 @@ class EventManager extends BaseEventManager {
 	/**
 	 * @inheritdoc
 	 */
-	public function getUserStats() {
+	public function getUserStats( $type = null ) {
 
-		$user = Yii::$app->user->getIdentity();
+		$user = Yii::$app->core->getUser();
 		$site = Yii::$app->core->site;
 
-		// User Notifications
-		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
-		$newNotifications	= $this->notificationService->getUserCount( $user->id, false, false );
-
-		// User Reminders
-		$reminders		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
-		$newReminders	= $this->reminderService->getUserCount( $user->id, false, false );
-
-		// User Activities
-		$activities		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
-		$newActivities	= $this->activityService->getCount( false, true );
-
-		// Site Announcements
-		$announcements	= $this->announcementService->getRecentByParent( $site->id, CoreGlobal::TYPE_SITE );
-
 		// Results
-		$stats	= parent::getUserStats();
+		$stats = parent::getUserStats( $type );
 
-		$stats[ 'notifications' ]		= $notifications;
-		$stats[ 'notificationCount' ]	= $newNotifications;
+		if( empty( $type ) || $type == 'notification' ) {
 
-		$stats[ 'reminders' ]		= $reminders;
-		$stats[ 'reminderCount' ]	= $newReminders;
+			$stats[ 'notifications' ]		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
+			$stats[ 'notificationCount' ]	= $this->notificationService->getUserCount( $user->id, false, false );
+		}
 
-		$stats[ 'activities' ]		= $activities;
-		$stats[ 'activityCount' ]	= $newActivities;
+		if( empty( $type ) || $type == 'reminder' ) {
 
-		$stats[ 'announcements' ] = $announcements;
+			$stats[ 'reminders' ]		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
+			$stats[ 'reminderCount' ]	= $this->reminderService->getUserCount( $user->id, false, false );
+		}
+
+		if( empty( $type ) || $type == 'activity' ) {
+
+			$stats[ 'activities' ]		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
+			$stats[ 'activityCount' ]	= count( $stats[ 'activities' ] );
+
+			//$stats[ 'activityCount' ]	= $this->activityService->getUserCount( $user->id, false, false );
+		}
+
+		if( empty( $type ) || $type == 'announcement' ) {
+
+			$stats[ 'announcements' ]		= $this->announcementService->getRecentByParent( $site->id, CoreGlobal::TYPE_SITE );
+			$stats[ 'announcementCount' ]	= count( $stats[ 'announcements' ] );
+		}
 
 		return $stats;
 	}
 
-	public function getModelStats( $parentId, $parentType ) {
+	public function getModelStats( $parentId, $parentType, $type = null ) {
 
 		$site = Yii::$app->core->site;
 
-		// Model Notifications
-		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
-		$newNotifications	= $this->notificationService->getCountByParent( $parentId, $parentType, false, false );
-
-		// Model Reminders
-		$reminders		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
-		$newReminders	= $this->reminderService->getCountByParent( $parentId, $parentType, false, false );
-
-		// Model Activities
-		$activities		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
-		$newActivities	= $this->activityService->getCountByParent( $parentId, $parentType, false, false );
-
-		// Site Announcements
-		$announcements	= $this->announcementService->getRecentByParent( $site->id, CoreGlobal::TYPE_SITE );
-
 		// Results
-		$stats	= parent::getModelStats( $parentId, $parentType );
+		$stats = parent::getModelStats( $parentId, $parentType, $type );
 
-		$stats[ 'notifications' ]		= $notifications;
-		$stats[ 'notificationCount' ]	= $newNotifications;
+		if( empty( $type ) || $type == 'notification' ) {
 
-		$stats[ 'reminders' ]		= $reminders;
-		$stats[ 'reminderCount' ]	= $newReminders;
+			$stats[ 'notifications' ]		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
+			$stats[ 'notificationCount' ]	= $this->notificationService->getCountByParent( $parentId, $parentType, false, false );
+		}
 
-		$stats[ 'activities' ]		= $activities;
-		$stats[ 'activityCount' ]	= $newActivities;
+		if( empty( $type ) || $type == 'reminder' ) {
 
-		$stats[ 'announcements' ] = $announcements;
+			$stats[ 'reminders' ]		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
+			$stats[ 'reminderCount' ]	= $this->reminderService->getCountByParent( $parentId, $parentType, false, false );
+		}
+
+		if( empty( $type ) || $type == 'activity' ) {
+
+			$stats[ 'activities' ]		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
+			$stats[ 'activityCount' ]	= count( $stats[ 'activities' ] );
+
+			//$stats[ 'activityCount' ]	= $this->activityService->getCountByParent( $parentId, $parentType, false, false );
+		}
+
+		if( empty( $type ) || $type == 'announcement' ) {
+
+			$stats[ 'announcements' ]		= $this->announcementService->getRecentByParent( $parentId, $parentType );
+			$stats[ 'announcementCount' ]	= count( $stats[ 'announcements' ] );
+		}
 
 		return $stats;
 	}
@@ -389,7 +388,7 @@ class EventManager extends BaseEventManager {
 	// Activity
 	private function logActivity( $model, $service, $slug, $title, $config = [] ) {
 
-		$user =	Yii::$app->user->getIdentity();
+		$user =	Yii::$app->core->getUser();
 
 		$config['parentId'] = $model->id;
 		$config['parentType'] = $service->getParentType();
@@ -471,7 +470,7 @@ class EventManager extends BaseEventManager {
 		// Create Activity
 		$this->activityService->create( $activity, $config );
 
-		$user =	Yii::$app->user->getIdentity();
+		$user =	Yii::$app->core->getUser();
 
 		$user->lastActivityAt = DateUtil::getDateTime();
 

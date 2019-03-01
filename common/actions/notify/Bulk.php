@@ -15,8 +15,6 @@ use Yii;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\core\common\base\Action;
-
 use cmsgears\core\common\utilities\AjaxUtil;
 
 /**
@@ -24,7 +22,7 @@ use cmsgears\core\common\utilities\AjaxUtil;
  *
  * @since 1.0.0
  */
-abstract class Bulk extends Action {
+abstract class Bulk extends \cmsgears\core\common\base\Action {
 
 	// Variables ---------------------------------------------------
 
@@ -94,7 +92,7 @@ abstract class Bulk extends Action {
 			// Apply bulk action on user specific models
 			else if( $this->user ) {
 
-				$user	= Yii::$app->user->getIdentity();
+				$user	= Yii::$app->core->getUser();
 				$target	= preg_split( '/,/', $target );
 
 				$this->notifyService->applyBulkByUserId( $column, $action, $target, $user->id );

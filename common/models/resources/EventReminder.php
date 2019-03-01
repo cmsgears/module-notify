@@ -187,8 +187,9 @@ class EventReminder extends ModelResource implements IData, IOwner, IToggle {
 	 */
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'event', 'user' ];
-		$config[ 'relations' ]	= $relations;
+		$relations = isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'event', 'user' ];
+
+		$config[ 'relations' ] = $relations;
 
 		return parent::queryWithAll( $config );
 	}
@@ -259,4 +260,5 @@ class EventReminder extends ModelResource implements IData, IOwner, IToggle {
 
 		return self::deleteAll( 'userId=:id', [ ':id' => $userId ] );
 	}
+
 }

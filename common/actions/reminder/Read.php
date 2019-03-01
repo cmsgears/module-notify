@@ -12,15 +12,12 @@ namespace cmsgears\notify\common\actions\reminder;
 // Yii Imports
 use Yii;
 
-// CMG Imports
-use cmsgears\notify\common\actions\notify\Read as BaseRead;
-
 /**
  * Read mark the activity read.
  *
  * @since 1.0.0
  */
-class Read extends BaseRead {
+class Read extends \cmsgears\notify\common\actions\notify\Read {
 
 	// Variables ---------------------------------------------------
 

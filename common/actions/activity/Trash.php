@@ -12,15 +12,12 @@ namespace cmsgears\notify\common\actions\activity;
 // Yii Imports
 use Yii;
 
-// CMG Imports
-use cmsgears\notify\common\actions\notify\Trash as BaseTrash;
-
 /**
  * Trash mark the activity for trash.
  *
  * @since 1.0.0
  */
-class Trash extends BaseTrash {
+class Trash extends \cmsgears\notify\common\actions\notify\Trash {
 
 	// Variables ---------------------------------------------------
 

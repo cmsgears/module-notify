@@ -21,8 +21,6 @@ use cmsgears\notify\common\models\resources\Event;
 use cmsgears\core\common\services\interfaces\resources\IFileService;
 use cmsgears\notify\common\services\interfaces\resources\IEventService;
 
-use cmsgears\core\common\services\base\ModelResourceService;
-
 use cmsgears\core\common\services\traits\base\NameTypeTrait;
 use cmsgears\core\common\services\traits\base\SlugTypeTrait;
 
@@ -31,7 +29,7 @@ use cmsgears\core\common\services\traits\base\SlugTypeTrait;
  *
  * @since 1.0.0
  */
-class EventService extends ModelResourceService implements IEventService {
+class EventService extends \cmsgears\core\common\services\base\ModelResourceService implements IEventService {
 
 	// Variables ---------------------------------------------------
 
@@ -41,11 +39,11 @@ class EventService extends ModelResourceService implements IEventService {
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\resources\Event';
+	public static $modelClass = '\cmsgears\notify\common\models\resources\Event';
 
-	public static $typed		= true;
+	public static $typed = true;
 
-	public static $parentType	= NotifyGlobal::TYPE_EVENT;
+	public static $parentType = NotifyGlobal::TYPE_EVENT;
 
 	// Protected --------------
 

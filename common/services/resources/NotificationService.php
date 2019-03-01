@@ -18,8 +18,6 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\services\interfaces\resources\INotificationService;
 
-use cmsgears\core\common\services\base\ModelResourceService;
-
 use cmsgears\notify\common\services\traits\base\BulkTrait;
 use cmsgears\notify\common\services\traits\base\NotifyTrait;
 use cmsgears\notify\common\services\traits\base\ToggleTrait;
@@ -29,7 +27,7 @@ use cmsgears\notify\common\services\traits\base\ToggleTrait;
  *
  * @since 1.0.0
  */
-class NotificationService extends ModelResourceService implements INotificationService {
+class NotificationService extends \cmsgears\core\common\services\base\ModelResourceService implements INotificationService {
 
 	// Variables ---------------------------------------------------
 
@@ -39,9 +37,9 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\resources\Notification';
+	public static $modelClass = '\cmsgears\notify\common\models\resources\Notification';
 
-	public static $parentType	= NotifyGlobal::TYPE_NOTIFICATION;
+	public static $parentType = NotifyGlobal::TYPE_NOTIFICATION;
 
 	// Protected --------------
 

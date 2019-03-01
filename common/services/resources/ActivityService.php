@@ -18,8 +18,6 @@ use cmsgears\core\common\config\CoreGlobal;
 
 use cmsgears\notify\common\services\interfaces\resources\IActivityService;
 
-use cmsgears\core\common\services\base\ModelResourceService;
-
 use cmsgears\notify\common\services\traits\base\BulkTrait;
 use cmsgears\notify\common\services\traits\base\NotifyTrait;
 use cmsgears\notify\common\services\traits\base\ToggleTrait;
@@ -29,7 +27,7 @@ use cmsgears\notify\common\services\traits\base\ToggleTrait;
  *
  * @since 1.0.0
  */
-class ActivityService extends ModelResourceService implements IActivityService {
+class ActivityService extends \cmsgears\core\common\services\base\ModelResourceService implements IActivityService {
 
 	// Variables ---------------------------------------------------
 

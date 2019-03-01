@@ -19,14 +19,12 @@ use cmsgears\core\common\config\CoreGlobal;
 
 use cmsgears\core\common\models\resources\File;
 
-use cmsgears\notify\frontend\controllers\base\Controller;
-
 /**
  * CalendarController provides actions specific to user events.
  *
  * @since 1.0.0
  */
-class CalendarController extends Controller {
+class CalendarController extends \cmsgears\notify\frontend\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -109,7 +107,7 @@ class CalendarController extends Controller {
 
 		$modelClass = $this->modelService->getModelClass();
 
-		$user = Yii::$app->user->getIdentity();
+		$user = Yii::$app->core->getUser();
 
 		$dataProvider = $this->modelService->getPageByUserId( $user->id );
 
@@ -126,7 +124,7 @@ class CalendarController extends Controller {
 
 	public function actionAdd() {
 
-		$user = Yii::$app->user->getIdentity();
+		$user = Yii::$app->core->getUser();
 
 		$modelClass	= $this->modelService->getModelClass();
 		$model		= new $modelClass();
@@ -160,7 +158,7 @@ class CalendarController extends Controller {
 
 	public function actionUpdate( $id ) {
 
-		$user = Yii::$app->user->getIdentity();
+		$user = Yii::$app->core->getUser();
 
 		$modelClass	= $this->modelService->getModelClass();
 		$model		= $this->modelService->getById( $id );

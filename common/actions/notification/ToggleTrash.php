@@ -12,15 +12,12 @@ namespace cmsgears\notify\common\actions\notification;
 // Yii Imports
 use Yii;
 
-// CMG Imports
-use cmsgears\notify\common\actions\notify\ToggleTrash as BaseToggleTrash;
-
 /**
  * ToggleTrash mark the activity trash or valid.
  *
  * @since 1.0.0
  */
-class ToggleTrash extends BaseToggleTrash {
+class ToggleTrash extends \cmsgears\notify\common\actions\notify\ToggleTrash {
 
 	// Variables ---------------------------------------------------
 
