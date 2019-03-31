@@ -19,14 +19,12 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\admin\models\forms\ActivityConfig;
 
-use cmsgears\core\admin\controllers\base\TemplateController as BaseTemplateController;
-
 /**
  * TemplateController provide actions specific to Activity templates.
  *
  * @since 1.0.0
  */
-class TemplateController extends BaseTemplateController {
+class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateController {
 
 	// Variables ---------------------------------------------------
 
@@ -109,6 +107,8 @@ class TemplateController extends BaseTemplateController {
 
 			$this->model = $this->modelService->create( $model, [ 'admin' => true ] );
 
+			$this->model->refresh();
+
 			$this->modelService->updateDataMeta( $model, CoreGlobal::DATA_CONFIG, $modelConfig );
 
 			return $this->redirect( 'all' );
@@ -136,6 +136,8 @@ class TemplateController extends BaseTemplateController {
 				$model->validate() && $modelConfig->validate() ) {
 
 				$this->model = $this->modelService->update( $model, [ 'admin' => true ] );
+
+				$this->model->refresh();
 
 				$this->modelService->updateDataMeta( $model, CoreGlobal::DATA_CONFIG, $modelConfig );
 

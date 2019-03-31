@@ -19,14 +19,12 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\admin\models\forms\ReminderConfig;
 
-use cmsgears\core\admin\controllers\base\TemplateController as BaseTemplateController;
-
 /**
  * TemplateController provide actions specific to Reminder templates.
  *
  * @since 1.0.0
  */
-class TemplateController extends BaseTemplateController {
+class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateController {
 
 	// Variables ---------------------------------------------------
 
@@ -102,14 +100,16 @@ class TemplateController extends BaseTemplateController {
 		$model->type	= $this->type;
 		$model->siteId	= Yii::$app->core->siteId;
 
-		$modelConfig	= new ReminderConfig();
+		$modelConfig = new ReminderConfig();
 
-		if( $model->load( Yii::$app->request->post(), $model->getClassName() )  && $modelConfig->load( Yii::$app->request->post(), 'ReminderConfig' ) &&
+		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $modelConfig->load( Yii::$app->request->post(), 'ReminderConfig' ) &&
 			$model->validate() && $modelConfig->validate() ) {
 
 			$this->model = $this->modelService->create( $model, [ 'admin' => true ] );
 
-			$this->model->updateDataMeta( CoreGlobal::DATA_CONFIG, $modelConfig );
+			$this->model->refresh();
+
+			$this->modelService->updateDataMeta( $this->model, CoreGlobal::DATA_CONFIG, $modelConfig );
 
 			return $this->redirect( 'all' );
 		}
@@ -137,7 +137,9 @@ class TemplateController extends BaseTemplateController {
 
 				$this->model = $this->modelService->update( $model, [ 'admin' => true ] );
 
-				$this->model->updateDataMeta( CoreGlobal::DATA_CONFIG, $modelConfig );
+				$this->model->refresh();
+
+				$this->modelService->updateDataMeta( $this->model, CoreGlobal::DATA_CONFIG, $modelConfig );
 
 				return $this->redirect( $this->returnUrl );
 			}

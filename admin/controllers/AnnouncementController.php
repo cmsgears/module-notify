@@ -20,14 +20,12 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\resources\File;
 
-use cmsgears\core\admin\controllers\base\Controller;
-
 /**
  * AnnouncementController provide actions specific to Announcement model.
  *
  * @since 1.0.0
  */
-class AnnouncementController extends Controller {
+class AnnouncementController extends \cmsgears\core\admin\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -132,8 +130,6 @@ class AnnouncementController extends Controller {
 
 		$accessMap = $modelClass::$accessMap;
 
-		unset( $accessMap[ $modelClass::ACCESS_APP ] );
-
 		return $this->render( 'all', [
 			'dataProvider' => $dataProvider,
 			'statusMap' => $modelClass::$statusMap,
@@ -159,8 +155,6 @@ class AnnouncementController extends Controller {
 		}
 
 		$accessMap = $modelClass::$accessMap;
-
-		unset( $accessMap[ $modelClass::ACCESS_APP ] );
 
 		return $this->render( 'create', [
 			'model' => $model,
@@ -190,8 +184,6 @@ class AnnouncementController extends Controller {
 			}
 
 			$accessMap = $modelClass::$accessMap;
-
-			unset( $accessMap[ $modelClass::ACCESS_APP ] );
 
 			// Render view
 			return $this->render( 'update', [

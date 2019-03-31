@@ -27,11 +27,11 @@ class ActivityConfig extends DataModel {
 
 	// Public -----------------
 
-	public $storeContent	= false;
+	public $storeContent = false;
 
-	public $storeData		= false;
+	public $storeData = false;
 
-	public $storeCache		= false;
+	public $storeCache = false;
 
 	// Protected --------------
 
@@ -70,9 +70,9 @@ class ActivityConfig extends DataModel {
 	public function attributeLabels() {
 
 		return [
-			'storeContent' => 'Store Content',
-			'storeData' => 'Store Data',
-			'storeCache' => 'Store Cache'
+			'storeContent' => 'Content',
+			'storeData' => 'JSON Data',
+			'storeCache' => 'JSON Cache'
 		];
 	}
 

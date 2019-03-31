@@ -109,7 +109,7 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 
 	public static $accessMap = [
 		self::ACCESS_APP => 'App',
-		self::ACCESS_APP_ACT => 'App Act',
+		self::ACCESS_APP_ACT => 'App & Act',
 		self::ACCESS_APP_ADMIN => 'App & Admin',
 		self::ACCESS_ADMIN => 'Admin'
 	];
