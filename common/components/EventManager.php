@@ -124,9 +124,10 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 			$stats[ 'reminderCount' ]	= $this->reminderService->getUserCount( $user->id, false, false );
 		}
 
+		// Show only default activities
 		if( empty( $type ) || $type == 'activity' ) {
 
-			$stats[ 'activities' ]		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
+			$stats[ 'activities' ]		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id, 'type' => CoreGlobal::TYPE_DEFAULT ] ] );
 			$stats[ 'activityCount' ]	= count( $stats[ 'activities' ] );
 
 			//$stats[ 'activityCount' ]	= $this->activityService->getUserCount( $user->id, false, false );
@@ -160,9 +161,10 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 			$stats[ 'reminderCount' ]	= $this->reminderService->getCountByParent( $parentId, $parentType, false, false );
 		}
 
+		// Show only default activities
 		if( empty( $type ) || $type == 'activity' ) {
 
-			$stats[ 'activities' ]		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
+			$stats[ 'activities' ]		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType, 'type' => CoreGlobal::TYPE_DEFAULT ] ] );
 			$stats[ 'activityCount' ]	= count( $stats[ 'activities' ] );
 
 			//$stats[ 'activityCount' ]	= $this->activityService->getCountByParent( $parentId, $parentType, false, false );

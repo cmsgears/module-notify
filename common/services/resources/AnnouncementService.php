@@ -284,6 +284,8 @@ class AnnouncementService extends \cmsgears\core\common\services\base\ModelResou
 
 		$banner = isset( $config[ 'banner' ] ) ? $config[ 'banner' ] : null;
 
+		$model->type = empty( $model->type ) ? CoreGlobal::TYPE_DEFAULT : $model->type;
+
 		// Save resources
 		$this->fileService->saveFiles( $model, [ 'bannerId' => $banner ] );
 

@@ -238,7 +238,8 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId, "$modelTable.type" => CoreGlobal::TYPE_USER ] ] );
+		// Show only default activities
+		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId, "$modelTable.type" => CoreGlobal::TYPE_DEFAULT ] ] );
 	}
 
 	public function getPageByParent( $parentId, $parentType, $admin = false ) {
@@ -324,6 +325,7 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 		$model->agent	= Yii::$app->request->userAgent;
 		$model->ip		= Yii::$app->request->userIP;
 		$model->siteId	= $siteId;
+		$model->type	= empty( $model->type ) ? CoreGlobal::TYPE_DEFAULT : $model->type;
 
 		return parent::create( $model, $config );
 	}

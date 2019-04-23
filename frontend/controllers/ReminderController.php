@@ -37,7 +37,8 @@ class ReminderController extends \cmsgears\notify\frontend\controllers\base\Cont
 		parent::init();
 
 		// Config
-		$this->layout = Yii::$app->notify->customLayout[ 'reminder' ] ?? $this->layout;
+		$this->layout	= Yii::$app->notify->customLayout[ 'reminder' ] ?? $this->layout;
+		$this->apixBase	= 'notify/reminder';
 
 		// Services
 		$this->modelService	= Yii::$app->factory->get( 'reminderService' );

@@ -14,6 +14,7 @@ use Yii;
 use yii\data\Sort;
 
 // CMG Imports
+use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\services\interfaces\resources\INotificationService;
@@ -255,6 +256,7 @@ class NotificationService extends \cmsgears\core\common\services\base\ModelResou
 		$model->agent	= Yii::$app->request->userAgent ?? $config[ 'agent' ];
 		$model->ip		= Yii::$app->request->userIP ?? $config[ 'ip' ];
 		$model->siteId	= $siteId;
+		$model->type	= empty( $model->type ) ? CoreGlobal::TYPE_DEFAULT : $model->type;
 
 		return parent::create( $model, $config );
 	}
