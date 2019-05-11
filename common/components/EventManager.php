@@ -14,6 +14,7 @@ use Yii;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\core\common\config\CoreProperties;
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\utilities\DateUtil;
@@ -203,6 +204,12 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 	 */
 	public function triggerNotification( $slug, $data, $config = [] ) {
 
+		$admin	= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$users	= isset( $config[ 'users' ] ) ? $config[ 'users' ] : [];
+		$direct	= isset( $config[ 'direct' ] ) ? $config[ 'direct' ] : false;
+
+		$coreProperties = CoreProperties::getInstance();
+
 		// Return in case notifications are disabled at system level.
 		if( !Yii::$app->core->isNotifications() ) {
 
@@ -211,6 +218,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 		// Generate Message
 
+		// Site Template
 		$template = $this->templateService->getBySlugType( $slug, NotifyGlobal::TYPE_NOTIFICATION );
 
 		// Do nothing if template not found or disabled
@@ -218,8 +226,6 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 			return;
 		}
-
-		$message = Yii::$app->templateManager->renderMessage( $template, $data, $config );
 
 		// Trigger Notification
 
@@ -229,7 +235,6 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 		$notification->consumed	= false;
 		$notification->trash	= false;
-		$notification->content	= $message;
 
 		$notification->type = $config[ 'type' ] ?? CoreGlobal::TYPE_DEFAULT;
 
@@ -248,29 +253,49 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 			$notification->parentType = $config[ 'parentType' ];
 		}
 
-		if( isset( $config[ 'link' ] ) ) {
+		if( !empty( $template->message ) ) {
 
-			$notification->link = $config[ 'link' ];
+			$notification->title = Yii::$app->templateManager->renderTitle( $template, $data, $config );
 		}
 
-		if( isset( $config[ 'title' ] ) ) {
+		if( empty( $notification->title ) ) {
 
-			$notification->title = $config[ 'title' ];
-		}
-		else {
+			if( isset( $config[ 'title' ] ) ) {
 
-			$notification->title = $template->name;
+				$notification->title = $config[ 'title' ];
+			}
+			else {
+
+				$notification->title = $template->name;
+			}
 		}
+
+		$nconfig = $config;
+
+		unset( $nconfig[ 'link' ] ); // remove frontend link from notification content
+		unset( $nconfig[ 'adminLink' ] ); // remove admin link from notification content
+
+		$message = Yii::$app->templateManager->renderMessage( $template, $data, $nconfig );
+
+		$notification->content = $message;
 
 		// Trigger for Admin
-		if( $templateConfig->admin && $config[ 'admin' ] ) {
+		if( $templateConfig->admin && $admin ) {
 
 			$notification->admin = true;
 
 			if( isset( $config[ 'adminLink' ] ) ) {
 
 				$notification->adminLink = $config[ 'adminLink' ];
+
+				$config[ 'adminLink' ] = $coreProperties->getAdminUrl() . $config[ 'adminLink' ];
 			}
+
+			$nconfig = $config;
+
+			unset( $nconfig[ 'link' ] ); // remove frontend link from admin notification email
+
+			$message = Yii::$app->templateManager->renderMessage( $template, $data, $nconfig );
 
 			// Create Notification
 			$this->notificationService->create( $notification, $config );
@@ -282,10 +307,21 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 			}
 		}
 
-		// Trigger for Users
-		if( $templateConfig->user && count( $config[ 'users' ] ) > 0 ) {
+		if( isset( $config[ 'link' ] ) ) {
 
-			$users = $config[ 'users' ];
+			$notification->link = $config[ 'link' ];
+
+			$config[ 'link' ] = $coreProperties->getSiteUrl() . $config[ 'link' ];
+		}
+
+		$nconfig = $config;
+
+		unset( $nconfig[ 'adminLink' ] ); // remove admin link from frontend notification email
+
+		$message = Yii::$app->templateManager->renderMessage( $template, $data, $nconfig );
+
+		// Trigger for Users
+		if( $templateConfig->user && count( $users ) > 0 ) {
 
 			foreach( $users as $userId ) {
 
@@ -308,7 +344,9 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		}
 
 		// Trigger for Model
-		if( $templateConfig->directEmail && $config[ 'direct' ] ) {
+		if( $templateConfig->direct && $direct ) {
+
+			$nconfig = $config;
 
 			$modelNotification = $this->notificationService->getModelObject();
 
@@ -322,7 +360,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 			$service	= $data[ 'service' ];
 			$email		= method_exists( $service, 'getEmail' ) ? $service->getEmail : ( isset( $model->email ) ? $model->email : null );
 
-			if( isset( $email ) ) {
+			if( $templateConfig->directEmail && isset( $email ) ) {
 
 				// Trigger Mail
 				Yii::$app->notifyMailer->sendDirectMail( $message, $config[ 'email' ], $template, $data );

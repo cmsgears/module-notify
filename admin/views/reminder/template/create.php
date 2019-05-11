@@ -48,6 +48,11 @@ Editor::widget();
 						</div>
 					</div>
 					<div class="row">
+						<div class="col col1">
+							<?= $form->field( $model, 'message' )->textarea() ?>
+						</div>
+					</div>
+					<div class="row">
 						<div class="col col2">
 							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $model, 'fileRender', [ 'class' => 'cmt-checkbox cmt-choice cmt-field-group', 'group-target' => 'render-file', 'group-alt' => 'render-content' ], 'cmti cmti-checkbox' ) ?>
 						</div>
@@ -79,11 +84,14 @@ Editor::widget();
 			<div class="box-content-wrap frm-split-40-60">
 				<div class="box-content">
 					<div class="row">
-						<div class="col col2">
+						<div class="col col3">
 							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'admin', null, 'cmti cmti-checkbox' ) ?>
 						</div>
-						<div class="col col2">
+						<div class="col col3">
 							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'user', null, 'cmti cmti-checkbox' ) ?>
+						</div>
+						<div class="col col3">
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'direct', null, 'cmti cmti-checkbox' ) ?>
 						</div>
 					</div>
 				</div>
