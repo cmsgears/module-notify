@@ -119,6 +119,8 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 
 	public function actionFull() {
 
+		Url::remember( Yii::$app->request->getUrl(), 'calendar' );
+
 		return $this->render( 'full' );
 	}
 
