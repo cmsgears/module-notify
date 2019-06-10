@@ -358,12 +358,13 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 			// Detect Email
 			$model		= $data[ 'model' ];
 			$service	= $data[ 'service' ];
-			$email		= method_exists( $service, 'getEmail' ) ? $service->getEmail : ( isset( $model->email ) ? $model->email : null );
+			$email		= isset( $config[ 'email' ] ) ? $config[ 'email' ] : null;
+			$email		= isset( $email ) ? $email : ( method_exists( $service, 'getEmail' ) ? $service->getEmail( $model ) : ( isset( $model->email ) ? $model->email : null ) );
 
 			if( $templateConfig->directEmail && isset( $email ) ) {
 
 				// Trigger Mail
-				Yii::$app->notifyMailer->sendDirectMail( $message, $config[ 'email' ], $template, $data );
+				Yii::$app->notifyMailer->sendDirectMail( $message, $email, $template, $data );
 			}
 		}
 
