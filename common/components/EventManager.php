@@ -99,7 +99,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 			//$stats[ 'activityCount' ]	= $this->activityService->getCount( false, true );
 		}
 
-		return $stats;
+		return $this->generateModelData( $stats );
 	}
 
 	/**
@@ -140,7 +140,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 			$stats[ 'announcementCount' ]	= count( $stats[ 'announcements' ] );
 		}
 
-		return $stats;
+		return $this->generateModelData( $stats );
 	}
 
 	public function getModelStats( $parentId, $parentType, $type = null ) {
@@ -177,7 +177,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 			$stats[ 'announcementCount' ]	= count( $stats[ 'announcements' ] );
 		}
 
-		return $stats;
+		return $this->generateModelData( $stats );
 	}
 
 	// Notification Trigger ---
@@ -516,6 +516,92 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		$user->lastActivityAt = DateUtil::getDateTime();
 
 		$user->update();
+	}
+
+	protected function generateModelData( $stats ) {
+
+		$fields	= [ 'id', 'title', 'description', 'link', 'adminLink', 'consumed', 'trash' ];
+
+		// Notifications
+		if( isset( $stats[ 'notifications' ] ) && count( $stats[ 'notifications' ] ) > 0 ) {
+
+			$notifications = $stats[ 'notifications' ];
+
+			$data = [];
+
+			foreach( $notifications as $notification ) {
+
+				$data[] = [
+					'id' => $notification->id, 'title' => $notification->title, 'description' => $notification->description,
+					'link' => $notification->link, 'adminLink' => $notification->adminLink,
+					'consumed' => $notification->consumed, 'trash' => $notification->trash,
+					'content' => $notification->content
+				];
+			}
+
+			$stats[ 'notifications' ] = json_decode( json_encode( $data ) );
+		}
+
+		// Reminders
+		if( isset( $stats[ 'reminders' ] ) && count( $stats[ 'reminders' ] ) > 0 ) {
+
+			$reminders = $stats[ 'reminders' ];
+
+			$data = [];
+
+			foreach( $reminders as $reminder ) {
+
+				$data[] = [
+					'id' => $reminder->id, 'title' => $reminder->title, 'description' => $reminder->description,
+					'link' => $reminder->link, 'adminLink' => $reminder->adminLink,
+					'consumed' => $reminder->consumed, 'trash' => $reminder->trash,
+					'content' => $reminder->content
+				];
+			}
+
+			$stats[ 'reminders' ] = json_decode( json_encode( $data ) );
+		}
+
+		// Activities
+		if( isset( $stats[ 'activities' ] ) && count( $stats[ 'activities' ] ) > 0 ) {
+
+			$activities = $stats[ 'activities' ];
+
+			$data = [];
+
+			foreach( $activities as $activity ) {
+
+				$data[] = [
+					'id' => $activity->id, 'title' => $activity->title, 'description' => $activity->description,
+					'link' => $activity->link, 'adminLink' => $activity->adminLink,
+					'consumed' => $activity->consumed, 'trash' => $activity->trash,
+					'content' => $activity->content
+				];
+			}
+
+			$stats[ 'activities' ] = json_decode( json_encode( $data ) );
+		}
+
+		// Announcements
+		if( isset( $stats[ 'announcements' ] ) && count( $stats[ 'announcements' ] ) > 0 ) {
+
+			$announcements = $stats[ 'announcements' ];
+
+			$data = [];
+
+			foreach( $announcements as $announcement ) {
+
+				$data[] = [
+					'id' => $announcement->id, 'title' => $announcement->title, 'description' => $announcement->description,
+					'link' => $announcement->link, 'adminLink' => $announcement->adminLink,
+					'content' => $announcement->content
+				];
+			}
+
+			$stats[ 'announcements' ] = json_decode( json_encode( $data ) );
+		}
+
+		return $stats;
 	}
 
 }

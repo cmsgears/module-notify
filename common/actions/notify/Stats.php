@@ -69,7 +69,7 @@ class Stats extends \cmsgears\core\common\base\Action {
 
 	public function run( $type = null ) {
 
-		$data = null;
+		$data = [];
 
 		// Stats for specific parent
 		if( isset( $this->parentType ) && isset( $this->parentId ) ) {
