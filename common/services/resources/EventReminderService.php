@@ -73,6 +73,9 @@ class EventReminderService extends \cmsgears\core\common\services\base\ModelReso
 
 	public function getPage( $config = [] ) {
 
+		$searchParam	= $config[ 'search-param' ] ?? 'keywords';
+		$searchColParam	= $config[ 'search-col-param' ] ?? 'search';
+
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
@@ -175,17 +178,22 @@ class EventReminderService extends \cmsgears\core\common\services\base\ModelReso
 
 		// Searching --------
 
-		$searchCol	= Yii::$app->request->getQueryParam( 'search' );
+		$searchCol		= Yii::$app->request->getQueryParam( $searchColParam );
+		$keywordsCol	= Yii::$app->request->getQueryParam( $searchParam );
+
+		$search = [
+			'title' => "$modelTable.title",
+			'desc' => "$modelTable.description",
+			'content' => "$modelTable.content"
+		];
 
 		if( isset( $searchCol ) ) {
 
-			$search = [
-				'title' => "$modelTable.title",
-				'desc' => "$modelTable.description",
-				'content' => "$modelTable.content"
-			];
-
 			$config[ 'search-col' ] = $search[ $searchCol ];
+		}
+		else if( isset( $keywordsCol ) ) {
+
+			$config[ 'search-col' ] = $search;
 		}
 
 		// Reporting --------
