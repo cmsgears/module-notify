@@ -41,7 +41,7 @@ Editor::widget();
 					</div>
 					<div class="row">
 						<div class="col col2">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $model, 'active', null, 'cmti cmti-checkbox' ) ?>
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $model, 'active' ) ?>
 						</div>
 						<div class="col col2">
 							<?= $form->field( $model, 'description' )->textarea() ?>
@@ -54,7 +54,7 @@ Editor::widget();
 					</div>
 					<div class="row">
 						<div class="col col2">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $model, 'fileRender', [ 'class' => 'cmt-checkbox cmt-choice cmt-field-group', 'group-target' => 'render-file', 'group-alt' => 'render-content' ], 'cmti cmti-checkbox' ) ?>
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $model, 'fileRender', [ 'class' => 'cmt-checkbox cmt-choice cmt-field-group', 'group-target' => 'render-file', 'group-alt' => 'render-content' ] ) ?>
 						</div>
 					</div>
 					<div class="row render-file">
@@ -62,7 +62,7 @@ Editor::widget();
 							<?= $form->field( $model, 'layout' ) ?>
 						</div>
 						<div class="col col2">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $model, 'layoutGroup', null, 'cmti cmti-checkbox' ) ?>
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $model, 'layoutGroup' ) ?>
 						</div>
 					</div>
 					<div class="row render-file">
@@ -85,13 +85,13 @@ Editor::widget();
 				<div class="box-content">
 					<div class="row">
 						<div class="col col3">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'admin', null, 'cmti cmti-checkbox' ) ?>
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'admin' ) ?>
 						</div>
 						<div class="col col3">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'user', null, 'cmti cmti-checkbox' ) ?>
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'user' ) ?>
 						</div>
 						<div class="col col3">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'direct', null, 'cmti cmti-checkbox' ) ?>
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'direct' ) ?>
 						</div>
 					</div>
 				</div>
@@ -106,13 +106,13 @@ Editor::widget();
 				<div class="box-content">
 					<div class="row">
 						<div class="col col3">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'adminEmail', null, 'cmti cmti-checkbox' ) ?>
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'adminEmail' ) ?>
 						</div>
 						<div class="col col3">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'userEmail', null, 'cmti cmti-checkbox' ) ?>
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'userEmail' ) ?>
 						</div>
 						<div class="col col3">
-							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'directEmail', null, 'cmti cmti-checkbox' ) ?>
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $config, 'directEmail' ) ?>
 						</div>
 					</div>
 				</div>
