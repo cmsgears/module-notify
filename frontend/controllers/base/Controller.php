@@ -13,7 +13,7 @@ namespace cmsgears\notify\frontend\controllers\base;
 use Yii;
 
 /**
- * Base Controller of all frontend controllers.
+ * Base Controller of the notify controllers.
  *
  * @since 1.0.0
  */

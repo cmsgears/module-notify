@@ -20,16 +20,14 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\resources\File;
 
-use cmsgears\core\admin\controllers\base\Controller as BaseController;
-
 use cmsgears\core\common\utilities\DateUtil;
 
 /**
- * EventController provide actions specific to Event model.
+ * EventController provide actions specific to admin events.
  *
  * @since 1.0.0
  */
-class EventController extends BaseController {
+class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -151,13 +149,14 @@ class EventController extends BaseController {
 		$banner	= File::loadFile( null, 'Banner' );
 		$video	= File::loadFile( null, 'Video' );
 
-		$model->siteId	= Yii::$app->core->siteId;
 		$model->admin	= true;
-		$model->type	= $modelClass::TYPE_DEFAULT;
+		$model->type	= CoreGlobal::TYPE_ADMIN;
 
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
-			$this->model = $this->modelService->add( $model, [ 'admin' => true, 'avatar' => $avatar, 'banner' => $banner, 'video' => $video ] );
+			$this->model = $this->modelService->add( $model, [
+				'admin' => true, 'avatar' => $avatar, 'banner' => $banner, 'video' => $video
+			]);
 
 			return $this->redirect( 'all' );
 		}
@@ -191,7 +190,9 @@ class EventController extends BaseController {
 
 			if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
-				$this->model = $this->modelService->update( $model, [ 'admin' => true, 'avatar' => $avatar, 'banner' => $banner, 'video' => $video ] );
+				$this->model = $this->modelService->update( $model, [
+					'admin' => true, 'avatar' => $avatar, 'banner' => $banner, 'video' => $video
+				]);
 
 				return $this->redirect( $this->returnUrl );
 			}

@@ -7,21 +7,21 @@
  * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
  */
 
-namespace cmsgears\notify\admin\controllers\apix;
+namespace cmsgears\notify\frontend\controllers\apix;
 
 // Yii Imports
 use Yii;
 use yii\filters\VerbFilter;
 
 // CMG Imports
-use cmsgears\notify\common\config\NotifyGlobal;
+use cmsgears\core\common\config\CoreGlobal;
 
 /**
- * ActivityController provide actions specific to all activities.
+ * ActivityController provides actions specific to user activities.
  *
  * @since 1.0.0
  */
-class ActivityController extends \cmsgears\core\admin\controllers\apix\base\Controller {
+class ActivityController extends \cmsgears\core\frontend\controllers\apix\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -39,8 +39,8 @@ class ActivityController extends \cmsgears\core\admin\controllers\apix\base\Cont
 
 		parent::init();
 
-		// Permissions
-		$this->crudPermission = NotifyGlobal::PERM_NOTIFY_ADMIN;
+		// Permission
+		$this->crudPermission = CoreGlobal::PERM_USER;
 
 		// Services
 		$this->modelService = Yii::$app->factory->get( 'activityService' );
@@ -87,12 +87,12 @@ class ActivityController extends \cmsgears\core\admin\controllers\apix\base\Cont
 	public function actions() {
 
 		return [
-			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\activity\ToggleRead', 'admin' => true ],
-			'toggle-trash' => [ 'class' => 'cmsgears\notify\common\actions\reminder\ToggleTrash', 'admin' => true ],
-			'read' => [ 'class' => 'cmsgears\notify\common\actions\activity\Read', 'admin' => true ],
-			'trash' => [ 'class' => 'cmsgears\notify\common\actions\activity\Trash', 'admin' => true ],
-			'delete' => [ 'class' => 'cmsgears\notify\common\actions\activity\Delete', 'admin' => true ],
-			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\activity\Bulk', 'admin' => true ]
+			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead', 'user' => true ],
+			'toggle-trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleTrash', 'user' => true ],
+			'read' => [ 'class' => 'cmsgears\notify\common\actions\notification\Read', 'user' => true ],
+			'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash', 'user' => true ],
+			'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete', 'user' => true ],
+			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\notification\Bulk', 'user' => true ]
 		];
 	}
 

@@ -13,7 +13,7 @@ namespace cmsgears\notify\common\actions\notification;
 use Yii;
 
 /**
- * Read mark the activity read.
+ * Read mark the notification read.
  *
  * @since 1.0.0
  */

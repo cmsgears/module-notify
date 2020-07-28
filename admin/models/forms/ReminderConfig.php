@@ -9,15 +9,12 @@
 
 namespace cmsgears\notify\admin\models\forms;
 
-// CMG Imports
-use cmsgears\core\common\models\forms\DataModel;
-
 /**
  * ReminderConfig form allows admin to configure reminder templates.
  *
  * @since 1.0.0
  */
-class ReminderConfig extends DataModel {
+class ReminderConfig extends \cmsgears\core\common\models\forms\DataModel {
 
 	// Variables ---------------------------------------------------
 

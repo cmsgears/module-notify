@@ -13,7 +13,7 @@ namespace cmsgears\notify\common\actions\notification;
 use Yii;
 
 /**
- * ToggleTrash mark the activity trash or valid.
+ * ToggleTrash mark the notification trash or valid.
  *
  * @since 1.0.0
  */
@@ -58,6 +58,6 @@ class ToggleTrash extends \cmsgears\notify\common\actions\notify\ToggleTrash {
 
 	// CMG parent classes --------------------
 
-	// ToggleTrash ----------------------------
+	// ToggleTrash ---------------------------
 
 }

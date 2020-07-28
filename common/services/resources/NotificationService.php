@@ -14,11 +14,11 @@ use Yii;
 use yii\data\Sort;
 
 // CMG Imports
-use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\services\interfaces\resources\INotificationService;
 
+use cmsgears\core\common\services\traits\base\MultisiteTrait;
 use cmsgears\notify\common\services\traits\base\BulkTrait;
 use cmsgears\notify\common\services\traits\base\NotifyTrait;
 use cmsgears\notify\common\services\traits\base\ToggleTrait;
@@ -55,6 +55,7 @@ class NotificationService extends \cmsgears\core\common\services\base\ModelResou
 	// Traits ------------------------------------------------------
 
 	use BulkTrait;
+	use MultisiteTrait;
 	use NotifyTrait;
 	use ToggleTrait;
 
@@ -78,6 +79,8 @@ class NotificationService extends \cmsgears\core\common\services\base\ModelResou
 
 		$searchParam	= $config[ 'search-param' ] ?? 'keywords';
 		$searchColParam	= $config[ 'search-col-param' ] ?? 'search';
+
+		$defaultSort = isset( $config[ 'defaultSort' ] ) ? $config[ 'defaultSort' ] : [ 'id' => SORT_DESC ];
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
@@ -155,7 +158,7 @@ class NotificationService extends \cmsgears\core\common\services\base\ModelResou
 					'label' => 'Updated At'
 				]
 			],
-			'defaultOrder' => [ 'cdate' => 'SORT_ASC' ]
+			'defaultOrder' => $defaultSort
 		]);
 
 		if( !isset( $config[ 'sort' ] ) ) {
@@ -206,7 +209,21 @@ class NotificationService extends \cmsgears\core\common\services\base\ModelResou
 		// Filter - Trash
 		if( isset( $trash ) ) {
 
-			$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+			switch( $trash ) {
+
+				case 'trash': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+
+					break;
+				}
+				case 'active': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = false;
+
+					break;
+				}
+			}
 		}
 
 		// Searching --------
@@ -259,12 +276,8 @@ class NotificationService extends \cmsgears\core\common\services\base\ModelResou
 
 	public function create( $model, $config = [] ) {
 
-		$siteId = isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
-
 		$model->agent	= Yii::$app->request->userAgent ?? $config[ 'agent' ];
 		$model->ip		= Yii::$app->request->userIP ?? $config[ 'ip' ];
-		$model->siteId	= $siteId;
-		$model->type	= empty( $model->type ) ? CoreGlobal::TYPE_DEFAULT : $model->type;
 
 		return parent::create( $model, $config );
 	}
@@ -331,7 +344,21 @@ class NotificationService extends \cmsgears\core\common\services\base\ModelResou
 			}
 			case 'trash': {
 
-				$this->markTrash( $model );
+				switch( $action ) {
+
+					case 'trash': {
+
+						$this->markTrash( $model );
+
+						break;
+					}
+					case 'untrash': {
+
+						$this->unTrash( $model );
+
+						break;
+					}
+				}
 
 				break;
 			}

@@ -18,7 +18,7 @@ use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\core\common\utilities\AjaxUtil;
 
 /**
- * Trash marks the model for trash.
+ * Trash marks the model as trash.
  *
  * @since 1.0.0
  */

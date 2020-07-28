@@ -7,17 +7,17 @@
  * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
  */
 
-namespace cmsgears\notify\common\actions\notification;
+namespace cmsgears\notify\common\actions\activity;
 
 // Yii Imports
 use Yii;
 
 /**
- * ToggleRead mark the notification read or unread.
+ * Unread mark the activity unread.
  *
  * @since 1.0.0
  */
-class ToggleRead extends \cmsgears\notify\common\actions\notify\ToggleRead {
+class Unread extends \cmsgears\notify\common\actions\notify\Unread {
 
 	// Variables ---------------------------------------------------
 
@@ -45,7 +45,7 @@ class ToggleRead extends \cmsgears\notify\common\actions\notify\ToggleRead {
 
 		parent::init();
 
-		$this->notifyService = Yii::$app->factory->get( 'notificationService' );
+		$this->notifyService = Yii::$app->factory->get( 'activityService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -58,6 +58,6 @@ class ToggleRead extends \cmsgears\notify\common\actions\notify\ToggleRead {
 
 	// CMG parent classes --------------------
 
-	// ToggleRead ----------------------------
+	// Unread --------------------------------
 
 }

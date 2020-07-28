@@ -21,7 +21,7 @@ use cmsgears\core\common\config\CoreGlobal;
  *
  * @since 1.0.0
  */
-class NotificationController extends \cmsgears\core\frontend\controllers\base\Controller {
+class NotificationController extends \cmsgears\core\frontend\controllers\apix\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -62,6 +62,7 @@ class NotificationController extends \cmsgears\core\frontend\controllers\base\Co
 				'actions' => [
 					'toggle-read' => [ 'permission' => $this->crudPermission ],
 					'toggle-trash' => [ 'permission' => $this->crudPermission ],
+					'read' => [ 'permission' => $this->crudPermission ],
 					'trash' => [ 'permission' => $this->crudPermission ],
 					'delete' => [ 'permission' => $this->crudPermission ],
 					'bulk' => [ 'permission' => $this->crudPermission ]
@@ -72,6 +73,7 @@ class NotificationController extends \cmsgears\core\frontend\controllers\base\Co
 				'actions' => [
 					'toggle-read' => [ 'post' ],
 					'toggle-trash' => [ 'post' ],
+					'read' => [ 'post' ],
 					'trash' => [ 'post' ],
 					'delete' => [ 'post' ],
 					'bulk' => [ 'post' ]
@@ -85,11 +87,12 @@ class NotificationController extends \cmsgears\core\frontend\controllers\base\Co
 	public function actions() {
 
 		return [
-			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead' ],
-			'toggle-trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleTrash' ],
-			'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash' ],
-			'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete' ],
-			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\notification\Bulk' ]
+			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleRead', 'user' => true ],
+			'toggle-trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleTrash', 'user' => true ],
+			'read' => [ 'class' => 'cmsgears\notify\common\actions\notification\Read', 'user' => true ],
+			'trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\Trash', 'user' => true ],
+			'delete' => [ 'class' => 'cmsgears\notify\common\actions\notification\Delete', 'user' => true ],
+			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\notification\Bulk', 'user' => true ]
 		];
 	}
 

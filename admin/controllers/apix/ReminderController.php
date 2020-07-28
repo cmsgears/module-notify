@@ -16,14 +16,12 @@ use yii\filters\VerbFilter;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\admin\controllers\base\Controller;
-
 /**
- * ReminderController provide actions specific to Reminder model.
+ * ReminderController provide actions specific to admin reminders.
  *
  * @since 1.0.0
  */
-class ReminderController extends Controller {
+class ReminderController extends \cmsgears\core\admin\controllers\apix\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -63,6 +61,7 @@ class ReminderController extends Controller {
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
 					'toggle-read' => [ 'permission' => $this->crudPermission ],
+					'toggle-trash' => [ 'permission' => $this->crudPermission ],
 					'read' => [ 'permission' => $this->crudPermission ],
 					'trash' => [ 'permission' => $this->crudPermission ],
 					'delete' => [ 'permission' => $this->crudPermission ],
@@ -73,6 +72,7 @@ class ReminderController extends Controller {
 				'class' => VerbFilter::class,
 				'actions' => [
 					'toggle-read' => [ 'post' ],
+					'toggle-trash' => [ 'post' ],
 					'read' => [ 'post' ],
 					'trash' => [ 'post' ],
 					'delete' => [ 'post' ],
@@ -88,6 +88,7 @@ class ReminderController extends Controller {
 
 		return [
 			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\reminder\ToggleRead', 'admin' => true ],
+			'toggle-trash' => [ 'class' => 'cmsgears\notify\common\actions\reminder\ToggleTrash', 'admin' => true ],
 			'read' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Read', 'admin' => true ],
 			'trash' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Trash', 'admin' => true ],
 			'delete' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Delete', 'admin' => true ],

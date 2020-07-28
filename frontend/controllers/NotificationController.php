@@ -12,9 +12,10 @@ namespace cmsgears\notify\frontend\controllers;
 // Yii Imports
 use Yii;
 use yii\filters\VerbFilter;
+use yii\helpers\Url;
 
 /**
- * NotificationController provides actions specific to user notifications.
+ * NotificationController provides actions specific to notifications.
  *
  * @since 1.0.0
  */
@@ -42,6 +43,10 @@ class NotificationController extends \cmsgears\notify\frontend\controllers\base\
 
 		// Services
 		$this->modelService	= Yii::$app->factory->get( 'notificationService' );
+
+		// Return Url
+		$this->returnUrl = Url::previous( 'notifications' );
+		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/all' ], true );
 	}
 
 	// Instance methods --------------------------------------------
@@ -86,6 +91,8 @@ class NotificationController extends \cmsgears\notify\frontend\controllers\base\
 	}
 
 	public function actionAll() {
+
+		Url::remember( Yii::$app->request->getUrl(), 'notifications' );
 
 		$user = Yii::$app->core->getUser();
 

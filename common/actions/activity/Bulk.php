@@ -13,7 +13,7 @@ namespace cmsgears\notify\common\actions\activity;
 use Yii;
 
 /**
- * Bulk process bulk actions of Activity.
+ * The bulk action for activities.
  *
  * @since 1.0.0
  */

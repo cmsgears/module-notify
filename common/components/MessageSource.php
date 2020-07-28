@@ -12,15 +12,13 @@ namespace cmsgears\notify\common\components;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\common\base\MessageSource as BaseMessageSource;
-
 /**
  * MessageSource stores and provide the messages and message templates available in
  * Notify Module.
  *
  * @since 1.0.0
  */
-class MessageSource extends BaseMessageSource {
+class MessageSource extends \cmsgears\core\common\base\MessageSource {
 
 	// Variables ---------------------------------------------------
 

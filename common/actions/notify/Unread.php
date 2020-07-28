@@ -18,11 +18,11 @@ use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\core\common\utilities\AjaxUtil;
 
 /**
- * The Bulk Action for models.
+ * Unread mark the model unread.
  *
  * @since 1.0.0
  */
-abstract class Bulk extends \cmsgears\core\common\base\Action {
+abstract class Unread extends \cmsgears\core\common\base\Action {
 
 	// Variables ---------------------------------------------------
 
@@ -32,8 +32,8 @@ abstract class Bulk extends \cmsgears\core\common\base\Action {
 
 	// Public -----------------
 
+	public $user	= true;
 	public $admin	= false;
-	public $user	= false;
 
 	public $parentType;
 
@@ -65,38 +65,50 @@ abstract class Bulk extends \cmsgears\core\common\base\Action {
 
 	// CMG parent classes --------------------
 
-	// Bulk ----------------------------------
+	// Unread --------------------------------
 
-	public function run() {
+	public function run( $id ) {
 
-		$action	= Yii::$app->request->post( 'action' );
-		$column	= Yii::$app->request->post( 'column' );
-		$target	= Yii::$app->request->post( 'target' );
+		$model = $this->notifyService->getById( $id );
 
-		if( isset( $action ) && isset( $column ) && isset( $target ) ) {
+		if( isset( $model ) ) {
 
-			$target	= preg_split( '/,/', $target );
+			$new = 0;
 
-			// Apply bulk action on parent specific models
+			// Toggle for specific parent
 			if( isset( $this->parentType ) && isset( $this->parentId ) ) {
 
-				$this->notifyService->applyBulkByTargetIdParent( $column, $action, $target, $this->parentId, $this->parentType );
+				if( $model->parentType == $this->parentType && $model->parentId == $this->parentId ) {
+
+					$model = $this->notifyService->markNew( $model );
+				}
+
+				$new = $this->notifyService->getCountByParent( $this->parentId, $this->parentType, false, false );
 			}
-			// Apply bulk action on admin specific models
+			// Toggle for admin
 			else if( $this->admin ) {
 
-				$this->notifyService->applyBulkByAdmin( $column, $action, $target );
+				$model = $this->notifyService->markNew( $model );
+
+				$new = $this->notifyService->getCount( false, $this->admin );
 			}
-			// Apply bulk action on user specific models
+			// Toggle for user
 			else if( $this->user ) {
 
 				$user = Yii::$app->core->getUser();
 
-				$this->notifyService->applyBulkByTargetIdUserId( $column, $action, $target, $user->id );
+				if( $model->userId == $user->id ) {
+
+					$model = $this->notifyService->markNew( $model );
+				}
+
+				$new = $this->notifyService->getUserCount( $user->id, false, false );
 			}
 
+			$data = [ 'unread' => $new, 'consumed' => $model->isConsumed() ];
+
 			// Trigger Ajax Success
-			return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ) );
+			return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ), $data );
 		}
 
 		// Trigger Ajax Failure

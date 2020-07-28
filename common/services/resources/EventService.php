@@ -21,6 +21,7 @@ use cmsgears\notify\common\models\resources\Event;
 use cmsgears\core\common\services\interfaces\resources\IFileService;
 use cmsgears\notify\common\services\interfaces\resources\IEventService;
 
+use cmsgears\core\common\services\traits\base\MultisiteTrait;
 use cmsgears\core\common\services\traits\base\NameTypeTrait;
 use cmsgears\core\common\services\traits\base\SlugTypeTrait;
 
@@ -59,6 +60,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 	// Traits ------------------------------------------------------
 
+	use MultisiteTrait;
 	use NameTypeTrait;
 	use SlugTypeTrait;
 
@@ -66,7 +68,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 	public function __construct( IFileService $fileService, $config = [] ) {
 
-		$this->fileService	= $fileService;
+		$this->fileService = $fileService;
 
 		parent::__construct( $config );
 	}
@@ -89,6 +91,8 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 		$searchParam	= $config[ 'search-param' ] ?? 'keywords';
 		$searchColParam	= $config[ 'search-col-param' ] ?? 'search';
+
+		$defaultSort = isset( $config[ 'defaultSort' ] ) ? $config[ 'defaultSort' ] : [ 'id' => SORT_DESC ];
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
@@ -190,11 +194,11 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 					'default' => SORT_DESC,
 					'label' => 'Admin'
 				],
-				'multi' => [
-					'asc' => [ "$modelTable.multiUser" => SORT_ASC ],
-					'desc' => [ "$modelTable.multiUser" => SORT_DESC ],
+				'group' => [
+					'asc' => [ "$modelTable.group" => SORT_ASC ],
+					'desc' => [ "$modelTable.group" => SORT_DESC ],
 					'default' => SORT_DESC,
-					'label' => 'Multi Users'
+					'label' => 'Group'
 				],
 				'status' => [
 					'asc' => [ "$modelTable.status" => SORT_ASC ],
@@ -221,7 +225,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 					'label' => 'Scheduled At'
 				]
 			],
-			'defaultOrder' => [ 'cdate' => 'SORT_ASC' ]
+			'defaultOrder' => $defaultSort
 		]);
 
 		if( !isset( $config[ 'sort' ] ) ) {
@@ -260,9 +264,9 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 			switch( $filter ) {
 
-				case 'multi': {
+				case 'group': {
 
-					$config[ 'conditions' ][ "$modelTable.multiUser" ] = true;
+					$config[ 'conditions' ][ "$modelTable.group" ] = true;
 
 					break;
 				}
@@ -299,7 +303,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 			'content' => "$modelTable.content",
 			'type' => "$modelTable.type",
 			'status' => "$modelTable.status",
-			'multi' => "$modelTable.multiUser"
+			'group' => "$modelTable.group"
 		];
 
 		// Result -----------
@@ -307,39 +311,62 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 		return parent::getPage( $config );
 	}
 
-	public function getPageForAdmin() {
+	public function getPageForAdmin( $config = [] ) {
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
+		$config[ 'conditions' ][ "$modelTable.admin" ] = true;
+
+		return $this->getPage( $config );
 	}
 
-	public function getPageByUserId( $userId ) {
+	public function getPageByUserId( $userId, $config = [] ) {
+
+		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
+		$config[ 'conditions' ][ "$modelTable.userId" ] = $userId;
+		$config[ 'conditions' ][ "$modelTable.admin" ]	= $admin;
+
+		return $this->getPage( $config );
 	}
 
-	public function getPageByParent( $parentId, $parentType, $admin = false ) {
+	public function getPageByParent( $parentId, $parentType, $config = [] ) {
+
+		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType, "$modelTable.admin" => $admin ] ] );
+		$config[ 'conditions' ][ "$modelTable.parentId" ]	= $parentId;
+		$config[ 'conditions' ][ "$modelTable.parentType" ] = $parentType;
+		$config[ 'conditions' ][ "$modelTable.admin" ]		= $admin;
+
+		return $this->getPage( $config );
 	}
 
 	// Read ---------------
 
 	// Read - Models ---
 
-	public function getByRangeUserId( $startDate, $endDate, $userId ) {
+	public function getByRangeUserId( $startDate, $endDate, $userId, $config = [] ) {
+
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$conditions = [ "$modelTable.scheduledAt BETWEEN '$startDate' AND '$endDate'", 'userId' => $userId ];
+		$conditions = [ 'userId' => $userId ];
+
+		if( !$ignoreSite ) {
+
+			$conditions[ 'siteId' ]	= $siteId;
+		}
 
 		$query = $modelClass::queryWithUser( [ 'conditions' => $conditions ] );
+
+		$query->andWhere( "$modelTable.scheduledAt BETWEEN ':sdate' AND ':edate'", [ ':sdate' => $startDate, ':edate' => $endDate ] );
 
 		return $query->all();
 	}
@@ -375,7 +402,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 			'name', 'slug', 'icon', 'title', 'description',
 			'preReminderCount', 'preReminderInterval', 'preIntervalUnit',
 			'postReminderCount', 'postReminderInterval', 'postIntervalUnit',
-			'multiUser', 'status', 'scheduledAt', 'content'
+			'group', 'status', 'scheduledAt', 'content'
 		];
 
 		$avatar = isset( $config[ 'avatar' ] ) ? $config[ 'avatar' ] : null;
@@ -436,13 +463,13 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 				switch( $action ) {
 
-					case 'cancelled': {
+					case 'cancel': {
 
 						$this->cancel( $model );
 
 						break;
 					}
-					case 'active': {
+					case 'activate': {
 
 						$this->activate( $model );
 

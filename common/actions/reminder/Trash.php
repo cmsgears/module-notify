@@ -13,7 +13,7 @@ namespace cmsgears\notify\common\actions\reminder;
 use Yii;
 
 /**
- * Trash mark the activity for trash.
+ * Trash mark the reminder as trash.
  *
  * @since 1.0.0
  */

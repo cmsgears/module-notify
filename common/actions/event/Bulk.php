@@ -13,7 +13,7 @@ namespace cmsgears\notify\common\actions\event;
 use Yii;
 
 /**
- * Bulk process bulk actions of Event.
+ * The bulk action for events.
  *
  * @since 1.0.0
  */

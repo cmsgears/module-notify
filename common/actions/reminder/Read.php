@@ -13,7 +13,7 @@ namespace cmsgears\notify\common\actions\reminder;
 use Yii;
 
 /**
- * Read mark the activity read.
+ * Read action marks the reminder as read.
  *
  * @since 1.0.0
  */

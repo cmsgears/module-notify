@@ -18,6 +18,7 @@ use cmsgears\core\common\config\CoreGlobal;
 
 use cmsgears\notify\common\services\interfaces\resources\IActivityService;
 
+use cmsgears\core\common\services\traits\base\MultisiteTrait;
 use cmsgears\notify\common\services\traits\base\BulkTrait;
 use cmsgears\notify\common\services\traits\base\NotifyTrait;
 use cmsgears\notify\common\services\traits\base\ToggleTrait;
@@ -52,6 +53,7 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 	// Traits ------------------------------------------------------
 
 	use BulkTrait;
+	use MultisiteTrait;
 	use NotifyTrait;
 	use ToggleTrait;
 
@@ -75,6 +77,8 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 
 		$searchParam	= $config[ 'search-param' ] ?? 'keywords';
 		$searchColParam	= $config[ 'search-col-param' ] ?? 'search';
+
+		$defaultSort = isset( $config[ 'defaultSort' ] ) ? $config[ 'defaultSort' ] : [ 'id' => SORT_DESC ];
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
@@ -152,7 +156,7 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 					'label' => 'Updated At'
 				]
 			],
-			'defaultOrder' => [ 'cdate' => 'SORT_ASC' ]
+			'defaultOrder' => $defaultSort
 		]);
 
 		if( !isset( $config[ 'sort' ] ) ) {
@@ -180,7 +184,7 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 			$config[ 'conditions' ][ "$modelTable.type" ] = $type;
 		}
 
-		// Filter - Trash
+		// Filter - Consumed
 		if( isset( $cons ) ) {
 
 			switch( $cons ) {
@@ -203,7 +207,21 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 		// Filter - Trash
 		if( isset( $trash ) ) {
 
-			$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+			switch( $trash ) {
+
+				case 'trash': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+
+					break;
+				}
+				case 'active': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = false;
+
+					break;
+				}
+			}
 		}
 
 		// Searching --------
@@ -242,35 +260,99 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 		return parent::getPage( $config );
 	}
 
-	public function getPageByUserId( $userId ) {
+	public function getPageByUserId( $userId, $config = [] ) {
+
+		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 
 		$modelTable	= $this->getModelTable();
 
-		// Show only default activities
-		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId, "$modelTable.type" => CoreGlobal::TYPE_DEFAULT ] ] );
+		$config[ 'conditions' ][ "$modelTable.userId" ] = $userId;
+
+		// Show only user activities to frontend
+		if( !$admin ) {
+
+			$config[ 'conditions' ][ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
+		}
+
+		return $this->getPage( $config );
 	}
 
-	public function getPageByParent( $parentId, $parentType, $admin = false ) {
+	public function getPageByParent( $parentId, $parentType, $config = [] ) {
+
+		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 
 		$modelTable	= $this->getModelTable();
 
-		$conditions = [ "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType ];
+		$config[ 'conditions' ][ "$modelTable.parentId" ]	= $parentId;
+		$config[ 'conditions' ][ "$modelTable.parentType" ] = $parentType;
+		$config[ 'conditions' ][ "$modelTable.admin" ]		= $admin;
 
-		if( $admin ) {
+		// Show only user activities to frontend
+		if( !$admin ) {
 
-			$conditions[ "$modelTable.admin" ] = $admin;
+			$config[ 'conditions' ][ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
 		}
-		else {
 
-			$conditions[ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
-		}
-
-		return $this->getPage( [ 'conditions' => $conditions ] );
+		return $this->getPage( $config );
 	}
 
 	// Read ---------------
 
 	// Read - Models ---
+
+	public function getNotifyRecentByUserId( $userId, $limit = 5, $config = [] ) {
+
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
+
+		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
+
+		$query = $modelClass::queryByUserId( $userId )->where( 'admin=:admin', [ ':admin' => $admin ] );
+
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		// Show only user activities to frontend
+		if( !$admin ) {
+
+			$query->andWhere( [ "$modelTable.type" => CoreGlobal::TYPE_USER ] );
+		}
+
+		$query->limit( $limit )->orderBy( 'createdAt ASC' );
+
+		return $query->all();
+	}
+
+	public function getNotifyRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
+
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
+
+		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
+
+		$query = $modelClass::queryByParent( $parentId, $parentType )->where( 'admin=:admin', [ ':admin' => $admin ] );
+
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		// Show only user activities to frontend
+		if( !$admin ) {
+
+			$query->andWhere( [ "$modelTable.type" => CoreGlobal::TYPE_USER ] );
+		}
+
+		$query->limit( $limit )->orderBy( 'createdAt ASC' );
+
+		return $query->all();
+	}
 
 	// Read - Lists ----
 
@@ -278,62 +360,64 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 
 	// Read - Others ---
 
-	public function getUserCount( $userId, $consumed = false, $admin = false ) {
+	public function getNotifyCountByUserId( $userId, $config = [] ) {
+
+		$consumed	= isset( $config[ 'consumed' ] ) ? $config[ 'consumed' ] : false;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::queryByUserId( $userId )->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
 
-		$conditions = [ "$modelTable.consumed" => $consumed, 'siteId' => $siteId ];
+		if( !$ignoreSite ) {
 
-		if( $admin ) {
-
-			$conditions[ "$modelTable.admin" ] = $admin;
-		}
-		else {
-
-			$conditions[ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
 		}
 
-		return $modelClass::queryByUserId( $userId )
-			->andWhere( $conditions )
-			->count();
+		// Show only user activities to frontend
+		if( !$admin ) {
+
+			$query->andWhere( [ "$modelTable.type" => CoreGlobal::TYPE_USER ] );
+		}
+
+		return $query->count();
 	}
 
-	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
+	public function getNotifyCountByParent( $parentId, $parentType, $config = [] ) {
+
+		$consumed	= isset( $config[ 'consumed' ] ) ? $config[ 'consumed' ] : false;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::queryByParent( $parentId, $parentType )->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
 
-		$conditions = [ "$modelTable.consumed" => $consumed, 'siteId' => $siteId ];
+		if( !$ignoreSite ) {
 
-		if( $admin ) {
-
-			$conditions[ "$modelTable.admin" ] = $admin;
-		}
-		else {
-
-			$conditions[ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
 		}
 
-		return $modelClass::queryByParent( $parentId, $parentType )
-			->andWhere( $conditions )
-			->count();
+		// Show only user activities to frontend
+		if( !$admin ) {
+
+			$query->andWhere( [ "$modelTable.type" => CoreGlobal::TYPE_USER ] );
+		}
+
+		return $query->count();
 	}
 
 	// Create -------------
 
 	public function create( $model, $config = [] ) {
 
-		$siteId = isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
-
 		$model->agent	= Yii::$app->request->userAgent;
 		$model->ip		= Yii::$app->request->userIP;
-		$model->siteId	= $siteId;
-		$model->type	= empty( $model->type ) ? CoreGlobal::TYPE_DEFAULT : $model->type;
 
 		return parent::create( $model, $config );
 	}
@@ -393,7 +477,21 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 			}
 			case 'trash': {
 
-				$this->markTrash( $model );
+				switch( $action ) {
+
+					case 'trash': {
+
+						$this->markTrash( $model );
+
+						break;
+					}
+					case 'untrash': {
+
+						$this->unTrash( $model );
+
+						break;
+					}
+				}
 
 				break;
 			}
@@ -403,7 +501,7 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 
 					case 'delete': {
 
-						echo "delete" . $this->delete( $model );
+						$this->delete( $model );
 
 						break;
 					}

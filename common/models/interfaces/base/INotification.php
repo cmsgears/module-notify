@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
  */
 
-namespace cmsgears\notify\common\models\interfaces\entities;
+namespace cmsgears\notify\common\models\interfaces\base;
 
 /**
  * The IStatusSwitch interface provide methods specific to models supporting consumed and trash features.

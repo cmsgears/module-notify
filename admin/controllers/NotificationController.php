@@ -17,14 +17,12 @@ use yii\helpers\Url;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\admin\controllers\base\Controller as BaseController;
-
 /**
- * NotificationController provide actions specific to Notification model.
+ * NotificationController provide actions specific to admin notifications.
  *
  * @since 1.0.0
  */
-class NotificationController extends BaseController {
+class NotificationController extends \cmsgears\core\admin\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 

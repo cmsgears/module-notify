@@ -10,7 +10,8 @@
 namespace cmsgears\notify\common\config;
 
 /**
- * NotifyGlobal defines the global constants and variables available for notify and dependent modules.
+ * NotifyGlobal defines the global constants and variables available for notify and
+ * dependent modules.
  *
  * @since 1.0.0
  */

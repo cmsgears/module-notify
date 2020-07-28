@@ -21,7 +21,7 @@ use cmsgears\notify\common\config\NotifyGlobal;
 use cmsgears\core\common\models\resources\File;
 
 /**
- * AnnouncementController provide actions specific to Announcement model.
+ * AnnouncementController provide actions specific to the admin announcements.
  *
  * @since 1.0.0
  */
@@ -145,22 +145,20 @@ class AnnouncementController extends \cmsgears\core\admin\controllers\base\Contr
 
 		$banner	= File::loadFile( null, 'Banner' );
 
-		$model->siteId = Yii::$app->core->siteId;
-
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
-			$this->model = $this->modelService->add( $model, [ 'admin' => true, 'banner' => $banner ] );
+			$this->model = $this->modelService->add( $model, [
+				'admin' => true, 'banner' => $banner
+			]);
 
 			return $this->redirect( 'all' );
 		}
-
-		$accessMap = $modelClass::$accessMap;
 
 		return $this->render( 'create', [
 			'model' => $model,
 			'banner' => $banner,
 			'statusMap' => $modelClass::$statusMap,
-			'accessMap' => $accessMap
+			'accessMap' => $modelClass::$adminAccessMap
 		]);
 	}
 
@@ -178,19 +176,19 @@ class AnnouncementController extends \cmsgears\core\admin\controllers\base\Contr
 
 			if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
-				$this->model = $this->modelService->update( $model, [ 'admin' => true, 'banner' => $banner ] );
+				$this->model = $this->modelService->update( $model, [
+					'admin' => true, 'banner' => $banner
+				]);
 
 				return $this->redirect( $this->returnUrl );
 			}
-
-			$accessMap = $modelClass::$accessMap;
 
 			// Render view
 			return $this->render( 'update', [
 				'model' => $model,
 				'banner' => $banner,
 				'statusMap' => $modelClass::$statusMap,
-				'accessMap' => $accessMap
+				'accessMap' => $modelClass::$adminAccessMap
 			]);
 		}
 

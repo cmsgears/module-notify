@@ -12,14 +12,12 @@ namespace cmsgears\notify\common\services\mappers;
 // CMG Imports
 use cmsgears\notify\common\services\interfaces\mappers\IEventParticipantService;
 
-use cmsgears\core\common\services\base\MapperService;
-
 /**
  * EventParticipantService provide service methods of event reminder.
  *
  * @since 1.0.0
  */
-class EventParticipantService extends MapperService implements IEventParticipantService {
+class EventParticipantService extends \cmsgears\core\common\services\base\MapperService implements IEventParticipantService {
 
 	// Variables ---------------------------------------------------
 

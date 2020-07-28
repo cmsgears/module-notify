@@ -20,7 +20,7 @@ use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\core\common\models\resources\File;
 
 /**
- * CalendarController provides actions specific to user events.
+ * CalendarController provides actions specific to calendar events.
  *
  * @since 1.0.0
  */
@@ -135,9 +135,8 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 		$banner	= File::loadFile( $model->banner, 'Banner' );
 		$video	= File::loadFile( $model->banner, 'Video' );
 
-		$model->siteId	= Yii::$app->core->site->id;
 		$model->userId	= $user->id;
-		$model->type	= CoreGlobal::TYPE_DEFAULT;
+		$model->type	= CoreGlobal::TYPE_USER;
 
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
@@ -164,6 +163,7 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 
 		$modelClass	= $this->modelService->getModelClass();
 		$model		= $this->modelService->getById( $id );
+		$admin		= $model->isOwner( $user ); // Admin own events
 
 		$avatar	= File::loadFile( $model->avatar, 'Avatar' );
 		$banner	= File::loadFile( $model->banner, 'Banner' );
@@ -172,7 +172,7 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
 			$this->model = $this->modelService->create( $model, [
-				'admin' => true, 'avatar' => $avatar,
+				'admin' => $admin, 'avatar' => $avatar,
 				'banner' => $banner, 'video' => $video
 			]);
 

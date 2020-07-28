@@ -18,7 +18,7 @@ use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\core\common\utilities\AjaxUtil;
 
 /**
- * Delete process delete action.
+ * Delete action deletes the model.
  *
  * @since 1.0.0
  */

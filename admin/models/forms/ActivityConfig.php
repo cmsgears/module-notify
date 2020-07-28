@@ -9,15 +9,12 @@
 
 namespace cmsgears\notify\admin\models\forms;
 
-// CMG Imports
-use cmsgears\core\common\models\forms\DataModel;
-
 /**
  * ActivityConfig form allows admin to configure activity templates.
  *
  * @since 1.0.0
  */
-class ActivityConfig extends DataModel {
+class ActivityConfig extends \cmsgears\core\common\models\forms\DataModel {
 
 	// Variables ---------------------------------------------------
 

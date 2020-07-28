@@ -13,7 +13,7 @@ namespace cmsgears\notify\common\actions\activity;
 use Yii;
 
 /**
- * Delete process delete action of Activity.
+ * Delete action deletes the corresponding activity.
  *
  * @since 1.0.0
  */

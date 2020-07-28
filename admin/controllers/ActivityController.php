@@ -17,14 +17,12 @@ use yii\helpers\Url;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\admin\controllers\base\Controller as BaseController;
-
 /**
- * ActivityController provide actions specific to Activity model.
+ * ActivityController provide actions specific to all the activities.
  *
  * @since 1.0.0
  */
-class ActivityController extends BaseController {
+class ActivityController extends \cmsgears\core\admin\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 

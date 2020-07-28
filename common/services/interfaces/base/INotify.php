@@ -16,20 +16,22 @@ namespace cmsgears\notify\common\services\interfaces\base;
  */
 interface INotify {
 
-	public function getPageForAdmin();
+	public function getPageForAdmin( $config = [] );
 
-	public function getPageByUserId( $userId );
+	public function getPageByUserId( $userId, $config = [] );
 
-	public function getPageByParent( $parentId, $parentType, $admin = false );
+	public function getPageByParent( $parentId, $parentType, $config = [] );
 
-	public function getRecent( $limit = 5, $config = [] );
+	public function getNotifyRecent( $limit = 5, $config = [] );
 
-	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] );
+	public function getNotifyRecentByUserId( $userId, $limit = 5, $config = [] );
 
-	public function getCount( $consumed = false, $admin = false );
+	public function getNotifyRecentByParent( $parentId, $parentType, $limit = 5, $config = [] );
 
-	public function getUserCount( $userId, $consumed = false, $admin = false );
+	public function getNotifyCount( $config = [] );
 
-	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false );
+	public function getNotifyCountByUserId( $userId, $config = [] );
+
+	public function getNotifyCountByParent( $parentId, $parentType, $config = [] );
 
 }

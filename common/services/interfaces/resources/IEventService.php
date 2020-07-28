@@ -11,25 +11,28 @@ namespace cmsgears\notify\common\services\interfaces\resources;
 
 // CMG Imports
 use cmsgears\core\common\services\interfaces\base\IModelResourceService;
+use cmsgears\core\common\services\interfaces\base\IMultiSite;
 
 /**
  * IEventService declares methods specific to event model.
  *
  * @since 1.0.0
  */
-interface IEventService extends IModelResourceService {
+interface IEventService extends IModelResourceService, IMultiSite {
 
 	// Data Provider ------
 
-	public function getPageForAdmin();
+	public function getPageForAdmin( $config = [] );
 
-	public function getPageByUserId( $userId );
+	public function getPageByUserId( $userId, $config = [] );
 
-	public function getPageByParent( $parentId, $parentType, $admin = false );
+	public function getPageByParent( $parentId, $parentType, $config = [] );
 
 	// Read ---------------
 
 	// Read - Models ---
+
+	public function getByRangeUserId( $startDate, $endDate, $userId, $config = [] );
 
 	// Read - Lists ----
 

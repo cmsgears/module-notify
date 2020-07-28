@@ -16,14 +16,12 @@ use yii\filters\VerbFilter;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\admin\controllers\base\Controller;
-
 /**
- * NotificationController provide actions specific to Notification model.
+ * StatsController provide actions specific to notify stats.
  *
  * @since 1.0.0
  */
-class StatsController extends Controller {
+class StatsController extends \cmsgears\core\admin\controllers\apix\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -43,7 +41,6 @@ class StatsController extends Controller {
 
 		// Permissions
 		$this->crudPermission = NotifyGlobal::PERM_NOTIFY_ADMIN;
-
 	}
 
 	// Instance methods --------------------------------------------

@@ -13,7 +13,7 @@ namespace cmsgears\notify\common\actions\notification;
 use Yii;
 
 /**
- * Trash mark the activity for trash.
+ * Trash mark the notification for trash.
  *
  * @since 1.0.0
  */

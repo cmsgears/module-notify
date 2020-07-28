@@ -24,7 +24,7 @@ use cmsgears\core\common\utilities\DateUtil;
  *
  * @since 1.0.0
  */
-class CalendarController extends \cmsgears\core\frontend\controllers\base\Controller {
+class CalendarController extends \cmsgears\core\frontend\controllers\apix\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -86,8 +86,8 @@ class CalendarController extends \cmsgears\core\frontend\controllers\base\Contro
 	public function actions() {
 
 		return [
-			'delete' => [ 'class' => 'cmsgears\notify\common\actions\event\Delete' ],
-			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\event\Bulk' ]
+			'delete' => [ 'class' => 'cmsgears\notify\common\actions\event\Delete', 'user' => true ],
+			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\event\Bulk', 'user' => true ]
 		];
 	}
 
@@ -109,7 +109,7 @@ class CalendarController extends \cmsgears\core\frontend\controllers\base\Contro
 
 		foreach( $events as $event ) {
 
-			$data[] = [ 'id' => $event->id, 'title' => "$event->name - $event->description", 'start' => $event->scheduledAt ];
+			$data[] = [ 'id' => $event->id, 'title' => $event->displayName, 'desc' => $event->description, 'start' => $event->scheduledAt ];
 		}
 
 		// Trigger Ajax Success
@@ -121,7 +121,7 @@ class CalendarController extends \cmsgears\core\frontend\controllers\base\Contro
 		$event = $this->model;
 
 		$data = $event->getAttributeArray([
-			'id', 'name', 'icon', 'description', 'content', 'scheduledAt',
+			'id', 'name', 'icon', 'title', 'description', 'content', 'scheduledAt',
 			'preReminderCount', 'preReminderInterval', 'preIntervalUnit',
 			'postReminderCount', 'postReminderInterval', 'postIntervalUnit'
 		]);
@@ -134,4 +134,5 @@ class CalendarController extends \cmsgears\core\frontend\controllers\base\Contro
 		// Trigger Ajax Success
 		return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ), $data );
 	}
+
 }

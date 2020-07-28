@@ -12,9 +12,10 @@ namespace cmsgears\notify\frontend\controllers;
 // Yii Imports
 use Yii;
 use yii\filters\VerbFilter;
+use yii\helpers\Url;
 
 /**
- * ReminderController provides actions specific to user reminders.
+ * ReminderController provides actions specific to reminders.
  *
  * @since 1.0.0
  */
@@ -42,6 +43,10 @@ class ReminderController extends \cmsgears\notify\frontend\controllers\base\Cont
 
 		// Services
 		$this->modelService	= Yii::$app->factory->get( 'reminderService' );
+
+		// Return Url
+		$this->returnUrl = Url::previous( 'reminders' );
+		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/reminder/all' ], true );
 	}
 
 	// Instance methods --------------------------------------------
@@ -86,6 +91,8 @@ class ReminderController extends \cmsgears\notify\frontend\controllers\base\Cont
 	}
 
 	public function actionAll() {
+
+		Url::remember( Yii::$app->request->getUrl(), 'reminders' );
 
 		$user = Yii::$app->core->getUser();
 

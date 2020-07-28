@@ -17,14 +17,12 @@ use yii\helpers\Url;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\admin\controllers\base\Controller as BaseController;
-
 /**
- * ReminderController provide actions specific to Reminder model.
+ * ReminderController provide actions specific to admin reminders.
  *
  * @since 1.0.0
  */
-class ReminderController extends BaseController {
+class ReminderController extends \cmsgears\core\admin\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -103,7 +101,7 @@ class ReminderController extends BaseController {
 
 	// CMG parent classes --------------------
 
-	// NotificationController ----------------
+	// ReminderController --------------------
 
 	public function actionIndex() {
 

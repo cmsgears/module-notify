@@ -53,7 +53,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 		$this->sidebar = [ 'parent' => 'sidebar-activity', 'child' => 'template' ];
 
 		// Return Url
-		$this->returnUrl = Url::previous( 'templates' );
+		$this->returnUrl = Url::previous( 'activity-templates' );
 		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/activity/template/all' ], true );
 
 		// Breadcrumbs
@@ -86,7 +86,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 	public function actionAll( $config = [] ) {
 
-		Url::remember( Yii::$app->request->getUrl(), 'templates' );
+		Url::remember( Yii::$app->request->getUrl(), 'activity-templates' );
 
 		return parent::actionAll( $config );
 	}
@@ -97,8 +97,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 		$model = $this->modelService->getModelObject();
 
-		$model->type	= $this->type;
-		$model->siteId	= Yii::$app->core->siteId;
+		$model->type = $this->type;
 
 		$modelConfig = new ActivityConfig();
 

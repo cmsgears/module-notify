@@ -13,7 +13,7 @@ namespace cmsgears\notify\common\actions\reminder;
 use Yii;
 
 /**
- * Bulk process bulk actions of Activity.
+ * The bulk action for reminders.
  *
  * @since 1.0.0
  */

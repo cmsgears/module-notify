@@ -7,16 +7,13 @@
  * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
  */
 
-// CMG Imports
-use cmsgears\core\common\base\Migration;
-
 /**
  * The notify migration inserts the database tables of notify module. It also insert the foreign
  * keys if FK flag of migration component is true.
  *
  * @since 1.0.0
  */
-class m160628_015405_notify extends Migration {
+class m160628_015405_notify extends \cmsgears\core\common\base\Migration {
 
 	// Public Variables
 
@@ -92,7 +89,7 @@ class m160628_015405_notify extends Migration {
 			'postReminderInterval' => $this->smallInteger( 6 )->defaultValue( 0 ),
 			'postIntervalUnit' => $this->smallInteger( 6 )->defaultValue( 2 ),
 			'admin' => $this->boolean()->notNull()->defaultValue( false ),
-			'multiUser' => $this->boolean()->notNull()->defaultValue( false ),
+			'group' => $this->boolean()->notNull()->defaultValue( false ),
 			'status' => $this->smallInteger( 6 )->defaultValue( 0 ),
 			'createdAt' => $this->dateTime()->notNull(),
 			'modifiedAt' => $this->dateTime(),
@@ -122,6 +119,7 @@ class m160628_015405_notify extends Migration {
 			'id' => $this->bigPrimaryKey( 20 ),
 			'eventId' => $this->bigInteger( 20 )->notNull(),
 			'userId' => $this->bigInteger( 20 )->notNull(),
+			'primary' => $this->boolean()->notNull()->defaultValue( true ),
 			'active' => $this->boolean()->notNull()->defaultValue( true ),
 			'createdAt' => $this->dateTime()->notNull(),
 			'modifiedAt' => $this->dateTime()
@@ -143,6 +141,7 @@ class m160628_015405_notify extends Migration {
 			'parentType' => $this->string( Yii::$app->core->mediumText ),
 			'title' => $this->string( Yii::$app->core->xxLargeText )->notNull(),
 			'description' => $this->string( Yii::$app->core->xtraLargeText )->notNull(),
+			'type' => $this->string( Yii::$app->core->mediumText )->notNull(),
 			'link' => $this->string( Yii::$app->core->xxxLargeText )->defaultValue( null ),
 			'admin' => $this->boolean()->notNull()->defaultValue( false ),
 			'adminLink' => $this->string( Yii::$app->core->xxxLargeText )->defaultValue( null ),
@@ -175,7 +174,7 @@ class m160628_015405_notify extends Migration {
 			'parentType' => $this->string( Yii::$app->core->mediumText ),
 			'title' => $this->string( Yii::$app->core->xxLargeText )->notNull(),
 			'description' => $this->string( Yii::$app->core->xtraLargeText ),
-			'type' => $this->string( Yii::$app->core->mediumText )->notNull()->defaultValue( 'default' ),
+			'type' => $this->string( Yii::$app->core->mediumText )->notNull(),
 			'ip' => $this->string( Yii::$app->core->mediumText )->defaultValue( null ),
 			'ipNum' => $this->integer( 11 )->defaultValue( 0 ),
 			'agent' => $this->string( Yii::$app->core->xxLargeText )->defaultValue( null ),
@@ -212,10 +211,11 @@ class m160628_015405_notify extends Migration {
 			'parentType' => $this->string( Yii::$app->core->mediumText ),
 			'title' => $this->string( Yii::$app->core->xxLargeText )->notNull(),
 			'description' => $this->string( Yii::$app->core->xtraLargeText )->notNull(),
-			'type' => $this->string( Yii::$app->core->mediumText )->notNull()->defaultValue( 'default' ),
+			'type' => $this->string( Yii::$app->core->mediumText )->notNull(),
 			'status' => $this->smallInteger( 6 )->defaultValue( 0 ),
 			'access' => $this->smallInteger( 6 )->defaultValue( 0 ),
 			'link' => $this->string( Yii::$app->core->xxxLargeText )->defaultValue( null ),
+			'admin' => $this->boolean()->notNull()->defaultValue( false ),
 			'adminLink' => $this->string( Yii::$app->core->xxxLargeText )->defaultValue( null ),
 			'createdAt' => $this->dateTime()->notNull(),
 			'modifiedAt' => $this->dateTime(),
@@ -244,7 +244,7 @@ class m160628_015405_notify extends Migration {
 			'parentType' => $this->string( Yii::$app->core->mediumText ),
 			'title' => $this->string( Yii::$app->core->xxLargeText )->notNull(),
 			'description' => $this->string( Yii::$app->core->xtraLargeText )->notNull(),
-			'type' => $this->string( Yii::$app->core->mediumText )->notNull()->defaultValue( 'default' ),
+			'type' => $this->string( Yii::$app->core->mediumText )->notNull(),
 			'ip' => $this->string( Yii::$app->core->mediumText )->defaultValue( null ),
 			'ipNum' => $this->integer( 11 )->defaultValue( 0 ),
 			'agent' => $this->string( Yii::$app->core->xxLargeText )->defaultValue( null ),

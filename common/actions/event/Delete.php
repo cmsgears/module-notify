@@ -18,7 +18,7 @@ use cmsgears\core\common\config\CoreGlobal;
 use cmsgears\core\common\utilities\AjaxUtil;
 
 /**
- * Delete process delete action of Event.
+ * Delete action deletes the corresponding event.
  *
  * @since 1.0.0
  */

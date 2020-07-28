@@ -135,9 +135,9 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 
 		// Model Rules
 		$rules = [
+			[ 'title', 'required' ],
 			// Required, Safe
-			[ 'siteId', 'required' ],
-			[ [ 'id', 'content', 'data',  'gridCache' ], 'safe' ],
+			[ [ 'id', 'content', 'gridCache' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ [ 'title', 'agent' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
@@ -177,6 +177,24 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA ),
 			'gridCache' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_GRID_CACHE )
 		];
+	}
+
+	// yii\db\BaseActiveRecord
+
+    /**
+     * @inheritdoc
+     */
+	public function beforeSave( $insert ) {
+
+	    if( parent::beforeSave( $insert ) ) {
+
+			// Default Type - Default
+			$this->type = $this->type ?? CoreGlobal::TYPE_DEFAULT;
+
+	        return true;
+	    }
+
+		return false;
 	}
 
 	// CMG interfaces ------------------------
@@ -222,8 +240,9 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 	 */
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user', 'creator', 'modifier' ];
-		$config[ 'relations' ]	= $relations;
+		$relations = isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user', 'creator', 'modifier' ];
+
+		$config[ 'relations' ] = $relations;
 
 		return parent::queryWithAll( $config );
 	}
@@ -236,7 +255,7 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 	 */
 	public static function queryWithUser( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'user' ];
+		$config[ 'relations' ] = [ 'user' ];
 
 		return parent::queryWithAll( $config );
 	}

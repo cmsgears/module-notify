@@ -13,11 +13,11 @@ namespace cmsgears\notify\common\actions\notification;
 use Yii;
 
 /**
- * ToggleRead mark the notification read or unread.
+ * Unread mark the notification unread.
  *
  * @since 1.0.0
  */
-class ToggleRead extends \cmsgears\notify\common\actions\notify\ToggleRead {
+class Unread extends \cmsgears\notify\common\actions\notify\Unread {
 
 	// Variables ---------------------------------------------------
 
@@ -58,6 +58,6 @@ class ToggleRead extends \cmsgears\notify\common\actions\notify\ToggleRead {
 
 	// CMG parent classes --------------------
 
-	// ToggleRead ----------------------------
+	// Unread --------------------------------
 
 }

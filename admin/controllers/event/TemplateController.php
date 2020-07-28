@@ -50,7 +50,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 		$this->sidebar = [ 'parent' => 'sidebar-reminder', 'child' => 'etemplate' ];
 
 		// Return Url
-		$this->returnUrl = Url::previous( 'templates' );
+		$this->returnUrl = Url::previous( 'event-templates' );
 		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/event/template/all' ], true );
 
 		// Breadcrumbs
@@ -83,7 +83,7 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 	public function actionAll( $config = [] ) {
 
-		Url::remember( Yii::$app->request->getUrl(), 'templates' );
+		Url::remember( Yii::$app->request->getUrl(), 'event-templates' );
 
 		return parent::actionAll( $config );
 	}

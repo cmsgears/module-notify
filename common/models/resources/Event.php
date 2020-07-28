@@ -78,7 +78,7 @@ use cmsgears\core\common\utilities\DateUtil;
  * @property short $postReminderInterval
  * @property short $postIntervalUnit
  * @property boolean $admin
- * @property boolean $multiUser
+ * @property boolean $group
  * @property short $status
  * @property datetime $createdAt
  * @property datetime $modifiedAt
@@ -98,8 +98,6 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	// Variables ---------------------------------------------------
 
 	// Globals -------------------------------
-
-	const TYPE_DEFAULT	= 'default';
 
 	const STATUS_NEW		= 	  0;
 	const STATUS_CANCELLED	= 	100;
@@ -207,8 +205,10 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 		// Model Rules
 		$rules = [
 			// Required, Safe
-			[ [ 'siteId', 'name', 'scheduledAt' ], 'required' ],
-			[ [ 'id', 'content', 'data', 'gridCache' ], 'safe' ],
+			[ [ 'name', 'scheduledAt' ], 'required' ],
+			[ [ 'id', 'content', 'gridCache' ], 'safe' ],
+			// Unique
+			[ 'slug', 'unique', 'targetAttribute' => [ 'siteId', 'slug' ] ],
 			// Text Limit
 			[ [ 'parentType', 'type' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ 'icon', 'string', 'min' => 1, 'max' => Yii::$app->core->largeText ],
@@ -218,7 +218,7 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 			[ 'description', 'string', 'min' => 1, 'max' => Yii::$app->core->xtraLargeText ],
 			// Other
 			[ [ 'preReminderCount', 'preReminderInterval', 'preIntervalUnit', 'postReminderCount', 'postReminderInterval', 'postIntervalUnit', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-			[ [ 'admin', 'multiUser', 'gridCacheValid' ], 'boolean' ],
+			[ [ 'admin', 'group', 'gridCacheValid' ], 'boolean' ],
 			[ 'status', 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ 'templateId', 'number', 'integerOnly' => true, 'min' => 0, 'tooSmall' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_SELECT ) ],
 			[ [ 'siteId', 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
@@ -275,6 +275,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 				$this->templateId = null;
 			}
 
+			// Default Type - Default
+			$this->type = $this->type ?? CoreGlobal::TYPE_DEFAULT;
+
 			return true;
 		}
 
@@ -314,9 +317,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	 *
 	 * @return string
 	 */
-	public function getMultiStr() {
+	public function getGroupStr() {
 
-		return Yii::$app->formatter->asBoolean( $this->multiUser );
+		return Yii::$app->formatter->asBoolean( $this->group );
 	}
 
 	/**
@@ -408,8 +411,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	 */
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'site', 'template', 'user', 'creator', 'modifier' ];
-		$config[ 'relations' ]	= $relations;
+		$relations = isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'site', 'template', 'user', 'creator', 'modifier' ];
+
+		$config[ 'relations' ] = $relations;
 
 		return parent::queryWithAll( $config );
 	}
@@ -422,7 +426,7 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	 */
 	public static function queryWithUser( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'user' ];
+		$config[ 'relations' ] = [ 'user' ];
 
 		return parent::queryWithAll( $config );
 	}

@@ -128,8 +128,8 @@ class Activity extends ModelResource implements IData, IGridCache, IMultiSite, I
 		// Model Rules
 		$rules = [
 			// Required, Safe
-			[ [ 'siteId', 'userId' ], 'required' ],
-			[ [ 'id', 'content', 'data',  'gridCache' ], 'safe' ],
+			[ [ 'userId', 'title' ], 'required' ],
+			[ [ 'id', 'content', 'gridCache' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ [ 'title', 'agent' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
@@ -180,6 +180,24 @@ class Activity extends ModelResource implements IData, IGridCache, IMultiSite, I
 		];
 	}
 
+	// yii\db\BaseActiveRecord
+
+    /**
+     * @inheritdoc
+     */
+	public function beforeSave( $insert ) {
+
+	    if( parent::beforeSave( $insert ) ) {
+
+			// Default Type - Default
+			$this->type = $this->type ?? CoreGlobal::TYPE_DEFAULT;
+
+	        return true;
+	    }
+
+		return false;
+	}
+
 	// CMG interfaces ------------------------
 
 	// CMG parent classes --------------------
@@ -223,8 +241,9 @@ class Activity extends ModelResource implements IData, IGridCache, IMultiSite, I
 	 */
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user' ];
-		$config[ 'relations' ]	= $relations;
+		$relations = isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user' ];
+
+		$config[ 'relations' ] = $relations;
 
 		return parent::queryWithAll( $config );
 	}
@@ -237,7 +256,7 @@ class Activity extends ModelResource implements IData, IGridCache, IMultiSite, I
 	 */
 	public static function queryWithUser( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'user' ];
+		$config[ 'relations' ] = [ 'user' ];
 
 		return parent::queryWithAll( $config );
 	}
