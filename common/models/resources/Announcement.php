@@ -16,6 +16,7 @@ use yii\behaviors\TimestampBehavior;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\interfaces\base\IAuthor;
@@ -24,6 +25,7 @@ use cmsgears\core\common\models\interfaces\resources\IData;
 use cmsgears\core\common\models\interfaces\resources\IVisual;
 
 use cmsgears\core\common\models\base\ModelResource;
+
 use cmsgears\notify\common\models\base\NotifyTables;
 
 use cmsgears\core\common\models\traits\base\AuthorTrait;

@@ -32,8 +32,8 @@ abstract class ToggleRead extends \cmsgears\core\common\base\Action {
 
 	// Public -----------------
 
-	public $user	= true;
 	public $admin	= false;
+	public $user	= false;
 
 	public $parentType;
 

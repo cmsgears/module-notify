@@ -17,20 +17,24 @@ use yii\helpers\ArrayHelper;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\interfaces\base\IMultiSite;
 use cmsgears\core\common\models\interfaces\resources\IData;
 use cmsgears\core\common\models\interfaces\resources\IGridCache;
+
 use cmsgears\notify\common\models\interfaces\base\IToggle;
 
 use cmsgears\core\common\models\base\ModelResource;
 use cmsgears\core\common\models\entities\User;
+
 use cmsgears\notify\common\models\base\NotifyTables;
 
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
 use cmsgears\core\common\models\traits\resources\GridCacheTrait;
+
 use cmsgears\notify\common\models\traits\base\ToggleTrait;
 
 /**

@@ -16,22 +16,26 @@ use yii\behaviors\TimestampBehavior;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\interfaces\base\IAuthor;
 use cmsgears\core\common\models\interfaces\base\IMultiSite;
 use cmsgears\core\common\models\interfaces\base\IOwner;
 use cmsgears\core\common\models\interfaces\resources\IData;
+
 use cmsgears\notify\common\models\interfaces\base\IToggle;
 
 use cmsgears\core\common\models\base\ModelResource;
 use cmsgears\core\common\models\entities\User;
+
 use cmsgears\notify\common\models\base\NotifyTables;
 
 use cmsgears\core\common\models\traits\base\AuthorTrait;
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
 use cmsgears\core\common\models\traits\base\UserOwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
+
 use cmsgears\notify\common\models\traits\base\ToggleTrait;
 
 use cmsgears\core\common\behaviors\AuthorBehavior;

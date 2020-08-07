@@ -18,6 +18,7 @@ use yii\behaviors\TimestampBehavior;
 use cmsgears\core\common\config\CoreGlobal;
 
 use cmsgears\core\common\models\entities\User;
+
 use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\notify\common\models\entities\Event;
 

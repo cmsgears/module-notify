@@ -19,6 +19,7 @@ use cmsgears\notify\common\config\NotifyGlobal;
 use cmsgears\notify\common\services\interfaces\resources\INotificationService;
 
 use cmsgears\core\common\services\traits\base\MultisiteTrait;
+
 use cmsgears\notify\common\services\traits\base\BulkTrait;
 use cmsgears\notify\common\services\traits\base\NotifyTrait;
 use cmsgears\notify\common\services\traits\base\ToggleTrait;
