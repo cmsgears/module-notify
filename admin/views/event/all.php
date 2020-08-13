@@ -22,9 +22,8 @@ $themeTemplates		= '@themes/admin/views/templates';
 	'sortColumns' => [
 		'name' => 'Name', 'title' => 'Title',
 		'multi' => 'Group', 'status' => 'Status',
-		'sdate' => 'Scheduled At'
-		//'template' => 'Template', 'icon' => 'Icon',
-		//'cdate' => 'Created At', 'udate' => 'Updated At'
+		'template' => 'Template', 'sdate' => 'Scheduled At',
+		'cdate' => 'Created At', 'udate' => 'Updated At'
 	],
 	'filters' => [
 		'status' => [

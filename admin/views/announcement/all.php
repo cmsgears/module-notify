@@ -22,8 +22,8 @@ $themeTemplates		= '@themes/admin/views/templates';
 		'title' => 'Title', 'desc' => 'Description', 'content' => 'Content'
 	],
 	'sortColumns' => [
-		'title' => 'Title', 'status' => 'Status', 'access' => 'Access'
-		//'cdate' => 'Created At', 'udate' => 'Updated At'
+		'title' => 'Title', 'status' => 'Status', 'access' => 'Access',
+		'cdate' => 'Created At', 'udate' => 'Updated At'
 	],
 	'filters' => [
 		'status' => [

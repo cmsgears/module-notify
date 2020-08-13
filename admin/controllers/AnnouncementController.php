@@ -36,6 +36,8 @@ class AnnouncementController extends \cmsgears\core\admin\controllers\base\Contr
 
 	// Protected --------------
 
+	protected $templateService;
+
 	// Private ----------------
 
 	// Constructor and Initialisation ------------------------------
@@ -88,21 +90,21 @@ class AnnouncementController extends \cmsgears\core\admin\controllers\base\Contr
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'index'	 => [ 'permission' => $this->crudPermission ],
-					'all'  => [ 'permission' => $this->crudPermission ],
-					'create'  => [ 'permission' => $this->crudPermission ],
-					'update'  => [ 'permission' => $this->crudPermission ],
-					'delete'  => [ 'permission' => $this->crudPermission ]
+					'index' => [ 'permission' => $this->crudPermission ],
+					'all' => [ 'permission' => $this->crudPermission ],
+					'create' => [ 'permission' => $this->crudPermission ],
+					'update' => [ 'permission' => $this->crudPermission ],
+					'delete' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
 				'class' => VerbFilter::class,
 				'actions' => [
 					'index' => [ 'get', 'post' ],
-					'all'  => [ 'get' ],
-					'create'  => [ 'get', 'post' ],
-					'update'  => [ 'get', 'post' ],
-					'delete'  => [ 'get', 'post' ]
+					'all' => [ 'get' ],
+					'create' => [ 'get', 'post' ],
+					'update' => [ 'get', 'post' ],
+					'delete' => [ 'get', 'post' ]
 				]
 			]
 		];
@@ -155,11 +157,14 @@ class AnnouncementController extends \cmsgears\core\admin\controllers\base\Contr
 			return $this->redirect( 'all' );
 		}
 
+		$templatesMap = $this->templateService->getIdNameMapByType( NotifyGlobal::TYPE_ANNOUNCEMENT, [ 'default' => true ] );
+
 		return $this->render( 'create', [
 			'model' => $model,
 			'banner' => $banner,
 			'statusMap' => $modelClass::$statusMap,
-			'accessMap' => $modelClass::$adminAccessMap
+			'accessMap' => $modelClass::$adminAccessMap,
+			'templatesMap' => $templatesMap
 		]);
 	}
 
@@ -184,12 +189,15 @@ class AnnouncementController extends \cmsgears\core\admin\controllers\base\Contr
 				return $this->redirect( $this->returnUrl );
 			}
 
+			$templatesMap = $this->templateService->getIdNameMapByType( NotifyGlobal::TYPE_ANNOUNCEMENT, [ 'default' => true ] );
+
 			// Render view
 			return $this->render( 'update', [
 				'model' => $model,
 				'banner' => $banner,
 				'statusMap' => $modelClass::$statusMap,
-				'accessMap' => $modelClass::$adminAccessMap
+				'accessMap' => $modelClass::$adminAccessMap,
+				'templatesMap' => $templatesMap
 			]);
 		}
 
@@ -227,12 +235,15 @@ class AnnouncementController extends \cmsgears\core\admin\controllers\base\Contr
 				}
 			}
 
+			$templatesMap = $this->templateService->getIdNameMapByType( NotifyGlobal::TYPE_ANNOUNCEMENT, [ 'default' => true ] );
+
 			// Render view
 			return $this->render( 'delete', [
 				'model' => $model,
 				'banner' => $model->banner,
 				'statusMap' => $modelClass::$statusMap,
-				'accessMap' => $modelClass::$adminAccessMap
+				'accessMap' => $modelClass::$adminAccessMap,
+				'templatesMap' => $templatesMap
 			]);
 		}
 

@@ -24,10 +24,10 @@ Editor::widget();
 				<div class="box-content">
 					<div class="row">
 						<div class="col col2">
-							<?= $form->field( $model, 'title' )->textInput( [ 'readonly'=> 'true' ] ) ?>
+							<?= $form->field( $model, 'title' )->textInput( [ 'readonly' => 'true' ] ) ?>
 						</div>
 						<div class="col col2">
-							<?= $form->field( $model, 'description' )->textarea( [ 'readonly'=> 'true' ] ) ?>
+							<?= $form->field( $model, 'templateId' )->dropDownList( $templatesMap, [ 'class' => 'cmt-select', 'disabled' => true ] ) ?>
 						</div>
 					</div>
 					<div class="row">
@@ -40,10 +40,15 @@ Editor::widget();
 					</div>
 					<div class="row">
 						<div class="col col2">
-							<?= $form->field( $model, 'link' )->textInput( [ 'readonly'=> 'true' ] ) ?>
+							<?= $form->field( $model, 'link' )->textInput( [ 'readonly' => 'true' ] ) ?>
 						</div>
 						<div class="col col2">
-							<?= $form->field( $model, 'adminLink' )->textInput( [ 'readonly'=> 'true' ] ) ?>
+							<?= $form->field( $model, 'adminLink' )->textInput( [ 'readonly' => 'true' ] ) ?>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col col2">
+							<?= $form->field( $model, 'description' )->textarea( [ 'readonly' => 'true' ] ) ?>
 						</div>
 					</div>
 				</div>

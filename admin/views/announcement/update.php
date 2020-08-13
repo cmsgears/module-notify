@@ -27,7 +27,7 @@ Editor::widget();
 							<?= $form->field( $model, 'title' ) ?>
 						</div>
 						<div class="col col2">
-							<?= $form->field( $model, 'description' )->textarea() ?>
+							<?= $form->field( $model, 'templateId' )->dropDownList( $templatesMap, [ 'class' => 'cmt-select' ] ) ?>
 						</div>
 					</div>
 					<div class="row">
@@ -44,6 +44,11 @@ Editor::widget();
 						</div>
 						<div class="col col2">
 							<?= $form->field( $model, 'adminLink' ) ?>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col col2">
+							<?= $form->field( $model, 'description' )->textarea() ?>
 						</div>
 					</div>
 				</div>
