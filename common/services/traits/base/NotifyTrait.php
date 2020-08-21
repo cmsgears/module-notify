@@ -81,7 +81,7 @@ trait NotifyTrait {
 
 		$modelClass	= static::$modelClass;
 
-		$query = $modelClass::queryByUserId( $userId )->where( 'admin=:admin', [ ':admin' => $admin ] );
+		$query = $modelClass::queryByUserId( $userId )->andWhere( 'admin=:admin', [ ':admin' => $admin ] );
 
 		if( !$ignoreSite ) {
 
@@ -141,7 +141,7 @@ trait NotifyTrait {
 
 		$modelClass	= static::$modelClass;
 
-		$query = $modelClass::queryByUserId( $userId )->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
+		$query = $modelClass::queryByUserId( $userId )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
 
 		if( !$ignoreSite ) {
 

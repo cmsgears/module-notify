@@ -310,7 +310,7 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$query = $modelClass::queryByUserId( $userId )->where( 'admin=:admin', [ ':admin' => $admin ] );
+		$query = $modelClass::queryByUserId( $userId )->andWhere( 'admin=:admin', [ ':admin' => $admin ] );
 
 		if( !$ignoreSite ) {
 
@@ -371,7 +371,7 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$query = $modelClass::queryByUserId( $userId )->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
+		$query = $modelClass::queryByUserId( $userId )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
 
 		if( !$ignoreSite ) {
 
