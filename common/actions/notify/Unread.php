@@ -83,14 +83,16 @@ abstract class Unread extends \cmsgears\core\common\base\Action {
 					$model = $this->notifyService->markNew( $model );
 				}
 
-				$new = $this->notifyService->getCountByParent( $this->parentId, $this->parentType, false, false );
+				$config[ 'admin' ] = $this->admin;
+
+				$new = $this->notifyService->getNotifyCountByParent( $this->parentId, $this->parentType, $config );
 			}
 			// Toggle for admin
 			else if( $this->admin ) {
 
 				$model = $this->notifyService->markNew( $model );
 
-				$new = $this->notifyService->getCount( false, $this->admin );
+				$new = $this->notifyService->getNotifyCount();
 			}
 			// Toggle for user
 			else if( $this->user ) {
@@ -102,7 +104,7 @@ abstract class Unread extends \cmsgears\core\common\base\Action {
 					$model = $this->notifyService->markNew( $model );
 				}
 
-				$new = $this->notifyService->getUserCount( $user->id, false, false );
+				$new = $this->notifyService->getNotifyCountByUserId( $user->id );
 			}
 
 			$data = [ 'unread' => $new, 'consumed' => $model->isConsumed() ];

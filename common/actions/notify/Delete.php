@@ -83,14 +83,16 @@ abstract class Delete extends \cmsgears\core\common\base\Action {
 					$this->notifyService->delete( $model );
 				}
 
-				$new = $this->notifyService->getCountByParent( $this->parentId, $this->parentType, false, false );
+				$config[ 'admin' ] = $this->admin;
+
+				$new = $this->notifyService->getNotifyCountByParent( $this->parentId, $this->parentType, $config );
 			}
 			// Delete for admin
 			else if( $this->admin ) {
 
 				$this->notifyService->delete( $model );
 
-				$new = $this->notifyService->getCount( false, true );
+				$new = $this->notifyService->getNotifyCount();
 			}
 			// Delete for User
 			else if( $this->user ) {
@@ -102,7 +104,7 @@ abstract class Delete extends \cmsgears\core\common\base\Action {
 					$this->notifyService->delete( $model );
 				}
 
-				$new = $this->notifyService->getUserCount( $user->id, false, false );
+				$new = $this->notifyService->getNotifyCountByUserId( $user->id );
 			}
 
 			$data = [ 'unread' => $new ];

@@ -286,7 +286,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 				$notification->adminLink = $config[ 'adminLink' ];
 
-				$config[ 'adminLink' ] = $coreProperties->getAdminUrl() . $config[ 'adminLink' ];
+				$config[ 'adminLink' ] = $coreProperties->getAdminUrl() . '/' . $config[ 'adminLink' ];
 			}
 
 			$nconfig = $config;

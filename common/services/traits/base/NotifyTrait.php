@@ -30,25 +30,87 @@ trait NotifyTrait {
 
 	public function getPageByUserId( $userId, $config = [] ) {
 
-		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$admin	= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$status	= isset( $config[ 'status' ] ) ? $config[ 'status' ] : null;
 
 		$modelTable	= $this->getModelTable();
 
 		$config[ 'conditions' ][ "$modelTable.admin" ]	= $admin;
 		$config[ 'conditions' ][ "$modelTable.userId" ] = $userId;
 
+		if( isset( $status ) ) {
+
+			switch( $status ) {
+
+				case 'inbox': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = false;
+
+					break;
+				}
+				case 'new': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ]	= false;
+					$config[ 'conditions' ][ "$modelTable.trash" ]		= false;
+
+					break;
+				}
+				case 'read': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ]	= true;
+					$config[ 'conditions' ][ "$modelTable.trash" ]		= false;
+
+					break;
+				}
+				case 'trash': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+
+					break;
+				}
+			}
+		}
+
 		return $this->getPage( $config );
 	}
 
 	public function getPageByParent( $parentId, $parentType, $config = [] ) {
 
-		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$admin	= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$status	= isset( $config[ 'status' ] ) ? $config[ 'status' ] : null;
 
 		$modelTable	= $this->getModelTable();
 
 		$config[ 'conditions' ][ "$modelTable.admin" ]		= $admin;
 		$config[ 'conditions' ][ "$modelTable.parentId" ]	= $parentId;
 		$config[ 'conditions' ][ "$modelTable.parentType" ]	= $parentType;
+
+		if( isset( $status ) ) {
+
+			switch( $status ) {
+
+				case 'inbox': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ]	= false;
+					$config[ 'conditions' ][ "$modelTable.trash" ]		= false;
+
+					break;
+				}
+				case 'read': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ]	= true;
+					$config[ 'conditions' ][ "$modelTable.trash" ]		= false;
+
+					break;
+				}
+				case 'trash': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+
+					break;
+				}
+			}
+		}
 
 		return $this->getPage( $config );
 	}
@@ -75,7 +137,7 @@ trait NotifyTrait {
 
 	public function getNotifyRecentByUserId( $userId, $limit = 5, $config = [] ) {
 
-		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
 		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
@@ -95,7 +157,7 @@ trait NotifyTrait {
 
 	public function getNotifyRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
 
-		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
 		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
@@ -135,7 +197,7 @@ trait NotifyTrait {
 	public function getNotifyCountByUserId( $userId, $config = [] ) {
 
 		$consumed	= isset( $config[ 'consumed' ] ) ? $config[ 'consumed' ] : false;
-		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
 		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
@@ -154,7 +216,7 @@ trait NotifyTrait {
 	public function getNotifyCountByParent( $parentId, $parentType, $config = [] ) {
 
 		$consumed	= isset( $config[ 'consumed' ] ) ? $config[ 'consumed' ] : false;
-		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
 		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 

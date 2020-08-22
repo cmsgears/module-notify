@@ -83,14 +83,16 @@ abstract class Trash extends \cmsgears\core\common\base\Action {
 					$model = $this->notifyService->markTrash( $model );
 				}
 
-				$new = $this->notifyService->getNotifyCountByParent( $this->parentId, $this->parentType, false, false );
+				$config[ 'admin' ] = $this->admin;
+
+				$new = $this->notifyService->getNotifyCountByParent( $this->parentId, $this->parentType, $config );
 			}
 			// Trash for admin
 			else if( $this->admin ) {
 
 				$model = $this->notifyService->markTrash( $model );
 
-				$new = $this->notifyService->getNotifyCount( false, $this->admin );
+				$new = $this->notifyService->getNotifyCount();
 			}
 			else if( $this->user ) {
 
@@ -101,7 +103,7 @@ abstract class Trash extends \cmsgears\core\common\base\Action {
 					$model = $this->notifyService->markTrash( $model );
 				}
 
-				$new = $this->notifyService->getNotifyCountByUserId( $user->id, false, false );
+				$new = $this->notifyService->getNotifyCountByUserId( $user->id );
 			}
 
 			$data = [ 'unread' => $new, 'consumed' => $model->isConsumed() ];
