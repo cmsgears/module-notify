@@ -154,7 +154,10 @@ class AnnouncementController extends \cmsgears\core\admin\controllers\base\Contr
 				'admin' => true, 'banner' => $banner
 			]);
 
-			return $this->redirect( 'all' );
+			if( $this->model ) {
+
+				return $this->redirect( 'all' );
+			}
 		}
 
 		$templatesMap = $this->templateService->getIdNameMapByType( NotifyGlobal::TYPE_ANNOUNCEMENT, [ 'default' => true ] );

@@ -135,6 +135,7 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 		$banner	= File::loadFile( $model->banner, 'Banner' );
 		$video	= File::loadFile( $model->banner, 'Video' );
 
+		$model->siteId	= Yii::$app->core->siteId;
 		$model->userId	= $user->id;
 		$model->type	= CoreGlobal::TYPE_USER;
 

@@ -183,6 +183,7 @@ class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 		$banner	= File::loadFile( null, 'Banner' );
 		$video	= File::loadFile( null, 'Video' );
 
+		$model->siteId	= Yii::$app->core->siteId;
 		$model->admin	= true;
 		$model->type	= CoreGlobal::TYPE_ADMIN;
 
@@ -195,7 +196,10 @@ class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 				'admin' => true, 'avatar' => $avatar, 'banner' => $banner, 'video' => $video
 			]);
 
-			return $this->redirect( 'all' );
+			if( $this->model ) {
+
+				return $this->redirect( 'all' );
+			}
 		}
 
 		$templatesMap = $this->templateService->getIdNameMapByType( NotifyGlobal::TYPE_EVENT, [ 'default' => true ] );

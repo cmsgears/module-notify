@@ -40,7 +40,7 @@ $themeTemplates		= '@themes/admin/views/templates';
 	'bulkActions' => [
 		'consumed' => [ 'new' => 'New', 'read' => 'Read' ],
 		'trash' => [ 'trash' => 'Trash' ],
-		'model' => [ 'delete' => 'Delete' ]
+		//'model' => [ 'delete' => 'Delete' ]
 	],
 	'header' => false, 'footer' => true,
 	'grid' => true, 'columns' => [ 'root' => 'colf colf15', 'factor' => [ null, 'x2', 'x2', null, null, null, 'x6', null ] ],

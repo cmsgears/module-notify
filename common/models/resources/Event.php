@@ -207,10 +207,10 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 		// Model Rules
 		$rules = [
 			// Required, Safe
-			[ [ 'name', 'scheduledAt' ], 'required' ],
+			[ [ 'siteId', 'name', 'scheduledAt' ], 'required' ],
 			[ [ 'id', 'content', 'gridCache' ], 'safe' ],
 			// Unique
-			[ 'slug', 'unique', 'targetAttribute' => [ 'siteId', 'slug' ] ],
+			[ 'slug', 'unique', 'targetAttribute' => [ 'siteId', 'slug' ], 'message' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_SLUG ) ],
 			// Text Limit
 			[ [ 'parentType', 'type' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ 'icon', 'string', 'min' => 1, 'max' => Yii::$app->core->largeText ],

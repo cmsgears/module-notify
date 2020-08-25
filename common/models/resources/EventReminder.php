@@ -116,7 +116,7 @@ class EventReminder extends ModelResource implements IData, IMultiSite, IOwner, 
 			[ 'description', 'string', 'min' => 1, 'max' => Yii::$app->core->xtraLargeText ],
 			// Other
 			[ [ 'admin', 'consumed', 'trash', 'gridCacheValid' ], 'boolean' ],
-			[ [ 'eventId', 'userId', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ [ 'siteId', 'eventId', 'userId', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ 'scheduledAt', 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
 

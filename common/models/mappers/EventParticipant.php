@@ -95,7 +95,7 @@ class EventParticipant extends \cmsgears\core\common\models\base\Mapper {
 			// Required, Safe
 			[ [ 'eventId', 'userId' ], 'required' ],
 			// Unique
-			[ [ 'eventId', 'userId' ], 'unique', 'targetAttribute' => [ 'eventId', 'userId' ], 'comboNotUnique' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_EXIST ) ],
+			[ [ 'eventId', 'userId' ], 'unique', 'targetAttribute' => [ 'eventId', 'userId' ], 'message' => 'User already exist for the Event.' ],
 			// Other
 			[ [ 'primary', 'active' ], 'boolean' ],
 			[ [ 'eventId', 'userId' ], 'number', 'integerOnly' => true, 'min' => 1 ],

@@ -99,7 +99,8 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 		$model = $this->modelService->getModelObject();
 
-		$model->type = $this->type;
+		$model->siteId	= Yii::$app->core->siteId;
+		$model->type	= $this->type;
 
 		$modelConfig = new NotificationConfig();
 
@@ -108,11 +109,14 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 			$this->model = $this->modelService->create( $model, [ 'admin' => true ] );
 
-			$this->model->refresh();
+			if( $this->model ) {
 
-			$this->modelService->updateDataMeta( $this->model, CoreGlobal::DATA_CONFIG, $modelConfig );
+				$this->model->refresh();
 
-			return $this->redirect( 'all' );
+				$this->modelService->updateDataMeta( $this->model, CoreGlobal::DATA_CONFIG, $modelConfig );
+
+				return $this->redirect( 'all' );
+			}
 		}
 
 		return $this->render( 'create', [

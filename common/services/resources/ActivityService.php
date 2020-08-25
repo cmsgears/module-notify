@@ -496,7 +496,7 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 
 				break;
 			}
-			case 'model': {
+			/*case 'model': {
 
 				switch( $action ) {
 
@@ -509,7 +509,7 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 				}
 
 				break;
-			}
+			}*/
 		}
 	}
 
