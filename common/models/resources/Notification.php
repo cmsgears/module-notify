@@ -141,7 +141,7 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 		$rules = [
 			[ 'title', 'required' ],
 			// Required, Safe
-			[ [ 'id', 'content', 'gridCache' ], 'safe' ],
+			[ [ 'id', 'content' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ [ 'title', 'agent' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],

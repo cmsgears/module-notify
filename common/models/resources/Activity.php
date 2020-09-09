@@ -133,7 +133,7 @@ class Activity extends ModelResource implements IData, IGridCache, IMultiSite, I
 		$rules = [
 			// Required, Safe
 			[ [ 'userId', 'title' ], 'required' ],
-			[ [ 'id', 'content', 'gridCache' ], 'safe' ],
+			[ [ 'id', 'content' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ [ 'title', 'agent' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],

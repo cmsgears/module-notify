@@ -199,7 +199,7 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 		$rules = [
 			// Required, Safe
 			[ [ 'title' ], 'required' ],
-			[ [ 'id', 'content',  'gridCache' ], 'safe' ],
+			[ [ 'id', 'content' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],

@@ -108,7 +108,7 @@ class EventReminder extends ModelResource implements IData, IMultiSite, IOwner, 
 		$rules = [
 			// Required, Safe
 			[ [ 'eventId', 'title', 'scheduledAt' ], 'required' ],
-			[ [ 'id', 'content', 'gridCache' ], 'safe' ],
+			[ [ 'id', 'content' ], 'safe' ],
 			// Text Limit
 			[ 'parentType', 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
