@@ -22,6 +22,7 @@ use cmsgears\notify\common\config\NotifyGlobal;
 use cmsgears\core\common\models\interfaces\base\IAuthor;
 use cmsgears\core\common\models\interfaces\base\IMultiSite;
 use cmsgears\core\common\models\interfaces\resources\IData;
+use cmsgears\core\common\models\interfaces\resources\ITemplate;
 use cmsgears\core\common\models\interfaces\resources\IVisual;
 
 use cmsgears\core\common\models\base\ModelResource;
@@ -31,6 +32,7 @@ use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\core\common\models\traits\base\AuthorTrait;
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
+use cmsgears\core\common\models\traits\resources\TemplateTrait;
 use cmsgears\core\common\models\traits\resources\VisualTrait;
 
 use cmsgears\core\common\behaviors\AuthorBehavior;
@@ -40,6 +42,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  *
  * @property integer $id
  * @property integer $siteId
+ * @property integer $templateId
  * @property integer $bannerId
  * @property integer $createdBy
  * @property integer $modifiedBy
@@ -64,7 +67,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  *
  * @since 1.0.0
  */
-class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, IVisual {
+class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, ITemplate, IVisual {
 
 	// Variables ---------------------------------------------------
 
@@ -157,6 +160,7 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 
 	use AuthorTrait;
 	use DataTrait;
+	use TemplateTrait;
 	use MultiSiteTrait;
 	use VisualTrait;
 
@@ -208,7 +212,7 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 			// Other
 			[ [ 'admin', 'gridCacheValid' ], 'boolean' ],
 			[ [ 'status', 'access' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-			[ [ 'siteId', 'bannerId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ [ 'siteId', 'templateId', 'bannerId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ [ 'createdAt', 'modifiedAt', 'expiresAt', 'gridCachedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
 
@@ -222,6 +226,7 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 
 		return [
 			'siteId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_SITE ),
+			'templateId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TEMPLATE ),
 			'bannerId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_BANNER ),
 			'parentId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
 			'parentType' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),

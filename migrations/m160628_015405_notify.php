@@ -204,6 +204,7 @@ class m160628_015405_notify extends \cmsgears\core\common\base\Migration {
 		$this->createTable( $this->prefix . 'notify_announcement', [
 			'id' => $this->bigPrimaryKey( 20 ),
 			'siteId' => $this->bigInteger( 20 )->notNull(),
+			'templateId' => $this->bigInteger( 20 ),
 			'bannerId' => $this->bigInteger( 20 ),
 			'createdBy' => $this->bigInteger( 20 ),
 			'modifiedBy' => $this->bigInteger( 20 ),
@@ -229,6 +230,7 @@ class m160628_015405_notify extends \cmsgears\core\common\base\Migration {
 
 		// Index for columns site, creator and modifier
 		$this->createIndex( 'idx_' . $this->prefix . 'announcement_site', $this->prefix . 'notify_announcement', 'siteId' );
+		$this->createIndex( 'idx_' . $this->prefix . 'announcement_template', $this->prefix . 'notify_announcement', 'templateId' );
 		$this->createIndex( 'idx_' . $this->prefix . 'announcement_banner', $this->prefix . 'notify_announcement', 'bannerId' );
 		$this->createIndex( 'idx_' . $this->prefix . 'notification_creator', $this->prefix . 'notify_announcement', 'createdBy' );
 		$this->createIndex( 'idx_' . $this->prefix . 'notification_modifier', $this->prefix . 'notify_announcement', 'modifiedBy' );
@@ -297,6 +299,7 @@ class m160628_015405_notify extends \cmsgears\core\common\base\Migration {
 
 		// Announcement
 		$this->addForeignKey( 'fk_' . $this->prefix . 'announcement_site', $this->prefix . 'notify_announcement', 'siteId', $this->prefix . 'core_site', 'id', 'CASCADE' );
+		$this->addForeignKey( 'fk_' . $this->prefix . 'announcement_template', $this->prefix . 'notify_announcement', 'templateId', $this->prefix . 'core_template', 'id', 'SET NULL' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'announcement_banner', $this->prefix . 'notify_announcement', 'bannerId', $this->prefix . 'core_file', 'id', 'SET NULL' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'announcement_creator', $this->prefix . 'notify_announcement', 'createdBy', $this->prefix . 'core_user', 'id', 'SET NULL' );
 		$this->addForeignKey( 'fk_' . $this->prefix . 'announcement_modifier', $this->prefix . 'notify_announcement', 'modifiedBy', $this->prefix . 'core_user', 'id', 'SET NULL' );
@@ -352,6 +355,7 @@ class m160628_015405_notify extends \cmsgears\core\common\base\Migration {
 
 		// Announcement
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'announcement_site', $this->prefix . 'notify_announcement' );
+		$this->dropForeignKey( 'fk_' . $this->prefix . 'announcement_template', $this->prefix . 'notify_announcement' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'announcement_banner', $this->prefix . 'notify_announcement' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'announcement_creator', $this->prefix . 'notify_announcement' );
 		$this->dropForeignKey( 'fk_' . $this->prefix . 'announcement_modifier', $this->prefix . 'notify_announcement' );

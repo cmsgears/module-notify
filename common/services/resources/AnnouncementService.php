@@ -362,7 +362,8 @@ class AnnouncementService extends \cmsgears\core\common\services\base\ModelResou
 		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 
 		$attributes	= isset( $config[ 'attributes' ] ) ? $config[ 'attributes' ] : [
-			'bannerId', 'title', 'description', 'link', 'adminLink', 'expiresAt', 'content'
+			'bannerId', 'templateId', 'title', 'description',
+			'link', 'adminLink', 'expiresAt', 'content'
 		];
 
 		$banner = isset( $config[ 'banner' ] ) ? $config[ 'banner' ] : null;

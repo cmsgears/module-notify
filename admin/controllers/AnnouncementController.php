@@ -57,6 +57,8 @@ class AnnouncementController extends \cmsgears\core\admin\controllers\base\Contr
 		// Services
 		$this->modelService = Yii::$app->factory->get( 'announcementService' );
 
+		$this->templateService = Yii::$app->factory->get( 'templateService' );
+
 		// Sidebar
 		$this->sidebar = [ 'parent' => 'sidebar-announcement', 'child' => 'announcement' ];
 
