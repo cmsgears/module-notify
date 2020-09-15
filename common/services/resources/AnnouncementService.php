@@ -314,7 +314,7 @@ class AnnouncementService extends \cmsgears\core\common\services\base\ModelResou
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$query = $modelClass::queryByParent( $parentId, $parentType )->where( 'admin=:admin AND status=:status', [ ':admin' => false, ':status' => $modelClass::STATUS_ACTIVE ] );
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'admin=:admin AND status=:status', [ ':admin' => false, ':status' => $modelClass::STATUS_ACTIVE ] );
 
 		$query->andWhere( "$modelTable.access >=" . Announcement::ACCESS_APP_ADMIN );
 

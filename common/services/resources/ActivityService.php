@@ -337,7 +337,7 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$query = $modelClass::queryByParent( $parentId, $parentType )->where( 'admin=:admin', [ ':admin' => $admin ] );
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'admin=:admin', [ ':admin' => $admin ] );
 
 		if( !$ignoreSite ) {
 
@@ -397,7 +397,7 @@ class ActivityService extends \cmsgears\core\common\services\base\ModelResourceS
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$query = $modelClass::queryByParent( $parentId, $parentType )->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
 
 		if( !$ignoreSite ) {
 

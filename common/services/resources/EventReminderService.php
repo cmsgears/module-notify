@@ -339,7 +339,7 @@ class EventReminderService extends \cmsgears\core\common\services\base\ModelReso
 
 		$modelClass	= static::$modelClass;
 
-		$query = $modelClass::queryByParent( $parentId, $parentType )->where( 'scheduledAt <= NOW() AND admin=:admin', [ ':admin' => $admin ] );
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'scheduledAt <= NOW() AND admin=:admin', [ ':admin' => $admin ] );
 
 		if( !$ignoreSite ) {
 
@@ -404,7 +404,7 @@ class EventReminderService extends \cmsgears\core\common\services\base\ModelReso
 
 		$modelClass	= static::$modelClass;
 
-		$query = $modelClass::queryByParent( $parentId, $parentType )->where( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
 
 		if( !$ignoreSite ) {
 
