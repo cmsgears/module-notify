@@ -197,11 +197,11 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 					'default' => SORT_DESC,
 					'label' => 'Admin'
 				],
-				'group' => [
-					'asc' => [ "$modelTable.group" => SORT_ASC ],
-					'desc' => [ "$modelTable.group" => SORT_DESC ],
+				'grouped' => [
+					'asc' => [ "$modelTable.grouped" => SORT_ASC ],
+					'desc' => [ "$modelTable.grouped" => SORT_DESC ],
 					'default' => SORT_DESC,
-					'label' => 'Group'
+					'label' => 'Grouped'
 				],
 				'status' => [
 					'asc' => [ "$modelTable.status" => SORT_ASC ],
@@ -267,9 +267,9 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 			switch( $filter ) {
 
-				case 'group': {
+				case 'grouped': {
 
-					$config[ 'conditions' ][ "$modelTable.group" ] = true;
+					$config[ 'conditions' ][ "$modelTable.grouped" ] = true;
 
 					break;
 				}
@@ -306,7 +306,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 			'content' => "$modelTable.content",
 			'type' => "$modelTable.type",
 			'status' => "$modelTable.status",
-			'group' => "$modelTable.group",
+			'grouped' => "$modelTable.grouped",
 			'sdate' => "$modelTable.Scheduled At"
 		];
 
@@ -406,7 +406,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 			'name', 'slug', 'icon', 'title', 'description',
 			'preReminderCount', 'preReminderInterval', 'preIntervalUnit',
 			'postReminderCount', 'postReminderInterval', 'postIntervalUnit',
-			'group', 'status', 'scheduledAt', 'content'
+			'grouped', 'status', 'scheduledAt', 'content'
 		];
 
 		$avatar = isset( $config[ 'avatar' ] ) ? $config[ 'avatar' ] : null;
@@ -423,10 +423,10 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 	public function markGrouped( $model ) {
 
-		$model->group = true;
+		$model->grouped = true;
 
 		return parent::update( $model, [
-			'attributes' => [ 'group' ]
+			'attributes' => [ 'grouped' ]
 		]);
 	}
 
@@ -474,7 +474,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 	public function delete( $model, $config = [] ) {
 
 		// Delete Model Files
-		$this->fileService->deleteFiles( $model->files );
+		$this->fileService->deleteMultiple( $model->files );
 
 		// Delete model
 		return parent::delete( $model, $config );
@@ -516,7 +516,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 				switch( $action ) {
 
-					case 'group': {
+					case 'grouped': {
 
 						$this->markGrouped( $model );
 

@@ -75,6 +75,9 @@ Editor::widget();
 						<div class="col col2">
 							<?= Yii::$app->formDesigner->getIconInput( $form, $model, 'scheduledAt', [ 'right' => true, 'icon' => 'cmti cmti-calendar', 'options' => [ 'class' => 'datetimepicker' ] ] ) ?>
 						</div>
+						<div class="col col2">
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $model, 'grouped' ) ?>
+						</div>
 					</div>
 				</div>
 			</div>

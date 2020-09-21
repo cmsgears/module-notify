@@ -21,7 +21,7 @@ $themeTemplates		= '@themes/admin/views/templates';
 	],
 	'sortColumns' => [
 		'name' => 'Name', 'title' => 'Title',
-		'multi' => 'Group', 'status' => 'Status',
+		'grouped' => 'Grouped', 'status' => 'Status',
 		'template' => 'Template', 'sdate' => 'Scheduled At',
 		'cdate' => 'Created At', 'udate' => 'Updated At'
 	],
@@ -30,7 +30,7 @@ $themeTemplates		= '@themes/admin/views/templates';
 			'new' => 'New', 'cancelled' => 'Cancelled',
 			'active' => 'Active', 'expired' => 'Expired'
 		],
-		'model' => [ 'group' => 'Group' ]
+		'model' => [ 'grouped' => 'Grouped' ]
 	],
 	'reportColumns' => [
 		'name' => [ 'title' => 'Name', 'type' => 'text' ],
@@ -38,7 +38,7 @@ $themeTemplates		= '@themes/admin/views/templates';
 		'desc' => [ 'title' => 'Description', 'type' => 'text' ],
 		'content' => [ 'title' => 'Content', 'type' => 'text' ],
 		'status' => [ 'title' => 'Status', 'type' => 'select', 'options' => $statusMap ],
-		'group' => [ 'title' => 'Group', 'type' => 'flag' ]
+		'grouped' => [ 'title' => 'Grouped', 'type' => 'flag' ]
 	],
 	'bulkPopup' => 'popup-grid-bulk',
 	'bulkActions' => [
@@ -46,7 +46,7 @@ $themeTemplates		= '@themes/admin/views/templates';
 			'cancel' => 'Cancel', 'activate' => 'Activate', 'expire' => 'Expire'
 		],
 		'model' => [
-			'group' => 'Group', 'delete' => 'Delete'
+			'grouped' => 'Grouped', 'delete' => 'Delete'
 		]
 	],
 	'header' => false, 'footer' => true,
@@ -55,7 +55,7 @@ $themeTemplates		= '@themes/admin/views/templates';
 		'bulk' => 'Action',
 		'name' => 'Name',
 		'title' => 'Title',
-		'group' => [ 'title' => 'Group', 'generate' => function( $model ) { return $model->getGroupStr(); } ],
+		'grouped' => [ 'title' => 'Grouped', 'generate' => function( $model ) { return $model->getGroupedStr(); } ],
 		'status' => [ 'title' => 'Status', 'generate' => function( $model ) { return $model->getStatusStr(); } ],
 		'preReminderCount' => 'Pre Count',
 		'preReminderInterval' => [ 'title' => 'Pre Interval', 'generate' => function( $model ) { return $model->getPreIntervalStr(); } ],
@@ -69,7 +69,7 @@ $themeTemplates		= '@themes/admin/views/templates';
 	//'dataView' => "$moduleTemplates/grid/data/event",
 	//'cardView' => "$moduleTemplates/grid/cards/event",
 	'actionView' => "$moduleTemplates/grid/actions/event"
-]) ?>
+])?>
 
 <?= Popup::widget([
 	'title' => 'Apply Bulk Action', 'size' => 'medium',

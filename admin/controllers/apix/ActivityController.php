@@ -64,7 +64,7 @@ class ActivityController extends \cmsgears\core\admin\controllers\apix\base\Cont
 					'toggle-trash' => [ 'permission' => $this->crudPermission ],
 					'read' => [ 'permission' => $this->crudPermission ],
 					'trash' => [ 'permission' => $this->crudPermission ],
-					//'delete' => [ 'permission' => $this->crudPermission ],
+					'delete' => [ 'permission' => $this->crudPermission ],
 					'bulk' => [ 'permission' => $this->crudPermission ]
 				]
 			],
@@ -75,7 +75,7 @@ class ActivityController extends \cmsgears\core\admin\controllers\apix\base\Cont
 					'toggle-trash' => [ 'post' ],
 					'read' => [ 'post' ],
 					'trash' => [ 'post' ],
-					//'delete' => [ 'post' ],
+					'delete' => [ 'post' ],
 					'bulk' => [ 'post' ]
 				]
 			]
@@ -91,7 +91,7 @@ class ActivityController extends \cmsgears\core\admin\controllers\apix\base\Cont
 			'toggle-trash' => [ 'class' => 'cmsgears\notify\common\actions\reminder\ToggleTrash', 'admin' => true ],
 			'read' => [ 'class' => 'cmsgears\notify\common\actions\activity\Read', 'admin' => true ],
 			'trash' => [ 'class' => 'cmsgears\notify\common\actions\activity\Trash', 'admin' => true ],
-			//'delete' => [ 'class' => 'cmsgears\notify\common\actions\activity\Delete', 'admin' => true ],
+			'delete' => [ 'class' => 'cmsgears\notify\common\actions\activity\Delete', 'admin' => true ],
 			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\activity\Bulk', 'admin' => true ]
 		];
 	}

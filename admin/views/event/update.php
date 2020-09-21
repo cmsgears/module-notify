@@ -78,6 +78,9 @@ Editor::widget();
 						<div class="col col2">
 							<?= $form->field( $model, 'scheduledAt' ) ?>
 						</div>
+						<div class="col col2">
+							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $model, 'grouped' ) ?>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -80,7 +80,7 @@ use cmsgears\core\common\utilities\DateUtil;
  * @property short $postReminderInterval
  * @property short $postIntervalUnit
  * @property boolean $admin
- * @property boolean $group
+ * @property boolean $grouped
  * @property short $status
  * @property datetime $createdAt
  * @property datetime $modifiedAt
@@ -220,7 +220,7 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 			[ 'description', 'string', 'min' => 1, 'max' => Yii::$app->core->xtraLargeText ],
 			// Other
 			[ [ 'preReminderCount', 'preReminderInterval', 'preIntervalUnit', 'postReminderCount', 'postReminderInterval', 'postIntervalUnit', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-			[ [ 'admin', 'group', 'gridCacheValid' ], 'boolean' ],
+			[ [ 'admin', 'grouped', 'gridCacheValid' ], 'boolean' ],
 			[ 'status', 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ 'templateId', 'number', 'integerOnly' => true, 'min' => 0, 'tooSmall' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_SELECT ) ],
 			[ [ 'siteId', 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
@@ -319,9 +319,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	 *
 	 * @return string
 	 */
-	public function getGroupStr() {
+	public function getGroupedStr() {
 
-		return Yii::$app->formatter->asBoolean( $this->group );
+		return Yii::$app->formatter->asBoolean( $this->grouped );
 	}
 
 	/**
