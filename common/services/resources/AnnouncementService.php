@@ -219,7 +219,7 @@ class AnnouncementService extends \cmsgears\core\common\services\base\ModelResou
 
 		$modelTable	= $this->getModelTable();
 
-		$config[ 'conditions' ][] = "$modelTable.access >=" . Announcement::ACCESS_APP;
+		$config[ 'conditions' ][] = "$modelTable.access >=" . Announcement::ACCESS_MODEL;
 
 		$config[ 'conditions' ][ "$modelTable.admin" ] = true;
 
@@ -275,7 +275,7 @@ class AnnouncementService extends \cmsgears\core\common\services\base\ModelResou
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$query = $modelClass::find()->where( 'admin=:admin AND status=:status', [ ':admin' => false, ':status' => $modelClass::STATUS_ACTIVE ] );
+		$query = $modelClass::find()->where( 'status=:status', [ ':status' => $modelClass::STATUS_ACTIVE ] );
 
 		$query->andWhere( "$modelTable.access >=" . Announcement::ACCESS_APP_ADMIN );
 
@@ -296,7 +296,7 @@ class AnnouncementService extends \cmsgears\core\common\services\base\ModelResou
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$query = $modelClass::find()->where( 'admin=:admin AND status=:status AND siteId=:siteId', [ ':admin' => false, ':status' => $modelClass::STATUS_ACTIVE, ':siteId' => $siteId ] );
+		$query = $modelClass::find()->where( 'status=:status AND siteId=:siteId', [ ':status' => $modelClass::STATUS_ACTIVE, ':siteId' => $siteId ] );
 
 		$query->andWhere( "$modelTable.access < " . Announcement::ACCESS_ADMIN );
 
@@ -314,7 +314,7 @@ class AnnouncementService extends \cmsgears\core\common\services\base\ModelResou
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'admin=:admin AND status=:status', [ ':admin' => false, ':status' => $modelClass::STATUS_ACTIVE ] );
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'status=:status', [ ':status' => $modelClass::STATUS_ACTIVE ] );
 
 		$query->andWhere( "$modelTable.access >=" . Announcement::ACCESS_APP_ADMIN );
 

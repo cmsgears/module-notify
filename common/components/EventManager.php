@@ -178,6 +178,49 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 		return $this->generateModelData( $stats );
 	}
 
+	public function getMostRecentAnnouncement() {
+
+		$announcements = Yii::$app->core->getSessionParam( 'announcements' );
+
+		if( empty( $announcements ) ) {
+
+			$recentAnnouncements = $this->announcementService->getRecentForSite( 1 );
+
+			if( $recentAnnouncements && count( $recentAnnouncements ) > 0 ) {
+
+				$recentAnnouncement = $recentAnnouncements[ 0 ];
+
+				$announcements = [ $recentAnnouncement->id ];
+
+				$announcements = json_encode( $announcements );
+
+				Yii::$app->core->setSessionParam( 'announcements', $announcements );
+
+				return $recentAnnouncement;
+			}
+		}
+		else {
+
+			$announcements = json_decode( $announcements );
+
+			$recentAnnouncements = $this->announcementService->getRecentForSite( 10 );
+
+			foreach( $recentAnnouncements as $recentAnnouncement ) {
+
+				if( !in_array( $recentAnnouncement->id, $announcements ) ) {
+
+					$announcements[] = $recentAnnouncement->id;
+
+					$announcements = json_encode( $announcements );
+
+					Yii::$app->core->setSessionParam( 'announcements', $announcements );
+
+					return $recentAnnouncement;
+				}
+			}
+		}
+	}
+
 	// Notification Trigger ---
 
 	/**

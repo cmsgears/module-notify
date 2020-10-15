@@ -49,16 +49,16 @@ $themeTemplates		= '@themes/admin/views/templates';
 		'model' => [ 'delete' => 'Delete' ]
 	],
 	'header' => false, 'footer' => true,
-	'grid' => true, 'columns' => [ 'root' => 'colf colf15', 'factor' => [ null, 'x4', null, null, null, null, 'x5', null ] ],
+	'grid' => true, 'columns' => [ 'root' => 'colf colf15', 'factor' => [ null, 'x3', null, null, 'x2', 'x2', 'x4', null ] ],
 	'gridColumns' => [
 		'bulk' => 'Action',
 		'title' => 'Title',
 		'status' => [ 'title' => 'Status', 'generate' => function( $model ) { return $model->getStatusStr(); } ],
 		'access' => [ 'title' => 'Access', 'generate' => function( $model ) { return $model->getAccessStr(); } ],
-		'app' => [ 'title' => 'App', 'generate' => function( $model ) use( $coreProperties ) {
-			return !empty( $model->adminLink ) ? "<a href=\"" . $coreProperties->getSiteUrl() . '/' . $model->link . "\">View</a>" : null;
+		'app' => [ 'title' => 'App Link', 'generate' => function( $model ) use( $coreProperties ) {
+			return !empty( $model->link ) ? "<a href=\"" . $coreProperties->getSiteUrl() . '/' . $model->link . "\">View</a>" : null;
 		}],
-		'admin' => [ 'title' => 'Admin', 'generate' => function( $model ) {
+		'admin' => [ 'title' => 'Admin Link', 'generate' => function( $model ) {
 			return !empty( $model->adminLink ) ? "<a href=\"" . Url::to( [ $model->adminLink ] . "\">View</a>", true ) : null;
 		}],
 		'description' => 'Description',

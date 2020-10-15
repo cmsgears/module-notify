@@ -82,10 +82,11 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 	const STATUS_EXPIRED	= 400;
 
 	// App Only
-	const ACCESS_APP = 200; // Directly available on App without admin intervention, added by App
+	const ACCESS_MODEL	= 100; // Available only on Model Page added by Admin or App
+	const ACCESS_APP	= 200; // Available on App, added by Admin
 
 	// Admin, App
-	const ACCESS_APP_ACT	=  500; // Available on App with admin intervention, added by either Admin or App
+	const ACCESS_APP_CHECK	=  500; // Available on App with admin intervention, added by App
 	const ACCESS_APP_ADMIN	=  800; // Available on both Admin and App, added by Admin
 	const ACCESS_ADMIN		= 1000; // Available only on Admin, added by Admin
 
@@ -118,28 +119,25 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 	];
 
 	public static $accessMap = [
+		self::ACCESS_MODEL => 'Model',
 		self::ACCESS_APP => 'App',
-		self::ACCESS_APP_ACT => 'App & Act',
+		self::ACCESS_APP_CHECK => 'App & Check',
 		self::ACCESS_APP_ADMIN => 'App & Admin',
 		self::ACCESS_ADMIN => 'Admin'
 	];
 
 	public static $adminAccessMap = [
-		self::ACCESS_APP_ACT => 'App & Act',
+		self::ACCESS_APP => 'App',
+		self::ACCESS_APP_CHECK => 'App & Check',
 		self::ACCESS_APP_ADMIN => 'App & Admin',
 		self::ACCESS_ADMIN => 'Admin'
 	];
 
-	public static $siteAccessMap = [
-		self::ACCESS_APP => 'App',
-		self::ACCESS_APP_ACT => 'App & Act',
-		self::ACCESS_APP_ADMIN => 'App & Admin'
-	];
-
 	// Used for url params
 	public static $urlRevAccessMap = [
+		'model' => self::ACCESS_MODEL,
 		'app' => self::ACCESS_APP,
-		'appact' => self::ACCESS_APP_ACT,
+		'appcheck' => self::ACCESS_APP_CHECK,
 		'appadmin' => self::ACCESS_APP_ADMIN,
 		'admin' => self::ACCESS_ADMIN
 	];
@@ -212,7 +210,8 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 			// Other
 			[ [ 'admin', 'gridCacheValid' ], 'boolean' ],
 			[ [ 'status', 'access' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-			[ [ 'siteId', 'templateId', 'bannerId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ 'templateId', 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ [ 'siteId', 'bannerId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ [ 'createdAt', 'modifiedAt', 'expiresAt', 'gridCachedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
 
@@ -252,6 +251,11 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 	public function beforeSave( $insert ) {
 
 	    if( parent::beforeSave( $insert ) ) {
+
+			if( $this->templateId <= 0 ) {
+
+				$this->templateId = null;
+			}
 
 			// Default Type - Default
 			$this->type = $this->type ?? CoreGlobal::TYPE_DEFAULT;
