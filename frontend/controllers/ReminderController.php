@@ -90,16 +90,45 @@ class ReminderController extends \cmsgears\notify\frontend\controllers\base\Cont
 		return $this->redirect( [ 'all' ] );
 	}
 
-	public function actionAll() {
+	public function actionAll( $status ) {
 
 		Url::remember( Yii::$app->request->getUrl(), 'reminders' );
 
 		$user = Yii::$app->core->getUser();
 
-		$dataProvider = $this->modelService->getPageByUserId( $user->id );
+		$dataProvider = null;
+
+		switch( $status ) {
+
+			case 'inbox': {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'inbox' ] );
+
+				break;
+			}
+			case 'new': {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'new' ] );
+
+				break;
+			}
+			case 'read': {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'read' ] );
+
+				break;
+			}
+			case 'trash': {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'trash' ] );
+
+				break;
+			}
+		}
 
 		return $this->render( 'all', [
-			'dataProvider' => $dataProvider
+			'dataProvider' => $dataProvider,
+			'status' => $status
 		]);
 	}
 
