@@ -74,7 +74,7 @@ class StatsController extends \cmsgears\core\frontend\controllers\apix\base\Cont
 	public function actions() {
 
 		return [
-			'stats' => [ 'class' => 'cmsgears\notify\common\actions\notify\Stats' ]
+			'stats' => [ 'class' => 'cmsgears\notify\common\actions\notify\Stats', 'user' => true ]
 		];
 	}
 
