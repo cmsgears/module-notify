@@ -376,7 +376,10 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 				// Create Notification
 				$this->notificationService->create( $userNotification, $config );
 
-				if( $templateConfig->userEmail ) {
+				// Notification Setting
+				$notifyEmailMeta = Yii::$app->factory->get( 'userMetaService' )->getByNameType( $userId, CoreGlobal::META_RECEIVE_EMAIL, CoreGlobal::SETTINGS_NOTIFICATION );
+
+				if( $templateConfig->userEmail &&( empty( $notifyEmailMeta ) || $notifyEmailMeta->value ) ) {
 
 					// Trigger Mail
 					Yii::$app->notifyMailer->sendUserMail( $message, $this->userService->getById( $userId ), $template, $data );
