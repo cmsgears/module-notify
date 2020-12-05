@@ -352,7 +352,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 			$notification->link = $config[ 'link' ];
 
-			$config[ 'link' ] = $coreProperties->getSiteUrl() . $config[ 'link' ];
+			$config[ 'link' ] = $coreProperties->getSiteUrl() . '/' . $config[ 'link' ];
 		}
 
 		$nconfig = $config;
