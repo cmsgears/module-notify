@@ -13,7 +13,7 @@ $returnUrl		= $this->context->returnUrl;
 
 Editor::widget();
 ?>
-<div class="box-crud-wrap row">
+<div class="box-crud-wrap row max-cols-100">
 	<div class="box-crud-wrap-main colf colf3x2">
 		<?php $form = ActiveForm::begin( [ 'id' => 'frm-page', 'options' => [ 'class' => 'form' ] ] ); ?>
 		<div class="box box-crud">
@@ -22,7 +22,7 @@ Editor::widget();
 			</div>
 			<div class="box-content-wrap frm-split-40-60">
 				<div class="box-content">
-					<div class="row">
+					<div class="row max-cols-100">
 						<div class="col col2">
 							<?= $form->field( $model, 'title' )->textInput( [ 'readonly' => 'true' ] ) ?>
 						</div>
@@ -30,7 +30,7 @@ Editor::widget();
 							<?= $form->field( $model, 'templateId' )->dropDownList( $templatesMap, [ 'class' => 'cmt-select', 'disabled' => true ] ) ?>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row max-cols-100">
 						<div class="col col2">
 							<?= $form->field( $model, 'status' )->dropDownList( $statusMap, [ 'class' => 'cmt-select', 'disabled' => true ] ) ?>
 						</div>
@@ -38,7 +38,7 @@ Editor::widget();
 							<?= $form->field( $model, 'access' )->dropDownList( $accessMap, [ 'class' => 'cmt-select', 'disabled' => true ] ) ?>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row max-cols-100">
 						<div class="col col2">
 							<?= $form->field( $model, 'link' )->textInput( [ 'readonly' => 'true' ] ) ?>
 						</div>
@@ -46,7 +46,7 @@ Editor::widget();
 							<?= $form->field( $model, 'adminLink' )->textInput( [ 'readonly' => 'true' ] ) ?>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row max-cols-100">
 						<div class="col col2">
 							<?= $form->field( $model, 'description' )->textarea( [ 'readonly' => 'true' ] ) ?>
 						</div>

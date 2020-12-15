@@ -12,7 +12,7 @@ $user	= Yii::$app->core->getUser();
 <?php if( $core->hasModule( 'notify' ) && $user->isPermitted( NotifyGlobal::PERM_NOTIFY_ADMIN ) ) { ?>
 	<div id="sidebar-activity" class="collapsible-tab has-children <?= $parent == 'sidebar-activity' ? 'active' : null ?>">
 		<div class="row tab-header">
-			<div class="tab-icon"><span class="cmti cmti-event"></span></div>
+			<div class="tab-icon"><span class="cmti cmti-list"></span></div>
 			<div class="tab-title">Activities
 				<span class="count-sidebar count-sidebar-header count-activity">0</span>
 			</div>
