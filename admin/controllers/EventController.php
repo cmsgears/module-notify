@@ -169,7 +169,8 @@ class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 
 		return $this->render( 'all', [
 			'dataProvider' => $dataProvider,
-			'statusMap' => $modelClass::$statusMap
+			'statusMap' => $modelClass::$statusMap,
+			'filterStatusMap' => $modelClass::$filterStatusMap
 		]);
 	}
 

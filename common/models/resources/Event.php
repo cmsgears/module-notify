@@ -108,16 +108,16 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 
 	// Constants --------------
 
-	public static $statusMinMap = [
-		self::STATUS_NEW => 'New',
-		self::STATUS_ACTIVE => 'Active'
-	];
-
 	public static $statusMap = [
 		self::STATUS_NEW => 'New',
 		self::STATUS_CANCELLED => 'Cancelled',
 		self::STATUS_ACTIVE => 'Active',
 		self::STATUS_EXPIRED => 'Expired'
+	];
+
+	public static $minStatusMap = [
+		self::STATUS_NEW => 'New',
+		self::STATUS_ACTIVE => 'Active'
 	];
 
 	public static $revStatusMap = [
@@ -132,6 +132,13 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 		'cancelled' => self::STATUS_CANCELLED,
 		'active' => self::STATUS_ACTIVE,
 		'expired' => self::STATUS_EXPIRED
+	];
+
+	public static $filterStatusMap = [
+		'new' => 'New',
+		'cancelled' => 'Cancelled',
+		'active' => 'Active',
+		'expired' => 'Expired'
 	];
 
 	// Public -----------------

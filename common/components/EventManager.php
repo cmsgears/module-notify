@@ -366,6 +366,8 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 			foreach( $users as $userId ) {
 
+				$user = $this->userService->getById( $userId );
+
 				$userNotification = $this->notificationService->getModelObject();
 
 				$userNotification->copyForUpdateFrom( $notification, [ 'createdBy', 'parentId', 'parentType', 'title', 'description', 'type', 'consumed', 'trash', 'link', 'content', 'data' ] );
@@ -379,10 +381,10 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 				// Notification Setting
 				$notifyEmailMeta = Yii::$app->factory->get( 'userMetaService' )->getByNameType( $userId, CoreGlobal::META_RECEIVE_EMAIL, CoreGlobal::SETTINGS_NOTIFICATION );
 
-				if( $templateConfig->userEmail &&( empty( $notifyEmailMeta ) || $notifyEmailMeta->value ) ) {
+				if( $templateConfig->userEmail && !empty( $user->email ) && ( empty( $notifyEmailMeta ) || $notifyEmailMeta->value ) ) {
 
 					// Trigger Mail
-					Yii::$app->notifyMailer->sendUserMail( $message, $this->userService->getById( $userId ), $template, $data );
+					Yii::$app->notifyMailer->sendUserMail( $message, $user, $template, $data );
 				}
 			}
 		}
@@ -405,7 +407,7 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 			$email		= isset( $config[ 'email' ] ) ? $config[ 'email' ] : null;
 			$email		= isset( $email ) ? $email : ( method_exists( $service, 'getEmail' ) ? $service->getEmail( $model ) : ( isset( $model->email ) ? $model->email : null ) );
 
-			if( $templateConfig->directEmail && isset( $email ) ) {
+			if( $templateConfig->directEmail && !empty( $email ) ) {
 
 				// Trigger Mail
 				Yii::$app->notifyMailer->sendDirectMail( $message, $email, $template, $data );

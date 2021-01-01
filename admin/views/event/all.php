@@ -26,10 +26,7 @@ $themeTemplates		= '@themes/admin/views/templates';
 		'cdate' => 'Created At', 'udate' => 'Updated At'
 	],
 	'filters' => [
-		'status' => [
-			'new' => 'New', 'cancelled' => 'Cancelled',
-			'active' => 'Active', 'expired' => 'Expired'
-		],
+		'status' => $filterStatusMap,
 		'model' => [ 'grouped' => 'Grouped' ]
 	],
 	'reportColumns' => [
