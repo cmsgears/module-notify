@@ -40,6 +40,7 @@ use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\core\common\models\traits\base\AuthorTrait;
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
 use cmsgears\core\common\models\traits\base\NameTypeTrait;
+use cmsgears\core\common\models\traits\base\OwnerTrait;
 use cmsgears\core\common\models\traits\base\SlugTypeTrait;
 use cmsgears\core\common\models\traits\base\UserOwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
@@ -163,9 +164,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	use ModelMetaTrait;
 	use MultiSiteTrait;
 	use NameTypeTrait;
+	use OwnerTrait;
 	use SlugTypeTrait;
 	use TemplateTrait;
-	use UserOwnerTrait;
 	use VisualTrait;
 
 	// Constructor and Initialisation ------------------------------

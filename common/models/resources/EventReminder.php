@@ -30,7 +30,7 @@ use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\notify\common\models\resources\Event;
 
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
-use cmsgears\core\common\models\traits\base\UserOwnerTrait;
+use cmsgears\core\common\models\traits\base\OwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
 
 use cmsgears\notify\common\models\traits\base\ToggleTrait;
@@ -84,8 +84,8 @@ class EventReminder extends ModelResource implements IData, IMultiSite, IOwner, 
 
 	use DataTrait;
 	use MultiSiteTrait;
+	use OwnerTrait;
 	use ToggleTrait;
-	use UserOwnerTrait;
 
 	// Constructor and Initialisation ------------------------------
 

@@ -33,7 +33,7 @@ use cmsgears\notify\common\models\base\NotifyTables;
 
 use cmsgears\core\common\models\traits\base\AuthorTrait;
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
-use cmsgears\core\common\models\traits\base\UserOwnerTrait;
+use cmsgears\core\common\models\traits\base\OwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
 
 use cmsgears\notify\common\models\traits\base\ToggleTrait;
@@ -99,8 +99,8 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 	use AuthorTrait;
 	use DataTrait;
 	use MultiSiteTrait;
+	use OwnerTrait;
 	use ToggleTrait;
-	use UserOwnerTrait;
 
 	// Constructor and Initialisation ------------------------------
 
