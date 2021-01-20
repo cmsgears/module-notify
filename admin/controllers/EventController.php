@@ -59,7 +59,7 @@ class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 		$this->apixBase = 'notify/event';
 
 		// Services
-		$this->modelService		= Yii::$app->factory->get( 'eventService' );
+		$this->modelService		= Yii::$app->factory->get( 'calendarEventService' );
 		$this->templateService	= Yii::$app->factory->get( 'templateService' );
 
 		// Sidebar

@@ -46,7 +46,7 @@ class CalendarController extends \cmsgears\core\frontend\controllers\apix\base\C
 		$this->crudPermission = CoreGlobal::PERM_USER;
 
 		// Services
-		$this->modelService = Yii::$app->factory->get( 'eventService' );
+		$this->modelService = Yii::$app->factory->get( 'calendarEventService' );
 	}
 
 	// Instance methods --------------------------------------------

@@ -92,7 +92,7 @@ class Factory extends \cmsgears\core\common\base\Component {
 
 		$factory = Yii::$app->factory->getContainer();
 
-		$factory->set( 'eventService', 'cmsgears\notify\common\services\resources\EventService' );
+		$factory->set( 'calendarEventService', 'cmsgears\notify\common\services\resources\EventService' );
 		$factory->set( 'reminderService', 'cmsgears\notify\common\services\resources\EventReminderService' );
 
 		$factory->set( 'activityService', 'cmsgears\notify\common\services\resources\ActivityService' );

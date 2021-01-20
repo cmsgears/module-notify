@@ -43,7 +43,7 @@ class EventController extends \cmsgears\core\admin\controllers\apix\base\Control
 		$this->crudPermission = NotifyGlobal::PERM_NOTIFY_ADMIN;
 
 		// Services
-		$this->modelService = Yii::$app->factory->get( 'eventService' );
+		$this->modelService = Yii::$app->factory->get( 'calendarEventService' );
 	}
 
 	// Instance methods --------------------------------------------

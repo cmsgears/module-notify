@@ -77,12 +77,14 @@ use cmsgears\core\common\utilities\DateUtil;
  * @property short $preReminderCount
  * @property short $preReminderInterval
  * @property short $preIntervalUnit
+ * @property short $preTriggerCount
  * @property short $postReminderCount
  * @property short $postReminderInterval
  * @property short $postIntervalUnit
+ * @property short $postTriggerCount
  * @property boolean $admin
  * @property boolean $grouped
- * @property short $status
+ * @property integer $status
  * @property datetime $createdAt
  * @property datetime $modifiedAt
  * @property datetime $scheduledAt
@@ -227,7 +229,8 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxxLargeText ],
 			[ 'description', 'string', 'min' => 1, 'max' => Yii::$app->core->xtraLargeText ],
 			// Other
-			[ [ 'preReminderCount', 'preReminderInterval', 'preIntervalUnit', 'postReminderCount', 'postReminderInterval', 'postIntervalUnit', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ [ 'preReminderCount', 'preReminderInterval', 'preIntervalUnit', 'preTriggerCount', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ [ 'postReminderCount', 'postReminderInterval', 'postIntervalUnit', 'postTriggerCount' ], 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ [ 'admin', 'grouped', 'gridCacheValid' ], 'boolean' ],
 			[ 'status', 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ 'templateId', 'number', 'integerOnly' => true, 'min' => 0, 'tooSmall' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_SELECT ) ],

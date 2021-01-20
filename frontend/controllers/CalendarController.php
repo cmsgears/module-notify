@@ -47,7 +47,7 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 		$this->apixBase	= 'notify/calendar';
 
 		// Services
-		$this->modelService	= Yii::$app->factory->get( 'eventService' );
+		$this->modelService	= Yii::$app->factory->get( 'calendarEventService' );
 
 		// Return Url
 		$this->returnUrl = Url::previous( 'calendar' );

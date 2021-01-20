@@ -42,7 +42,7 @@ class ModelFileController extends \cmsgears\core\admin\controllers\apix\base\Mod
 		$this->crudPermission = NotifyGlobal::PERM_NOTIFY_ADMIN;
 
 		// Services
-		$this->parentService = Yii::$app->factory->get( 'eventService' );
+		$this->parentService = Yii::$app->factory->get( 'calendarEventService' );
 	}
 
 	// Instance methods --------------------------------------------
