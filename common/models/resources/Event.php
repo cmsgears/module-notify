@@ -82,7 +82,6 @@ use cmsgears\core\common\utilities\DateUtil;
  * @property short $postReminderInterval
  * @property short $postIntervalUnit
  * @property short $postTriggerCount
- * @property boolean $admin
  * @property boolean $grouped
  * @property integer $status
  * @property datetime $createdAt
@@ -231,7 +230,7 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 			// Other
 			[ [ 'preReminderCount', 'preReminderInterval', 'preIntervalUnit', 'preTriggerCount', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ [ 'postReminderCount', 'postReminderInterval', 'postIntervalUnit', 'postTriggerCount' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-			[ [ 'admin', 'grouped', 'gridCacheValid' ], 'boolean' ],
+			[ [ 'grouped', 'gridCacheValid' ], 'boolean' ],
 			[ 'status', 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ 'templateId', 'number', 'integerOnly' => true, 'min' => 0, 'tooSmall' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_SELECT ) ],
 			[ [ 'siteId', 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
@@ -283,6 +282,7 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 
 		if( parent::beforeSave( $insert ) ) {
 
+			// Default Template
 			if( $this->templateId <= 0 ) {
 
 				$this->templateId = null;
@@ -313,16 +313,6 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	public function getUser() {
 
 		return $this->hasOne( User::class, [ 'id' => 'userId' ] );
-	}
-
-	/**
-	 * Returns string representation of admin flag.
-	 *
-	 * @return string
-	 */
-	public function getAdminStr() {
-
-		return Yii::$app->formatter->asBoolean( $this->admin );
 	}
 
 	/**

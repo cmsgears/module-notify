@@ -86,7 +86,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 	// CMG parent classes --------------------
 
-	// EventService -------------------
+	// EventService --------------------------
 
 	// Data Provider ------
 
@@ -190,12 +190,6 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 					'desc' => [ "$modelTable.postIntervalUnit" => SORT_DESC ],
 					'default' => SORT_DESC,
 					'label' => 'Post Interval Interval'
-				],
-				'admin' => [
-					'asc' => [ "$modelTable.admin" => SORT_ASC ],
-					'desc' => [ "$modelTable.admin" => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'Admin'
 				],
 				'grouped' => [
 					'asc' => [ "$modelTable.grouped" => SORT_ASC ],
@@ -319,32 +313,26 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 		$modelTable	= $this->getModelTable();
 
-		$config[ 'conditions' ][ "$modelTable.admin" ] = true;
+		$config[ 'conditions' ][ "$modelTable.userId" ] = null;
 
 		return $this->getPage( $config );
 	}
 
 	public function getPageByUserId( $userId, $config = [] ) {
 
-		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
-
 		$modelTable	= $this->getModelTable();
 
 		$config[ 'conditions' ][ "$modelTable.userId" ] = $userId;
-		$config[ 'conditions' ][ "$modelTable.admin" ]	= $admin;
 
 		return $this->getPage( $config );
 	}
 
 	public function getPageByParent( $parentId, $parentType, $config = [] ) {
 
-		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
-
 		$modelTable	= $this->getModelTable();
 
 		$config[ 'conditions' ][ "$modelTable.parentId" ]	= $parentId;
 		$config[ 'conditions' ][ "$modelTable.parentType" ] = $parentType;
-		$config[ 'conditions' ][ "$modelTable.admin" ]		= $admin;
 
 		return $this->getPage( $config );
 	}
@@ -545,7 +533,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 	// CMG parent classes --------------------
 
-	// EventService -------------------
+	// EventService --------------------------
 
 	// Data Provider ------
 

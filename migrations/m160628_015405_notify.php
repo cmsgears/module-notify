@@ -90,7 +90,6 @@ class m160628_015405_notify extends \cmsgears\core\common\base\Migration {
 			'postReminderInterval' => $this->smallInteger( 6 )->defaultValue( 0 ),
 			'postIntervalUnit' => $this->smallInteger( 6 )->defaultValue( 2 ),
 			'postTriggerCount' => $this->smallInteger( 6 )->defaultValue( 0 ),
-			'admin' => $this->boolean()->notNull()->defaultValue( false ),
 			'grouped' => $this->boolean()->notNull()->defaultValue( false ),
 			'status' => $this->smallInteger( 6 )->defaultValue( 0 ),
 			'createdAt' => $this->dateTime()->notNull(),
