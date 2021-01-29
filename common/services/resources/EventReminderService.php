@@ -84,7 +84,7 @@ class EventReminderService extends \cmsgears\core\common\services\base\ModelReso
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$eventTable	= Yii::$app->factory->get( 'eventService' )->getModelTable();
+		$eventTable	= Yii::$app->factory->get( 'calendarEventService' )->getModelTable();
 		$userTable	= Yii::$app->factory->get( 'userService' )->getModelTable();
 
 		// Sorting ----------
