@@ -16,14 +16,12 @@ use yii\filters\VerbFilter;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\core\common\controllers\base\Controller;
-
 /**
  * ReminderController provides actions specific to user reminders.
  *
  * @since 1.0.0
  */
-class ReminderController extends Controller {
+class ReminderController extends \cmsgears\core\frontend\controllers\apix\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -41,8 +39,11 @@ class ReminderController extends Controller {
 
 		parent::init();
 
-		$this->crudPermission	= CoreGlobal::PERM_USER;
-		$this->modelService 	= Yii::$app->factory->get( 'reminderService' );
+		// Permission
+		$this->crudPermission = CoreGlobal::PERM_USER;
+
+		// Services
+		$this->modelService = Yii::$app->factory->get( 'reminderService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -59,10 +60,11 @@ class ReminderController extends Controller {
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'toggle-read' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
-					'toggle-trash' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
-					'trash' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
-					'delete' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
+					'toggle-read' => [ 'permission' => $this->crudPermission ],
+					'toggle-trash' => [ 'permission' => $this->crudPermission ],
+					'read' => [ 'permission' => $this->crudPermission ],
+					'trash' => [ 'permission' => $this->crudPermission ],
+					'delete' => [ 'permission' => $this->crudPermission ],
 					'bulk' => [ 'permission' => $this->crudPermission ]
 				]
 			],
@@ -71,6 +73,7 @@ class ReminderController extends Controller {
 				'actions' => [
 					'toggle-read' => [ 'post' ],
 					'toggle-trash' => [ 'post' ],
+					'read' => [ 'post' ],
 					'trash' => [ 'post' ],
 					'delete' => [ 'post' ],
 					'bulk' => [ 'post' ]
@@ -84,11 +87,12 @@ class ReminderController extends Controller {
 	public function actions() {
 
 		return [
-			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\reminder\ToggleRead' ],
-			'toggle-trash' => [ 'class' => 'cmsgears\notify\common\actions\notification\ToggleTrash' ],
-			'trash' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Trash' ],
-			'delete' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Delete' ],
-			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Bulk' ]
+			'toggle-read' => [ 'class' => 'cmsgears\notify\common\actions\reminder\ToggleRead', 'user' => true ],
+			'toggle-trash' => [ 'class' => 'cmsgears\notify\common\actions\reminder\ToggleTrash', 'user' => true ],
+			'read' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Read', 'user' => true ],
+			'trash' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Trash', 'user' => true ],
+			'delete' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Delete', 'user' => true ],
+			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\reminder\Bulk', 'user' => true ]
 		];
 	}
 

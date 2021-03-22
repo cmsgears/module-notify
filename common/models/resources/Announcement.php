@@ -16,19 +16,23 @@ use yii\behaviors\TimestampBehavior;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\interfaces\base\IAuthor;
 use cmsgears\core\common\models\interfaces\base\IMultiSite;
 use cmsgears\core\common\models\interfaces\resources\IData;
+use cmsgears\core\common\models\interfaces\resources\ITemplate;
 use cmsgears\core\common\models\interfaces\resources\IVisual;
 
 use cmsgears\core\common\models\base\ModelResource;
+
 use cmsgears\notify\common\models\base\NotifyTables;
 
 use cmsgears\core\common\models\traits\base\AuthorTrait;
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
+use cmsgears\core\common\models\traits\resources\TemplateTrait;
 use cmsgears\core\common\models\traits\resources\VisualTrait;
 
 use cmsgears\core\common\behaviors\AuthorBehavior;
@@ -38,6 +42,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  *
  * @property integer $id
  * @property integer $siteId
+ * @property integer $templateId
  * @property integer $bannerId
  * @property integer $createdBy
  * @property integer $modifiedBy
@@ -49,6 +54,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  * @property integer $status
  * @property integer $access
  * @property string $link
+ * @property boolean $admin
  * @property string $adminLink
  * @property datetime $createdAt
  * @property datetime $modifiedAt
@@ -61,7 +67,7 @@ use cmsgears\core\common\behaviors\AuthorBehavior;
  *
  * @since 1.0.0
  */
-class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, IVisual {
+class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, ITemplate, IVisual {
 
 	// Variables ---------------------------------------------------
 
@@ -72,15 +78,17 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 	const STATUS_NEW		=   0;
 	const STATUS_APPROVED	= 100;
 	const STATUS_ACTIVE		= 200;
-	const STATUS_EXPIRED	= 300;
+	const STATUS_PAUSED		= 300;
+	const STATUS_EXPIRED	= 400;
 
 	// App Only
-	const ACCESS_APP		= 100; // Directly available on App without admin intervention
+	const ACCESS_MODEL	= 100; // Available only on Model Page added by Admin or App
+	const ACCESS_APP	= 200; // Available on App, added by Admin
 
 	// Admin, App
-	const ACCESS_APP_ACT	= 200; // Available on App with admin intervention
-	const ACCESS_APP_ADMIN	= 300; // Available on both Admin and App
-	const ACCESS_ADMIN		= 400; // Available only on Admin
+	const ACCESS_APP_CHECK	=  500; // Available on App with admin intervention, added by App
+	const ACCESS_APP_ADMIN	=  800; // Available on both Admin and App, added by Admin
+	const ACCESS_ADMIN		= 1000; // Available only on Admin, added by Admin
 
 	// Public -----------------
 
@@ -88,6 +96,7 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 		self::STATUS_NEW => 'New',
 		self::STATUS_APPROVED => 'Approved',
 		self::STATUS_ACTIVE => 'Active',
+		self::STATUS_PAUSED => 'Paused',
 		self::STATUS_EXPIRED => 'Expired'
 	];
 
@@ -96,6 +105,7 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 		'New' => self::STATUS_NEW,
 		'Approved' => self::STATUS_APPROVED,
 		'Active' => self::STATUS_ACTIVE,
+		'Paused' => self::STATUS_PAUSED,
 		'Expired' => self::STATUS_EXPIRED
 	];
 
@@ -104,20 +114,30 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 		'new' => self::STATUS_NEW,
 		'approved' => self::STATUS_APPROVED,
 		'active' => self::STATUS_ACTIVE,
+		'paused' => self::STATUS_PAUSED,
 		'expired' => self::STATUS_EXPIRED
 	];
 
 	public static $accessMap = [
+		self::ACCESS_MODEL => 'Model',
 		self::ACCESS_APP => 'App',
-		self::ACCESS_APP_ACT => 'App Act',
+		self::ACCESS_APP_CHECK => 'App & Check',
+		self::ACCESS_APP_ADMIN => 'App & Admin',
+		self::ACCESS_ADMIN => 'Admin'
+	];
+
+	public static $adminAccessMap = [
+		self::ACCESS_APP => 'App',
+		self::ACCESS_APP_CHECK => 'App & Check',
 		self::ACCESS_APP_ADMIN => 'App & Admin',
 		self::ACCESS_ADMIN => 'Admin'
 	];
 
 	// Used for url params
 	public static $urlRevAccessMap = [
+		'model' => self::ACCESS_MODEL,
 		'app' => self::ACCESS_APP,
-		'appact' => self::ACCESS_APP_ACT,
+		'appcheck' => self::ACCESS_APP_CHECK,
 		'appadmin' => self::ACCESS_APP_ADMIN,
 		'admin' => self::ACCESS_ADMIN
 	];
@@ -138,6 +158,7 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 
 	use AuthorTrait;
 	use DataTrait;
+	use TemplateTrait;
 	use MultiSiteTrait;
 	use VisualTrait;
 
@@ -179,16 +200,17 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 		// Model Rules
 		$rules = [
 			// Required, Safe
-			[ [ 'siteId', 'title' ], 'required' ],
-			[ [ 'id', 'content', 'data',  'gridCache' ], 'safe' ],
+			[ [ 'title' ], 'required' ],
+			[ [ 'id', 'content' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
 			[ [ 'link', 'adminLink' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxxLargeText ],
 			[ 'description', 'string', 'min' => 1, 'max' => Yii::$app->core->xtraLargeText ],
 			// Other
-			[ 'gridCacheValid', 'boolean' ],
+			[ [ 'admin', 'gridCacheValid' ], 'boolean' ],
 			[ [ 'status', 'access' ], 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ 'templateId', 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ [ 'siteId', 'bannerId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ [ 'createdAt', 'modifiedAt', 'expiresAt', 'gridCachedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
@@ -203,6 +225,7 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 
 		return [
 			'siteId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_SITE ),
+			'templateId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TEMPLATE ),
 			'bannerId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_BANNER ),
 			'parentId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT ),
 			'parentType' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PARENT_TYPE ),
@@ -212,11 +235,35 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 			'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
 			'access' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ACCESS ),
 			'link' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW ),
+			'admin' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
 			'adminLink' => Yii::$app->notifyMessage->getMessage( NotifyGlobal::FIELD_FOLLOW_ADMIN ),
 			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT ),
 			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA ),
 			'gridCache' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_GRID_CACHE )
 		];
+	}
+
+	// yii\db\BaseActiveRecord
+
+    /**
+     * @inheritdoc
+     */
+	public function beforeSave( $insert ) {
+
+	    if( parent::beforeSave( $insert ) ) {
+
+			if( $this->templateId <= 0 ) {
+
+				$this->templateId = null;
+			}
+
+			// Default Type - Default
+			$this->type = $this->type ?? CoreGlobal::TYPE_DEFAULT;
+
+	        return true;
+	    }
+
+		return false;
 	}
 
 	// CMG interfaces ------------------------
@@ -268,6 +315,16 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 	}
 
 	/**
+	 * Check whether announcement is paused.
+	 *
+	 * @return boolean
+	 */
+	public function isPaused() {
+
+		return $this->status == self::STATUS_PAUSED;
+	}
+
+	/**
 	 * Check whether announcement is expired.
 	 *
 	 * @return boolean
@@ -285,6 +342,16 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 	public function getAccessStr() {
 
 		return self::$accessMap[ $this->access ];
+	}
+
+	/**
+	 * Returns string representation of [[$admin]].
+	 *
+	 * @return string
+	 */
+	public function getAdminStr() {
+
+		return Yii::$app->formatter->asBoolean( $this->admin );
 	}
 
 	// Static Methods ----------------------------------------------
@@ -312,8 +379,9 @@ class Announcement extends ModelResource implements IAuthor, IData, IMultiSite, 
 	 */
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'creator', 'modifier' ];
-		$config[ 'relations' ]	= $relations;
+		$relations = isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'creator', 'modifier' ];
+
+		$config[ 'relations' ] = $relations;
 
 		return parent::queryWithAll( $config );
 	}

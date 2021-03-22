@@ -15,15 +15,19 @@ $themeTemplates		= '@themes/admin/views/templates';
 <?= DataGrid::widget([
 	'dataProvider' => $dataProvider, 'add' => true, 'addUrl' => 'create', 'data' => [ ],
 	'title' => 'Events', 'options' => [ 'class' => 'grid-data grid-data-admin' ],
-	'searchColumns' => [ 'name' => 'Name', 'title' => 'Title', 'desc' => 'Description', 'content' => 'Content' ],
+	'searchColumns' => [
+		'name' => 'Name', 'title' => 'Title',
+		'desc' => 'Description', 'content' => 'Content'
+	],
 	'sortColumns' => [
-		'name' => 'Name', 'icon' => 'Icon', 'title' => 'Title',
-		'template' => 'Template', 'multi' => 'Group', 'status' => 'Status',
-		'cdate' => 'Created At', 'udate' => 'Updated At', 'sdate' => 'Scheduled At'
+		'name' => 'Name', 'title' => 'Title',
+		'grouped' => 'Grouped', 'status' => 'Status',
+		'template' => 'Template', 'sdate' => 'Scheduled At',
+		'cdate' => 'Created At', 'udate' => 'Updated At'
 	],
 	'filters' => [
-		'status' => [ 'new' => 'New', 'trash' => 'Trash' ],
-		'model' => [ 'multi' => 'Group' ]
+		'status' => $filterStatusMap,
+		'model' => [ 'grouped' => 'Grouped' ]
 	],
 	'reportColumns' => [
 		'name' => [ 'title' => 'Name', 'type' => 'text' ],
@@ -31,12 +35,16 @@ $themeTemplates		= '@themes/admin/views/templates';
 		'desc' => [ 'title' => 'Description', 'type' => 'text' ],
 		'content' => [ 'title' => 'Content', 'type' => 'text' ],
 		'status' => [ 'title' => 'Status', 'type' => 'select', 'options' => $statusMap ],
-		'multi' => [ 'title' => 'Group', 'type' => 'flag' ]
+		'grouped' => [ 'title' => 'Grouped', 'type' => 'flag' ]
 	],
 	'bulkPopup' => 'popup-grid-bulk',
 	'bulkActions' => [
-		'status' => [ 'trash' => 'Trash' ],
-		'model' => [ 'delete' => 'Delete' ]
+		'status' => [
+			'cancel' => 'Cancel', 'activate' => 'Activate', 'expire' => 'Expire'
+		],
+		'model' => [
+			'grouped' => 'Grouped', 'delete' => 'Delete'
+		]
 	],
 	'header' => false, 'footer' => true,
 	'grid' => true, 'columns' => [ 'root' => 'colf colf15', 'factor' => [ null, 'x2', 'x3', null, null, null, null, null, null, 'x2', null ] ],
@@ -44,7 +52,7 @@ $themeTemplates		= '@themes/admin/views/templates';
 		'bulk' => 'Action',
 		'name' => 'Name',
 		'title' => 'Title',
-		'multi' => [ 'title' => 'Group', 'generate' => function( $model ) { return $model->getMultiStr(); } ],
+		'grouped' => [ 'title' => 'Grouped', 'generate' => function( $model ) { return $model->getGroupedStr(); } ],
 		'status' => [ 'title' => 'Status', 'generate' => function( $model ) { return $model->getStatusStr(); } ],
 		'preReminderCount' => 'Pre Count',
 		'preReminderInterval' => [ 'title' => 'Pre Interval', 'generate' => function( $model ) { return $model->getPreIntervalStr(); } ],
@@ -57,17 +65,17 @@ $themeTemplates		= '@themes/admin/views/templates';
 	'templateDir' => "$themeTemplates/widget/grid",
 	//'dataView' => "$moduleTemplates/grid/data/event",
 	//'cardView' => "$moduleTemplates/grid/cards/event",
-	//'actionView' => "$moduleTemplates/grid/actions/event"
-]) ?>
+	'actionView' => "$moduleTemplates/grid/actions/event"
+])?>
 
 <?= Popup::widget([
 	'title' => 'Apply Bulk Action', 'size' => 'medium',
 	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'bulk',
 	'data' => [ 'model' => 'Event', 'app' => 'grid', 'controller' => 'crud', 'action' => 'bulk', 'url' => "$apixBase/bulk" ]
-]) ?>
+])?>
 
 <?= Popup::widget([
 	'title' => 'Delete Event', 'size' => 'medium',
 	'templateDir' => Yii::getAlias( "$themeTemplates/widget/popup/grid" ), 'template' => 'delete',
 	'data' => [ 'model' => 'Event', 'app' => 'grid', 'controller' => 'crud', 'action' => 'delete', 'url' => "$apixBase/delete?id=" ]
-]) ?>
+])?>

@@ -18,7 +18,7 @@ use cmsgears\core\common\config\CoreGlobal;
 
 use cmsgears\notify\common\services\interfaces\resources\IActivityService;
 
-use cmsgears\core\common\services\base\ModelResourceService;
+use cmsgears\core\common\services\traits\base\MultisiteTrait;
 
 use cmsgears\notify\common\services\traits\base\BulkTrait;
 use cmsgears\notify\common\services\traits\base\NotifyTrait;
@@ -29,7 +29,7 @@ use cmsgears\notify\common\services\traits\base\ToggleTrait;
  *
  * @since 1.0.0
  */
-class ActivityService extends ModelResourceService implements IActivityService {
+class ActivityService extends \cmsgears\core\common\services\base\ModelResourceService implements IActivityService {
 
 	// Variables ---------------------------------------------------
 
@@ -54,6 +54,7 @@ class ActivityService extends ModelResourceService implements IActivityService {
 	// Traits ------------------------------------------------------
 
 	use BulkTrait;
+	use MultisiteTrait;
 	use NotifyTrait;
 	use ToggleTrait;
 
@@ -74,6 +75,11 @@ class ActivityService extends ModelResourceService implements IActivityService {
 	// Data Provider ------
 
 	public function getPage( $config = [] ) {
+
+		$searchParam	= $config[ 'search-param' ] ?? 'keywords';
+		$searchColParam	= $config[ 'search-col-param' ] ?? 'search';
+
+		$defaultSort = isset( $config[ 'defaultSort' ] ) ? $config[ 'defaultSort' ] : [ 'id' => SORT_DESC ];
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
@@ -151,7 +157,7 @@ class ActivityService extends ModelResourceService implements IActivityService {
 					'label' => 'Updated At'
 				]
 			],
-			'defaultOrder' => [ 'cdate' => 'SORT_ASC' ]
+			'defaultOrder' => $defaultSort
 		]);
 
 		if( !isset( $config[ 'sort' ] ) ) {
@@ -179,7 +185,7 @@ class ActivityService extends ModelResourceService implements IActivityService {
 			$config[ 'conditions' ][ "$modelTable.type" ] = $type;
 		}
 
-		// Filter - Trash
+		// Filter - Consumed
 		if( isset( $cons ) ) {
 
 			switch( $cons ) {
@@ -202,27 +208,46 @@ class ActivityService extends ModelResourceService implements IActivityService {
 		// Filter - Trash
 		if( isset( $trash ) ) {
 
-			$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+			switch( $trash ) {
+
+				case 'trash': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+
+					break;
+				}
+				case 'active': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = false;
+
+					break;
+				}
+			}
 		}
 
 		// Searching --------
 
-		$searchCol	= Yii::$app->request->getQueryParam( 'search' );
+		$searchCol		= Yii::$app->request->getQueryParam( $searchColParam );
+		$keywordsCol	= Yii::$app->request->getQueryParam( $searchParam );
+
+		$search = [
+			'title' => "$modelTable.title",
+			'desc' => "$modelTable.description",
+			'content' => "$modelTable.content"
+		];
 
 		if( isset( $searchCol ) ) {
 
-			$search = [
-				'title' => "$modelTable.title",
-				'desc' => "$modelTable.description",
-				'content' => "$modelTable.content"
-			];
+			$config[ 'search-col' ] = $config[ 'search-col' ] ?? $search[ $searchCol ];
+		}
+		else if( isset( $keywordsCol ) ) {
 
-			$config[ 'search-col' ] = $search[ $searchCol ];
+			$config[ 'search-col' ] = $config[ 'search-col' ] ?? $search;
 		}
 
 		// Reporting --------
 
-		$config[ 'report-col' ]	= [
+		$config[ 'report-col' ]	= $config[ 'report-col' ] ?? [
 			'title' => "$modelTable.title",
 			'desc' => "$modelTable.description",
 			'content' => "$modelTable.content",
@@ -236,34 +261,99 @@ class ActivityService extends ModelResourceService implements IActivityService {
 		return parent::getPage( $config );
 	}
 
-	public function getPageByUserId( $userId ) {
+	public function getPageByUserId( $userId, $config = [] ) {
+
+		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId, "$modelTable.type" => CoreGlobal::TYPE_USER ] ] );
+		$config[ 'conditions' ][ "$modelTable.userId" ] = $userId;
+
+		// Show only user activities to frontend
+		if( !$admin ) {
+
+			$config[ 'conditions' ][ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
+		}
+
+		return $this->getPage( $config );
 	}
 
-	public function getPageByParent( $parentId, $parentType, $admin = false ) {
+	public function getPageByParent( $parentId, $parentType, $config = [] ) {
+
+		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 
 		$modelTable	= $this->getModelTable();
 
-		$conditions = [ "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType ];
+		$config[ 'conditions' ][ "$modelTable.parentId" ]	= $parentId;
+		$config[ 'conditions' ][ "$modelTable.parentType" ] = $parentType;
+		$config[ 'conditions' ][ "$modelTable.admin" ]		= $admin;
 
-		if( $admin ) {
+		// Show only user activities to frontend
+		if( !$admin ) {
 
-			$conditions[ "$modelTable.admin" ] = $admin;
+			$config[ 'conditions' ][ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
 		}
-		else {
 
-			$conditions[ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
-		}
-
-		return $this->getPage( [ 'conditions' => $conditions ] );
+		return $this->getPage( $config );
 	}
 
 	// Read ---------------
 
 	// Read - Models ---
+
+	public function getNotifyRecentByUserId( $userId, $limit = 5, $config = [] ) {
+
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
+
+		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
+
+		$query = $modelClass::queryByUserId( $userId )->andWhere( 'admin=:admin', [ ':admin' => $admin ] );
+
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		// Show only user activities to frontend
+		if( !$admin ) {
+
+			$query->andWhere( [ "$modelTable.type" => CoreGlobal::TYPE_USER ] );
+		}
+
+		$query->limit( $limit )->orderBy( 'createdAt ASC' );
+
+		return $query->all();
+	}
+
+	public function getNotifyRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
+
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
+
+		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
+
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'admin=:admin', [ ':admin' => $admin ] );
+
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		// Show only user activities to frontend
+		if( !$admin ) {
+
+			$query->andWhere( [ "$modelTable.type" => CoreGlobal::TYPE_USER ] );
+		}
+
+		$query->limit( $limit )->orderBy( 'createdAt ASC' );
+
+		return $query->all();
+	}
 
 	// Read - Lists ----
 
@@ -271,61 +361,64 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 	// Read - Others ---
 
-	public function getUserCount( $userId, $consumed = false, $admin = false ) {
+	public function getNotifyCountByUserId( $userId, $config = [] ) {
+
+		$consumed	= isset( $config[ 'consumed' ] ) ? $config[ 'consumed' ] : false;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::queryByUserId( $userId )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
 
-		$conditions = [ "$modelTable.consumed" => $consumed, 'siteId' => $siteId ];
+		if( !$ignoreSite ) {
 
-		if( $admin ) {
-
-			$conditions[ "$modelTable.admin" ] = $admin;
-		}
-		else {
-
-			$conditions[ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
 		}
 
-		return $modelClass::queryByUserId( $userId )
-			->andWhere( $conditions )
-			->count();
+		// Show only user activities to frontend
+		if( !$admin ) {
+
+			$query->andWhere( [ "$modelTable.type" => CoreGlobal::TYPE_USER ] );
+		}
+
+		return $query->count();
 	}
 
-	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
+	public function getNotifyCountByParent( $parentId, $parentType, $config = [] ) {
+
+		$consumed	= isset( $config[ 'consumed' ] ) ? $config[ 'consumed' ] : false;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
 
-		$conditions = [ "$modelTable.consumed" => $consumed, 'siteId' => $siteId ];
+		if( !$ignoreSite ) {
 
-		if( $admin ) {
-
-			$conditions[ "$modelTable.admin" ] = $admin;
-		}
-		else {
-
-			$conditions[ "$modelTable.type" ] = CoreGlobal::TYPE_USER;
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
 		}
 
-		return $modelClass::queryByParent( $parentId, $parentType )
-			->andWhere( $conditions )
-			->count();
+		// Show only user activities to frontend
+		if( !$admin ) {
+
+			$query->andWhere( [ "$modelTable.type" => CoreGlobal::TYPE_USER ] );
+		}
+
+		return $query->count();
 	}
 
 	// Create -------------
 
 	public function create( $model, $config = [] ) {
 
-		$siteId = isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
-
 		$model->agent	= Yii::$app->request->userAgent;
 		$model->ip		= Yii::$app->request->userIP;
-		$model->siteId	= $siteId;
 
 		return parent::create( $model, $config );
 	}
@@ -385,17 +478,17 @@ class ActivityService extends ModelResourceService implements IActivityService {
 			}
 			case 'trash': {
 
-				$this->markTrash( $model );
-
-				break;
-			}
-			case 'model': {
-
 				switch( $action ) {
 
-					case 'delete': {
+					case 'trash': {
 
-						echo "delete" . $this->delete( $model );
+						$this->markTrash( $model );
+
+						break;
+					}
+					case 'untrash': {
+
+						$this->unTrash( $model );
 
 						break;
 					}
@@ -403,6 +496,20 @@ class ActivityService extends ModelResourceService implements IActivityService {
 
 				break;
 			}
+			/*case 'model': {
+
+				switch( $action ) {
+
+					case 'delete': {
+
+						$this->delete( $model );
+
+						break;
+					}
+				}
+
+				break;
+			}*/
 		}
 	}
 

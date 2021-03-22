@@ -13,14 +13,16 @@ namespace cmsgears\notify\common\actions\event;
 use Yii;
 
 // CMG Imports
-use cmsgears\notify\common\actions\notify\Delete as BaseDelete;
+use cmsgears\core\common\config\CoreGlobal;
+
+use cmsgears\core\common\utilities\AjaxUtil;
 
 /**
- * Delete process delete action of Event.
+ * Delete action deletes the corresponding event.
  *
  * @since 1.0.0
  */
-class Delete extends BaseDelete {
+class Delete extends \cmsgears\core\common\base\Action {
 
 	// Variables ---------------------------------------------------
 
@@ -30,6 +32,13 @@ class Delete extends BaseDelete {
 
 	// Public -----------------
 
+	public $admin	= false;
+	public $user	= false;
+
+	public $parentType;
+
+	public $parentId;
+
 	// Protected --------------
 
 	// Variables -----------------------------
@@ -37,6 +46,8 @@ class Delete extends BaseDelete {
 	// Public -----------------
 
 	// Protected --------------
+
+	protected $notifyService;
 
 	// Private ----------------
 
@@ -62,5 +73,43 @@ class Delete extends BaseDelete {
 	// CMG parent classes --------------------
 
 	// Delete --------------------------------
+
+	public function run( $id ) {
+
+		$model = $this->notifyService->getById( $id );
+
+		if( isset( $model ) ) {
+
+			// Delete for specific parent
+			if( isset( $this->parentType ) && isset( $this->parentId ) ) {
+
+				if( $model->parentType == $this->parentType && $model->parentId == $this->parentId ) {
+
+					$this->notifyService->delete( $model );
+				}
+			}
+			// Delete for admin
+			else if( $this->admin ) {
+
+				$this->notifyService->delete( $model );
+			}
+			// Delete for User
+			else if( $this->user ) {
+
+				$user = Yii::$app->core->getUser();
+
+				if( $model->userId == $user->id ) {
+
+					$this->notifyService->delete( $model );
+				}
+			}
+
+			// Trigger Ajax Success
+			return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ) );
+		}
+
+		// Trigger Ajax Failure
+		return AjaxUtil::generateFailure( Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_REQUEST ) );
+	}
 
 }

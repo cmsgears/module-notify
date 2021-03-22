@@ -92,31 +92,31 @@ trait ToggleTrait {
 	 */
 	public function toHtml() {
 
-		$content	= "<li class='new'>";
+		$content = "<li class=\"new\">";
 
 		if( $this->isConsumed() ) {
 
-			$content	= "<li class='consumed'>";
+			$content = "<li class=\"consumed\">";
 		}
 
 		if( $this->isTrash() ) {
 
-			$content	= "<li class='trash'>";
+			$content = "<li class=\"trash\">";
 		}
 
 		if( $this->admin && !empty( $this->adminLink ) ) {
 
 			$link		= Url::toRoute( [ $this->adminLink ], true );
-			$content	= $content . "<a href='$link'>$this->content</a></li>";
+			$content	= "{$content}<a href=\"{$link}\">{$this->content}</a></li>";
 		}
 		else if( !empty( $this->link ) ) {
 
 			$link		= Url::toRoute( [ $this->link ], true );
-			$content	= $content . "<a href='$link'>$this->content</a></li>";
+			$content	= "{$content}<a href=\"{$link}\">$this->content</a></li>";
 		}
 		else {
 
-			$content	= $content . "$this->content</li>";
+			$content = "{$content}{$this->content}</li>";
 		}
 
 		return $content;

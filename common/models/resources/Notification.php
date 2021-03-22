@@ -16,22 +16,26 @@ use yii\behaviors\TimestampBehavior;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\interfaces\base\IAuthor;
 use cmsgears\core\common\models\interfaces\base\IMultiSite;
 use cmsgears\core\common\models\interfaces\base\IOwner;
 use cmsgears\core\common\models\interfaces\resources\IData;
+
 use cmsgears\notify\common\models\interfaces\base\IToggle;
 
 use cmsgears\core\common\models\base\ModelResource;
 use cmsgears\core\common\models\entities\User;
+
 use cmsgears\notify\common\models\base\NotifyTables;
 
 use cmsgears\core\common\models\traits\base\AuthorTrait;
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
-use cmsgears\core\common\models\traits\base\UserOwnerTrait;
+use cmsgears\core\common\models\traits\base\OwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
+
 use cmsgears\notify\common\models\traits\base\ToggleTrait;
 
 use cmsgears\core\common\behaviors\AuthorBehavior;
@@ -95,8 +99,8 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 	use AuthorTrait;
 	use DataTrait;
 	use MultiSiteTrait;
+	use OwnerTrait;
 	use ToggleTrait;
-	use UserOwnerTrait;
 
 	// Constructor and Initialisation ------------------------------
 
@@ -135,9 +139,9 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 
 		// Model Rules
 		$rules = [
+			[ 'title', 'required' ],
 			// Required, Safe
-			[ 'siteId', 'required' ],
-			[ [ 'id', 'content', 'data',  'gridCache' ], 'safe' ],
+			[ [ 'id', 'content' ], 'safe' ],
 			// Text Limit
 			[ [ 'parentType', 'type', 'ip' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ [ 'title', 'agent' ], 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
@@ -177,6 +181,24 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA ),
 			'gridCache' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_GRID_CACHE )
 		];
+	}
+
+	// yii\db\BaseActiveRecord
+
+    /**
+     * @inheritdoc
+     */
+	public function beforeSave( $insert ) {
+
+	    if( parent::beforeSave( $insert ) ) {
+
+			// Default Type - Default
+			$this->type = $this->type ?? CoreGlobal::TYPE_DEFAULT;
+
+	        return true;
+	    }
+
+		return false;
 	}
 
 	// CMG interfaces ------------------------
@@ -222,8 +244,9 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 	 */
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user', 'creator', 'modifier' ];
-		$config[ 'relations' ]	= $relations;
+		$relations = isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'user', 'creator', 'modifier' ];
+
+		$config[ 'relations' ] = $relations;
 
 		return parent::queryWithAll( $config );
 	}
@@ -236,7 +259,7 @@ class Notification extends ModelResource implements IAuthor, IData, IMultiSite, 
 	 */
 	public static function queryWithUser( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'user' ];
+		$config[ 'relations' ] = [ 'user' ];
 
 		return parent::queryWithAll( $config );
 	}

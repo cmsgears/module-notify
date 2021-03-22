@@ -15,16 +15,14 @@ use Yii;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\core\common\base\Action;
-
 use cmsgears\core\common\utilities\AjaxUtil;
 
 /**
- * Bulk process bulk actions.
+ * The Bulk Action for models.
  *
  * @since 1.0.0
  */
-abstract class Bulk extends Action {
+abstract class Bulk extends \cmsgears\core\common\base\Action {
 
 	// Variables ---------------------------------------------------
 
@@ -34,8 +32,8 @@ abstract class Bulk extends Action {
 
 	// Public -----------------
 
-	public $user	= true;
 	public $admin	= false;
+	public $user	= false;
 
 	public $parentType;
 
@@ -77,27 +75,24 @@ abstract class Bulk extends Action {
 
 		if( isset( $action ) && isset( $column ) && isset( $target ) ) {
 
+			$target	= preg_split( '/,/', $target );
+
 			// Apply bulk action on parent specific models
 			if( isset( $this->parentType ) && isset( $this->parentId ) ) {
 
-				$target	= preg_split( '/,/', $target );
-
-				$this->notifyService->applyBulkByParent( $column, $action, $target, $this->parentId, $this->parentType );
+				$this->notifyService->applyBulkByTargetIdParent( $column, $action, $target, $this->parentId, $this->parentType );
 			}
 			// Apply bulk action on admin specific models
 			else if( $this->admin ) {
 
-				$target	= preg_split( '/,/', $target );
-
-				$this->notifyService->applyBulkByAdmin( $column, $action, $target );
+				$this->notifyService->applyBulkByTargetId( $column, $action, $target );
 			}
 			// Apply bulk action on user specific models
 			else if( $this->user ) {
 
-				$user	= Yii::$app->user->getIdentity();
-				$target	= preg_split( '/,/', $target );
+				$user = Yii::$app->core->getUser();
 
-				$this->notifyService->applyBulkByUserId( $column, $action, $target, $user->id );
+				$this->notifyService->applyBulkByTargetIdUserId( $column, $action, $target, $user->id );
 			}
 
 			// Trigger Ajax Success

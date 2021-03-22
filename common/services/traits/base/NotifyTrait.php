@@ -19,88 +19,217 @@ use Yii;
  */
 trait NotifyTrait {
 
-	public function getPageForAdmin() {
+	public function getPageForAdmin( $config = [] ) {
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
+		$config[ 'conditions' ][ "$modelTable.admin" ] = true;
+
+		return $this->getPage( $config );
 	}
 
-	public function getPageByUserId( $userId ) {
+	public function getPageByUserId( $userId, $config = [] ) {
+
+		$admin	= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$status	= isset( $config[ 'status' ] ) ? $config[ 'status' ] : null;
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
+		$config[ 'conditions' ][ "$modelTable.admin" ]	= $admin;
+		$config[ 'conditions' ][ "$modelTable.userId" ] = $userId;
+
+		if( isset( $status ) ) {
+
+			switch( $status ) {
+
+				case 'inbox': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = false;
+
+					break;
+				}
+				case 'new': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ]	= false;
+					$config[ 'conditions' ][ "$modelTable.trash" ]		= false;
+
+					break;
+				}
+				case 'read': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ]	= true;
+					$config[ 'conditions' ][ "$modelTable.trash" ]		= false;
+
+					break;
+				}
+				case 'trash': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+
+					break;
+				}
+			}
+		}
+
+		return $this->getPage( $config );
 	}
 
-	public function getPageByParent( $parentId, $parentType, $admin = false ) {
+	public function getPageByParent( $parentId, $parentType, $config = [] ) {
+
+		$admin	= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$status	= isset( $config[ 'status' ] ) ? $config[ 'status' ] : null;
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType, "$modelTable.admin" => $admin ] ] );
+		$config[ 'conditions' ][ "$modelTable.admin" ]		= $admin;
+		$config[ 'conditions' ][ "$modelTable.parentId" ]	= $parentId;
+		$config[ 'conditions' ][ "$modelTable.parentType" ]	= $parentType;
+
+		if( isset( $status ) ) {
+
+			switch( $status ) {
+
+				case 'inbox': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ]	= false;
+					$config[ 'conditions' ][ "$modelTable.trash" ]		= false;
+
+					break;
+				}
+				case 'read': {
+
+					$config[ 'conditions' ][ "$modelTable.consumed" ]	= true;
+					$config[ 'conditions' ][ "$modelTable.trash" ]		= false;
+
+					break;
+				}
+				case 'trash': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+
+					break;
+				}
+			}
+		}
+
+		return $this->getPage( $config );
 	}
 
-	public function getRecent( $limit = 5, $config = [] ) {
+	public function getNotifyRecent( $limit = 5, $config = [] ) {
+
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::find()->where( 'admin=:admin', [ ':admin' => $admin ] );
 
-		return $modelClass::find()
-			->where( $config[ 'conditions' ] )
-			->andWhere( [ 'siteId' => $siteId ] )
-			->limit( $limit )
-			->orderBy( 'createdAt DESC' )
-			->all();
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		$query->limit( $limit )->orderBy( 'createdAt DESC' );
+
+		return $query->all();
 	}
 
-	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
+	public function getNotifyRecentByUserId( $userId, $limit = 5, $config = [] ) {
+
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::queryByUserId( $userId )->andWhere( 'admin=:admin', [ ':admin' => $admin ] );
 
-		return $modelClass::queryByParent( $parentId, $parentType )
-			->andWhere( $config[ 'conditions' ] )
-			->limit( $limit )->orderBy( 'createdAt ASC' )
-			->andWhere( [ 'siteId' => $siteId ] )
-			->all();
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		$query->limit( $limit )->orderBy( 'createdAt DESC' );
+
+		return $query->all();
 	}
 
-	public function getCount( $consumed = false, $admin = false ) {
+	public function getNotifyRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
+
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'admin=:admin', [ ':admin' => $admin ] );
 
-		return $modelClass::find()
-			->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
-			->andWhere( [ 'siteId' => $siteId ] )
-			->count();
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		$query->limit( $limit )->orderBy( 'createdAt DESC' );
+
+		return $query->all();
 	}
 
-	public function getUserCount( $userId, $consumed = false, $admin = false ) {
+	public function getNotifyCount( $config = [] ) {
+
+		$consumed	= isset( $config[ 'consumed' ] ) ? $config[ 'consumed' ] : false;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::find()->where( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
 
-		return $modelClass::queryByUserId( $userId )
-			->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
-			->andWhere( [ 'siteId' => $siteId ] )
-			->count();
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		return $query->count();
 	}
 
-	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
+	public function getNotifyCountByUserId( $userId, $config = [] ) {
+
+		$consumed	= isset( $config[ 'consumed' ] ) ? $config[ 'consumed' ] : false;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::queryByUserId( $userId )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
 
-		return $modelClass::queryByParent( $parentId, $parentType )
-			->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
-			->andWhere( [ 'siteId' => $siteId ] )
-			->count();
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		return $query->count();
+	}
+
+	public function getNotifyCountByParent( $parentId, $parentType, $config = [] ) {
+
+		$consumed	= isset( $config[ 'consumed' ] ) ? $config[ 'consumed' ] : false;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
+
+		$modelClass	= static::$modelClass;
+
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
+
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		return $query->count();
 	}
 
 }

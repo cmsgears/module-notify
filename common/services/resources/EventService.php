@@ -19,19 +19,20 @@ use cmsgears\notify\common\config\NotifyGlobal;
 use cmsgears\notify\common\models\resources\Event;
 
 use cmsgears\core\common\services\interfaces\resources\IFileService;
+
 use cmsgears\notify\common\services\interfaces\resources\IEventService;
 
-use cmsgears\core\common\services\base\ModelResourceService;
-
+use cmsgears\core\common\services\traits\base\MultisiteTrait;
 use cmsgears\core\common\services\traits\base\NameTypeTrait;
 use cmsgears\core\common\services\traits\base\SlugTypeTrait;
+use cmsgears\core\common\services\traits\mappers\FileTrait;
 
 /**
  * EventService provide service methods of event model.
  *
  * @since 1.0.0
  */
-class EventService extends ModelResourceService implements IEventService {
+class EventService extends \cmsgears\core\common\services\base\ModelResourceService implements IEventService {
 
 	// Variables ---------------------------------------------------
 
@@ -41,11 +42,11 @@ class EventService extends ModelResourceService implements IEventService {
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\resources\Event';
+	public static $modelClass = '\cmsgears\notify\common\models\resources\Event';
 
-	public static $typed		= true;
+	public static $typed = true;
 
-	public static $parentType	= NotifyGlobal::TYPE_EVENT;
+	public static $parentType = NotifyGlobal::TYPE_EVENT;
 
 	// Protected --------------
 
@@ -61,6 +62,8 @@ class EventService extends ModelResourceService implements IEventService {
 
 	// Traits ------------------------------------------------------
 
+	use FileTrait;
+	use MultisiteTrait;
 	use NameTypeTrait;
 	use SlugTypeTrait;
 
@@ -68,7 +71,7 @@ class EventService extends ModelResourceService implements IEventService {
 
 	public function __construct( IFileService $fileService, $config = [] ) {
 
-		$this->fileService	= $fileService;
+		$this->fileService = $fileService;
 
 		parent::__construct( $config );
 	}
@@ -83,11 +86,16 @@ class EventService extends ModelResourceService implements IEventService {
 
 	// CMG parent classes --------------------
 
-	// EventService -------------------
+	// EventService --------------------------
 
 	// Data Provider ------
 
 	public function getPage( $config = [] ) {
+
+		$searchParam	= $config[ 'search-param' ] ?? 'keywords';
+		$searchColParam	= $config[ 'search-col-param' ] ?? 'search';
+
+		$defaultSort = isset( $config[ 'defaultSort' ] ) ? $config[ 'defaultSort' ] : [ 'id' => SORT_DESC ];
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
@@ -183,17 +191,11 @@ class EventService extends ModelResourceService implements IEventService {
 					'default' => SORT_DESC,
 					'label' => 'Post Interval Interval'
 				],
-				'admin' => [
-					'asc' => [ "$modelTable.admin" => SORT_ASC ],
-					'desc' => [ "$modelTable.admin" => SORT_DESC ],
+				'grouped' => [
+					'asc' => [ "$modelTable.grouped" => SORT_ASC ],
+					'desc' => [ "$modelTable.grouped" => SORT_DESC ],
 					'default' => SORT_DESC,
-					'label' => 'Admin'
-				],
-				'multi' => [
-					'asc' => [ "$modelTable.multiUser" => SORT_ASC ],
-					'desc' => [ "$modelTable.multiUser" => SORT_DESC ],
-					'default' => SORT_DESC,
-					'label' => 'Multi Users'
+					'label' => 'Grouped'
 				],
 				'status' => [
 					'asc' => [ "$modelTable.status" => SORT_ASC ],
@@ -220,7 +222,7 @@ class EventService extends ModelResourceService implements IEventService {
 					'label' => 'Scheduled At'
 				]
 			],
-			'defaultOrder' => [ 'cdate' => 'SORT_ASC' ]
+			'defaultOrder' => $defaultSort
 		]);
 
 		if( !isset( $config[ 'sort' ] ) ) {
@@ -259,9 +261,9 @@ class EventService extends ModelResourceService implements IEventService {
 
 			switch( $filter ) {
 
-				case 'multi': {
+				case 'grouped': {
 
-					$config[ 'conditions' ][ "$modelTable.multiUser" ] = true;
+					$config[ 'conditions' ][ "$modelTable.grouped" ] = true;
 
 					break;
 				}
@@ -270,29 +272,36 @@ class EventService extends ModelResourceService implements IEventService {
 
 		// Searching --------
 
-		$searchCol = Yii::$app->request->getQueryParam( 'search' );
+		$searchCol		= Yii::$app->request->getQueryParam( $searchColParam );
+		$keywordsCol	= Yii::$app->request->getQueryParam( $searchParam );
+
+		$search = [
+			'name' => "$modelTable.name",
+			'title' => "$modelTable.title",
+			'desc' => "$modelTable.description",
+			'content' => "$modelTable.content"
+		];
 
 		if( isset( $searchCol ) ) {
 
-			$search = [
-				'name' => "$modelTable.name",
-				'title' => "$modelTable.title",
-				'desc' => "$modelTable.description",
-				'content' => "$modelTable.content" ];
+			$config[ 'search-col' ] = $config[ 'search-col' ] ?? $search[ $searchCol ];
+		}
+		else if( isset( $keywordsCol ) ) {
 
-			$config[ 'search-col' ] = $search[ $searchCol ];
+			$config[ 'search-col' ] = $config[ 'search-col' ] ?? $search;
 		}
 
 		// Reporting --------
 
-		$config[ 'report-col' ]	= [
+		$config[ 'report-col' ]	= $config[ 'report-col' ] ?? [
 			'name' => "$modelTable.name",
 			'title' => "$modelTable.title",
 			'desc' => "$modelTable.description",
 			'content' => "$modelTable.content",
 			'type' => "$modelTable.type",
 			'status' => "$modelTable.status",
-			'multi' => "$modelTable.multiUser"
+			'grouped' => "$modelTable.grouped",
+			'sdate' => "$modelTable.Scheduled At"
 		];
 
 		// Result -----------
@@ -300,39 +309,56 @@ class EventService extends ModelResourceService implements IEventService {
 		return parent::getPage( $config );
 	}
 
-	public function getPageForAdmin() {
+	public function getPageForAdmin( $config = [] ) {
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.admin" => true ] ] );
+		$config[ 'conditions' ][ "$modelTable.userId" ] = null;
+
+		return $this->getPage( $config );
 	}
 
-	public function getPageByUserId( $userId ) {
+	public function getPageByUserId( $userId, $config = [] ) {
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.userId" => $userId ] ] );
+		$config[ 'conditions' ][ "$modelTable.userId" ] = $userId;
+
+		return $this->getPage( $config );
 	}
 
-	public function getPageByParent( $parentId, $parentType, $admin = false ) {
+	public function getPageByParent( $parentId, $parentType, $config = [] ) {
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType, "$modelTable.admin" => $admin ] ] );
+		$config[ 'conditions' ][ "$modelTable.parentId" ]	= $parentId;
+		$config[ 'conditions' ][ "$modelTable.parentType" ] = $parentType;
+
+		return $this->getPage( $config );
 	}
 
 	// Read ---------------
 
 	// Read - Models ---
 
-	public function getByRangeUserId( $startDate, $endDate, $userId ) {
+	public function getByRangeUserId( $startDate, $endDate, $userId, $config = [] ) {
+
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$conditions = [ "$modelTable.scheduledAt BETWEEN '$startDate' AND '$endDate'", 'userId' => $userId ];
+		$conditions = [ 'userId' => $userId ];
+
+		if( !$ignoreSite ) {
+
+			$conditions[ 'siteId' ]	= $siteId;
+		}
 
 		$query = $modelClass::queryWithUser( [ 'conditions' => $conditions ] );
+
+		$query->andWhere( "$modelTable.scheduledAt BETWEEN ':sdate' AND ':edate'", [ ':sdate' => $startDate, ':edate' => $endDate ] );
 
 		return $query->all();
 	}
@@ -368,7 +394,7 @@ class EventService extends ModelResourceService implements IEventService {
 			'name', 'slug', 'icon', 'title', 'description',
 			'preReminderCount', 'preReminderInterval', 'preIntervalUnit',
 			'postReminderCount', 'postReminderInterval', 'postIntervalUnit',
-			'multiUser', 'status', 'scheduledAt', 'content'
+			'grouped', 'status', 'scheduledAt', 'content'
 		];
 
 		$avatar = isset( $config[ 'avatar' ] ) ? $config[ 'avatar' ] : null;
@@ -380,6 +406,15 @@ class EventService extends ModelResourceService implements IEventService {
 
 		return parent::update( $model, [
 			'attributes' => $attributes
+		]);
+	}
+
+	public function markGrouped( $model ) {
+
+		$model->grouped = true;
+
+		return parent::update( $model, [
+			'attributes' => [ 'grouped' ]
 		]);
 	}
 
@@ -414,10 +449,24 @@ class EventService extends ModelResourceService implements IEventService {
 
 	public function expire( $model ) {
 
-		return $this->updateStatus( $model, Event::STATUS_EXPIRED );
+		if( $model->isExpirable() ) {
+
+			return $this->updateStatus( $model, Event::STATUS_EXPIRED );
+		}
+
+		return false;
 	}
 
 	// Delete -------------
+
+	public function delete( $model, $config = [] ) {
+
+		// Delete Model Files
+		$this->fileService->deleteMultiple( $model->files );
+
+		// Delete model
+		return parent::delete( $model, $config );
+	}
 
 	// Bulk ---------------
 
@@ -429,15 +478,21 @@ class EventService extends ModelResourceService implements IEventService {
 
 				switch( $action ) {
 
-					case 'cancelled': {
+					case 'cancel': {
 
 						$this->cancel( $model );
 
 						break;
 					}
-					case 'active': {
+					case 'activate': {
 
 						$this->activate( $model );
+
+						break;
+					}
+					case 'expire': {
+
+						$this->expire( $model );
 
 						break;
 					}
@@ -449,6 +504,12 @@ class EventService extends ModelResourceService implements IEventService {
 
 				switch( $action ) {
 
+					case 'grouped': {
+
+						$this->markGrouped( $model );
+
+						break;
+					}
 					case 'delete': {
 
 						$this->delete( $model );
@@ -472,7 +533,7 @@ class EventService extends ModelResourceService implements IEventService {
 
 	// CMG parent classes --------------------
 
-	// EventService -------------------
+	// EventService --------------------------
 
 	// Data Provider ------
 

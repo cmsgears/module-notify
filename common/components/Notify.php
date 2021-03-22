@@ -9,16 +9,12 @@
 
 namespace cmsgears\notify\common\components;
 
-// CMG Imports
-use cmsgears\core\common\base\Config;
-
-
 /**
  * Notify component initialises the Notify Module.
  *
  * @since 1.0.0
  */
-class Notify extends Config {
+class Notify extends \cmsgears\core\common\base\Config {
 
 	// Global -----------------
 

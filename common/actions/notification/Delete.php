@@ -12,15 +12,12 @@ namespace cmsgears\notify\common\actions\notification;
 // Yii Imports
 use Yii;
 
-// CMG Imports
-use cmsgears\notify\common\actions\notify\Delete as BaseDelete;
-
 /**
- * Delete process delete action of Activity.
+ * Delete action deletes the corresponding notification.
  *
  * @since 1.0.0
  */
-class Delete extends BaseDelete {
+class Delete extends \cmsgears\notify\common\actions\notify\Delete {
 
 	// Variables ---------------------------------------------------
 

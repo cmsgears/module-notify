@@ -15,16 +15,14 @@ use Yii;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\core\common\base\Action;
-
 use cmsgears\core\common\utilities\AjaxUtil;
 
 /**
- * Trash marks the model for trash.
+ * Trash marks the model as trash.
  *
  * @since 1.0.0
  */
-abstract class Trash extends Action {
+abstract class Trash extends \cmsgears\core\common\base\Action {
 
 	// Variables ---------------------------------------------------
 
@@ -34,8 +32,8 @@ abstract class Trash extends Action {
 
 	// Public -----------------
 
-	public $user	= true;
 	public $admin	= false;
+	public $user	= false;
 
 	public $parentType;
 
@@ -85,25 +83,27 @@ abstract class Trash extends Action {
 					$model = $this->notifyService->markTrash( $model );
 				}
 
-				$new = $this->notifyService->getCountByParent( $this->parentId, $this->parentType, false, false );
+				$config[ 'admin' ] = $this->admin;
+
+				$new = $this->notifyService->getNotifyCountByParent( $this->parentId, $this->parentType, $config );
 			}
 			// Trash for admin
 			else if( $this->admin ) {
 
 				$model = $this->notifyService->markTrash( $model );
 
-				$new = $this->notifyService->getCount( false, $this->admin );
+				$new = $this->notifyService->getNotifyCount();
 			}
 			else if( $this->user ) {
 
-				$user = Yii::$app->user->getIdentity();
+				$user = Yii::$app->core->getUser();
 
 				if( $model->userId == $user->id ) {
 
 					$model = $this->notifyService->markTrash( $model );
 				}
 
-				$new = $this->notifyService->getUserCount( $user->id, false, false );
+				$new = $this->notifyService->getNotifyCountByUserId( $user->id );
 			}
 
 			$data = [ 'unread' => $new, 'consumed' => $model->isConsumed() ];

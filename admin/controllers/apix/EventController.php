@@ -16,14 +16,12 @@ use yii\filters\VerbFilter;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\admin\controllers\base\Controller;
-
 /**
- * EventController provide actions specific to Event model.
+ * EventController provide actions specific to admin events.
  *
  * @since 1.0.0
  */
-class EventController extends Controller {
+class EventController extends \cmsgears\core\admin\controllers\apix\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -45,7 +43,7 @@ class EventController extends Controller {
 		$this->crudPermission = NotifyGlobal::PERM_NOTIFY_ADMIN;
 
 		// Services
-		$this->modelService = Yii::$app->factory->get( 'eventService' );
+		$this->modelService = Yii::$app->factory->get( 'calendarEventService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -63,7 +61,6 @@ class EventController extends Controller {
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
 					'bulk' => [ 'permission' => $this->crudPermission ],
-					'trash' => [ 'permission' => $this->crudPermission ],
 					'delete' => [ 'permission' => $this->crudPermission ]
 				]
 			],
@@ -71,7 +68,6 @@ class EventController extends Controller {
 				'class' => VerbFilter::class,
 				'actions' => [
 					'bulk' => [ 'post' ],
-					'trash' => [ 'post' ],
 					'delete' => [ 'post' ]
 				]
 			]
@@ -83,8 +79,7 @@ class EventController extends Controller {
 	public function actions() {
 
 		return [
-			'bulk' => [ 'class' => 'cmsgears\core\common\actions\grid\Bulk' ],
-			'trash' => [ 'class' => 'cmsgears\core\common\actions\grid\Trash' ],
+			'bulk' => [ 'class' => 'cmsgears\core\common\actions\grid\Bulk', 'admin' => true ],
 			'delete' => [ 'class' => 'cmsgears\core\common\actions\grid\Delete' ]
 		];
 	}

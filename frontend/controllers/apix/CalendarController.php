@@ -16,8 +16,6 @@ use yii\filters\VerbFilter;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\core\common\controllers\base\Controller;
-
 use cmsgears\core\common\utilities\AjaxUtil;
 use cmsgears\core\common\utilities\DateUtil;
 
@@ -26,7 +24,7 @@ use cmsgears\core\common\utilities\DateUtil;
  *
  * @since 1.0.0
  */
-class CalendarController extends Controller {
+class CalendarController extends \cmsgears\core\frontend\controllers\apix\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -44,8 +42,11 @@ class CalendarController extends Controller {
 
 		parent::init();
 
-		$this->crudPermission	= CoreGlobal::PERM_USER;
-		$this->modelService 	= Yii::$app->factory->get( 'eventService' );
+		// Permission
+		$this->crudPermission = CoreGlobal::PERM_USER;
+
+		// Services
+		$this->modelService = Yii::$app->factory->get( 'calendarEventService' );
 	}
 
 	// Instance methods --------------------------------------------
@@ -62,7 +63,7 @@ class CalendarController extends Controller {
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'delete' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ],
+					'delete' => [ 'permission' => $this->crudPermission ],
 					'bulk' => [ 'permission' => $this->crudPermission ],
 					'events' => [ 'permission' => $this->crudPermission ],
 					'event' => [ 'permission' => $this->crudPermission, 'filters' => [ 'owner' ] ]
@@ -85,8 +86,8 @@ class CalendarController extends Controller {
 	public function actions() {
 
 		return [
-			'delete' => [ 'class' => 'cmsgears\notify\common\actions\event\Delete' ],
-			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\event\Bulk' ]
+			'delete' => [ 'class' => 'cmsgears\notify\common\actions\event\Delete', 'user' => true ],
+			'bulk' => [ 'class' => 'cmsgears\notify\common\actions\event\Bulk', 'user' => true ]
 		];
 	}
 
@@ -98,7 +99,7 @@ class CalendarController extends Controller {
 
 	public function actionEvents() {
 
-		$user = Yii::$app->user->GetIdentity();
+		$user = Yii::$app->core->getUser();
 
 		$startDate	= Yii::$app->request->post( 'startDate' );
 		$endDate	= Yii::$app->request->post( 'endDate' );
@@ -108,7 +109,7 @@ class CalendarController extends Controller {
 
 		foreach( $events as $event ) {
 
-			$data[] = [ 'id' => $event->id, 'title' => "$event->name - $event->description", 'start' => $event->scheduledAt ];
+			$data[] = [ 'id' => $event->id, 'title' => $event->displayName, 'desc' => $event->description, 'start' => $event->scheduledAt ];
 		}
 
 		// Trigger Ajax Success
@@ -120,7 +121,7 @@ class CalendarController extends Controller {
 		$event = $this->model;
 
 		$data = $event->getAttributeArray([
-			'id', 'name', 'icon', 'description', 'content', 'scheduledAt',
+			'id', 'name', 'icon', 'title', 'description', 'content', 'scheduledAt',
 			'preReminderCount', 'preReminderInterval', 'preIntervalUnit',
 			'postReminderCount', 'postReminderInterval', 'postIntervalUnit'
 		]);
@@ -133,4 +134,5 @@ class CalendarController extends Controller {
 		// Trigger Ajax Success
 		return AjaxUtil::generateSuccess( Yii::$app->coreMessage->getMessage( CoreGlobal::MESSAGE_REQUEST ), $data );
 	}
+
 }

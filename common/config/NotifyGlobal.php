@@ -10,7 +10,8 @@
 namespace cmsgears\notify\common\config;
 
 /**
- * NotifyGlobal defines the global constants and variables available for notify and dependent modules.
+ * NotifyGlobal defines the global constants and variables available for notify and
+ * dependent modules.
  *
  * @since 1.0.0
  */
@@ -31,9 +32,9 @@ class NotifyGlobal {
 
 	// Templates -------------------------------------------------------
 
-	const TEMPLATE_LOG_CREATE	= 'log-create';
-	const TEMPLATE_LOG_UPDATE	= 'log-update';
-	const TEMPLATE_LOG_DELETE	= 'log-delete';
+	const TPL_LOG_CREATE	= 'log-create';
+	const TPL_LOG_UPDATE	= 'log-update';
+	const TPL_LOG_DELETE	= 'log-delete';
 
 	// Config ----------------------------------------------------------
 

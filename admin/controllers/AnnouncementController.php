@@ -16,18 +16,17 @@ use yii\helpers\Url;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\resources\File;
 
-use cmsgears\core\admin\controllers\base\Controller;
-
 /**
- * AnnouncementController provide actions specific to Announcement model.
+ * AnnouncementController provide actions specific to the admin announcements.
  *
  * @since 1.0.0
  */
-class AnnouncementController extends Controller {
+class AnnouncementController extends \cmsgears\core\admin\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -36,6 +35,8 @@ class AnnouncementController extends Controller {
 	// Public -----------------
 
 	// Protected --------------
+
+	protected $templateService;
 
 	// Private ----------------
 
@@ -55,6 +56,8 @@ class AnnouncementController extends Controller {
 
 		// Services
 		$this->modelService = Yii::$app->factory->get( 'announcementService' );
+
+		$this->templateService = Yii::$app->factory->get( 'templateService' );
 
 		// Sidebar
 		$this->sidebar = [ 'parent' => 'sidebar-announcement', 'child' => 'announcement' ];
@@ -89,21 +92,21 @@ class AnnouncementController extends Controller {
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'index'	 => [ 'permission' => $this->crudPermission ],
-					'all'  => [ 'permission' => $this->crudPermission ],
-					'create'  => [ 'permission' => $this->crudPermission ],
-					'update'  => [ 'permission' => $this->crudPermission ],
-					'delete'  => [ 'permission' => $this->crudPermission ]
+					'index' => [ 'permission' => $this->crudPermission ],
+					'all' => [ 'permission' => $this->crudPermission ],
+					'create' => [ 'permission' => $this->crudPermission ],
+					'update' => [ 'permission' => $this->crudPermission ],
+					'delete' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
 				'class' => VerbFilter::class,
 				'actions' => [
 					'index' => [ 'get', 'post' ],
-					'all'  => [ 'get' ],
-					'create'  => [ 'get', 'post' ],
-					'update'  => [ 'get', 'post' ],
-					'delete'  => [ 'get', 'post' ]
+					'all' => [ 'get' ],
+					'create' => [ 'get', 'post' ],
+					'update' => [ 'get', 'post' ],
+					'delete' => [ 'get', 'post' ]
 				]
 			]
 		];
@@ -130,14 +133,10 @@ class AnnouncementController extends Controller {
 
 		$dataProvider = $this->modelService->getPageForAdmin();
 
-		$accessMap = $modelClass::$accessMap;
-
-		unset( $accessMap[ $modelClass::ACCESS_APP ] );
-
 		return $this->render( 'all', [
 			'dataProvider' => $dataProvider,
 			'statusMap' => $modelClass::$statusMap,
-			'accessMap' => $accessMap
+			'accessMap' => $modelClass::$adminAccessMap
 		]);
 	}
 
@@ -149,24 +148,28 @@ class AnnouncementController extends Controller {
 
 		$banner	= File::loadFile( null, 'Banner' );
 
-		$model->siteId = Yii::$app->core->siteId;
+		$model->admin = true;
 
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
-			$this->model = $this->modelService->add( $model, [ 'admin' => true, 'banner' => $banner ] );
+			$this->model = $this->modelService->add( $model, [
+				'admin' => true, 'banner' => $banner
+			]);
 
-			return $this->redirect( 'all' );
+			if( $this->model ) {
+
+				return $this->redirect( 'all' );
+			}
 		}
 
-		$accessMap = $modelClass::$accessMap;
-
-		unset( $accessMap[ $modelClass::ACCESS_APP ] );
+		$templatesMap = $this->templateService->getIdNameMapByType( NotifyGlobal::TYPE_ANNOUNCEMENT, [ 'default' => true ] );
 
 		return $this->render( 'create', [
 			'model' => $model,
 			'banner' => $banner,
 			'statusMap' => $modelClass::$statusMap,
-			'accessMap' => $accessMap
+			'accessMap' => $modelClass::$adminAccessMap,
+			'templatesMap' => $templatesMap
 		]);
 	}
 
@@ -184,21 +187,22 @@ class AnnouncementController extends Controller {
 
 			if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
-				$this->model = $this->modelService->update( $model, [ 'admin' => true, 'banner' => $banner ] );
+				$this->model = $this->modelService->update( $model, [
+					'admin' => true, 'banner' => $banner
+				]);
 
 				return $this->redirect( $this->returnUrl );
 			}
 
-			$accessMap = $modelClass::$accessMap;
-
-			unset( $accessMap[ $modelClass::ACCESS_APP ] );
+			$templatesMap = $this->templateService->getIdNameMapByType( NotifyGlobal::TYPE_ANNOUNCEMENT, [ 'default' => true ] );
 
 			// Render view
 			return $this->render( 'update', [
 				'model' => $model,
 				'banner' => $banner,
 				'statusMap' => $modelClass::$statusMap,
-				'accessMap' => $accessMap
+				'accessMap' => $modelClass::$adminAccessMap,
+				'templatesMap' => $templatesMap
 			]);
 		}
 
@@ -236,12 +240,15 @@ class AnnouncementController extends Controller {
 				}
 			}
 
+			$templatesMap = $this->templateService->getIdNameMapByType( NotifyGlobal::TYPE_ANNOUNCEMENT, [ 'default' => true ] );
+
 			// Render view
 			return $this->render( 'delete', [
 				'model' => $model,
 				'banner' => $model->banner,
 				'statusMap' => $modelClass::$statusMap,
-				'accessMap' => $modelClass::$accessMap
+				'accessMap' => $modelClass::$adminAccessMap,
+				'templatesMap' => $templatesMap
 			]);
 		}
 

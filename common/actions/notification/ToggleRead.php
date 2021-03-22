@@ -12,15 +12,12 @@ namespace cmsgears\notify\common\actions\notification;
 // Yii Imports
 use Yii;
 
-// CMG Imports
-use cmsgears\notify\common\actions\notify\ToggleRead as BaseToggleRead;
-
 /**
- * ToggleRead mark the activity read or unread.
+ * ToggleRead mark the notification read or unread.
  *
  * @since 1.0.0
  */
-class ToggleRead extends BaseToggleRead {
+class ToggleRead extends \cmsgears\notify\common\actions\notify\ToggleRead {
 
 	// Variables ---------------------------------------------------
 

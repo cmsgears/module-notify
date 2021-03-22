@@ -12,15 +12,12 @@ namespace cmsgears\notify\frontend\controllers\base;
 // Yii Imports
 use Yii;
 
-// CMG Imports
-use cmsgears\core\frontend\controllers\base\Controller as BaseController;
-
 /**
- * Base Controller of all frontend controllers.
+ * Base Controller of the notify controllers.
  *
  * @since 1.0.0
  */
-abstract class Controller extends BaseController {
+abstract class Controller extends \cmsgears\core\frontend\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 

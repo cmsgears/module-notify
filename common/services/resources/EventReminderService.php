@@ -18,7 +18,7 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\services\interfaces\resources\IEventReminderService;
 
-use cmsgears\core\common\services\base\ModelResourceService;
+use cmsgears\core\common\services\traits\base\MultisiteTrait;
 
 use cmsgears\notify\common\services\traits\base\NotifyTrait;
 use cmsgears\notify\common\services\traits\base\ToggleTrait;
@@ -28,7 +28,7 @@ use cmsgears\notify\common\services\traits\base\ToggleTrait;
  *
  * @since 1.0.0
  */
-class EventReminderService extends ModelResourceService implements IEventReminderService {
+class EventReminderService extends \cmsgears\core\common\services\base\ModelResourceService implements IEventReminderService {
 
 	// Variables ---------------------------------------------------
 
@@ -38,9 +38,9 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\resources\EventReminder';
+	public static $modelClass = '\cmsgears\notify\common\models\resources\EventReminder';
 
-	public static $parentType	= NotifyGlobal::TYPE_REMINDER;
+	public static $parentType = NotifyGlobal::TYPE_REMINDER;
 
 	// Protected --------------
 
@@ -54,6 +54,7 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 
 	// Traits ------------------------------------------------------
 
+	use MultisiteTrait;
 	use NotifyTrait;
 	use ToggleTrait;
 
@@ -75,10 +76,15 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 
 	public function getPage( $config = [] ) {
 
+		$searchParam	= $config[ 'search-param' ] ?? 'keywords';
+		$searchColParam	= $config[ 'search-col-param' ] ?? 'search';
+
+		$defaultSort = isset( $config[ 'defaultSort' ] ) ? $config[ 'defaultSort' ] : [ 'sdate' => SORT_DESC ];
+
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$eventTable	= Yii::$app->factory->get( 'eventService' )->getModelTable();
+		$eventTable	= Yii::$app->factory->get( 'calendarEventService' )->getModelTable();
 		$userTable	= Yii::$app->factory->get( 'userService' )->getModelTable();
 
 		// Sorting ----------
@@ -109,6 +115,12 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 					'default' => SORT_DESC,
 					'label' => 'Title'
 				],
+				'type' => [
+					'asc' => [ "$modelTable.type" => SORT_ASC ],
+					'desc' => [ "$modelTable.type" => SORT_DESC ],
+					'default' => SORT_DESC,
+					'label' => 'Type'
+				],
 				'consumed' => [
 					'asc' => [ "$modelTable.consumed" => SORT_ASC ],
 					'desc' => [ "$modelTable.consumed" => SORT_DESC ],
@@ -128,7 +140,7 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 					'label' => 'Scheduled At'
 				]
 			],
-			'defaultOrder' => [ 'sdate' => 'SORT_ASC' ]
+			'defaultOrder' => $defaultSort
 		]);
 
 		if( !isset( $config[ 'sort' ] ) ) {
@@ -146,8 +158,15 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 		// Filters ----------
 
 		// Params
+		$type	= Yii::$app->request->getQueryParam( 'type' );
 		$cons	= Yii::$app->request->getQueryParam( 'consumed' );
 		$trash	= Yii::$app->request->getQueryParam( 'trash' );
+
+		// Filter - Type
+		if( isset( $type ) ) {
+
+			$config[ 'conditions' ][ "$modelTable.type" ] = $type;
+		}
 
 		// Filter - Consumed
 		if( isset( $cons ) ) {
@@ -172,33 +191,53 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 		// Filter - Trash
 		if( isset( $trash ) ) {
 
-			$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+			switch( $trash ) {
+
+				case 'trash': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+
+					break;
+				}
+				case 'active': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = false;
+
+					break;
+				}
+			}
 		}
 
 		// Searching --------
 
-		$searchCol	= Yii::$app->request->getQueryParam( 'search' );
+		$searchCol		= Yii::$app->request->getQueryParam( $searchColParam );
+		$keywordsCol	= Yii::$app->request->getQueryParam( $searchParam );
+
+		$search = [
+			'title' => "$modelTable.title",
+			'desc' => "$modelTable.description",
+			'content' => "$modelTable.content"
+		];
 
 		if( isset( $searchCol ) ) {
 
-			$search = [
-				'title' => "$modelTable.title",
-				'desc' => "$modelTable.description",
-				'content' => "$modelTable.content"
-			];
+			$config[ 'search-col' ] = $config[ 'search-col' ] ?? $search[ $searchCol ];
+		}
+		else if( isset( $keywordsCol ) ) {
 
-			$config[ 'search-col' ] = $search[ $searchCol ];
+			$config[ 'search-col' ] = $config[ 'search-col' ] ?? $search;
 		}
 
 		// Reporting --------
 
-		$config[ 'report-col' ]	= [
+		$config[ 'report-col' ]	= $config[ 'report-col' ] ?? [
 			'title' => "$modelTable.title",
 			'desc' => "$modelTable.description",
 			'content' => "$modelTable.content",
+			'type' => "$modelTable.type",
 			'consumed' => "$modelTable.consumed",
 			'trash' => "$modelTable.trash",
-			'scheduledAt' => "$modelTable.scheduledAt"
+			'sdate' => "$modelTable.scheduledAt"
 		];
 
 		// Result -----------
@@ -206,89 +245,110 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 		return parent::getPage( $config );
 	}
 
-	public function getPageForAdmin() {
+	public function getPageForAdmin( $config = [] ) {
+
+		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "NOW() > $modelTable.scheduledAt", "$modelTable.admin" => true ] ] );
+		$config[ 'conditions' ][] = "$modelTable.scheduledAt <= NOW()";
+
+		$config[ 'conditions' ][ "$modelTable.admin" ] = $admin;
+
+		return $this->getPage( $config );
 	}
 
-	public function getPageByUserId( $userId ) {
+	public function getPageByUserId( $userId, $config = [] ) {
+
+		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "NOW() > $modelTable.scheduledAt", "$modelTable.userId" => $userId ] ] );
+		$config[ 'conditions' ][] = "$modelTable.scheduledAt <= NOW()";
+
+		$config[ 'conditions' ][ "$modelTable.admin" ]	= $admin;
+		$config[ 'conditions' ][ "$modelTable.userId" ] = $userId;
+
+		return $this->getPage( $config );
 	}
 
-	public function getPageByParent( $parentId, $parentType, $admin = false ) {
+	public function getPageByParent( $parentId, $parentType, $config = [] ) {
+
+		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "NOW() > $modelTable.scheduledAt", "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType, "$modelTable.admin" => $admin ] ] );
+		$config[ 'conditions' ][] = "$modelTable.scheduledAt <= NOW()";
+
+		$config[ 'conditions' ][ "$modelTable.admin" ]		= $admin;
+		$config[ 'conditions' ][ "$modelTable.parentId" ]	= $parentId;
+		$config[ 'conditions' ][ "$modelTable.parentType" ]	= $parentType;
+
+		return $this->getPage( $config );
 	}
 
 	// Read ---------------
 
 	// Read - Models ---
 
-	// TODO: Check for options to show collaborative irrespective of siteId
+	public function getNotifyRecent( $limit = 5, $config = [] ) {
 
-	public function getRecent( $limit = 5, $config = [] ) {
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::find()->where( 'scheduledAt <= NOW() AND admin=:admin', [ ':admin' => $admin ] );
 
-		return $modelClass::find()
-			->where( $config[ 'conditions' ] )
-			->andWhere( "scheduledAt <= NOW()" )
-			->andWhere( [ 'siteId' => $siteId ] )
-			->limit( $limit )->orderBy( 'scheduledAt ASC' )
-			->all();
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		$query->limit( $limit )->orderBy( 'scheduledAt DESC' );
+
+		return $query->all();
 	}
 
-	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
+	public function getNotifyRecentByUserId( $userId, $limit = 5, $config = [] ) {
+
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::queryByUserId( $userId )->andWhere( 'scheduledAt <= NOW() AND admin=:admin', [ ':admin' => $admin ] );
 
-		return $modelClass::queryByParent( $parentId, $parentType )
-			->andWhere( $config[ 'conditions' ] )
-			->andWhere( "scheduledAt <= NOW()" )
-			->andWhere( [ 'siteId' => $siteId ] )
-			->limit( $limit )->orderBy( 'scheduledAt ASC' )
-			->all();
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		$query->limit( $limit )->orderBy( 'scheduledAt DESC' );
+
+		return $query->all();
 	}
 
-	public function getCount( $consumed = false, $admin = false ) {
+	public function getNotifyRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
+
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 
-		return $modelClass::find()
-			->where( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
-			->count();
-	}
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'scheduledAt <= NOW() AND admin=:admin', [ ':admin' => $admin ] );
 
-	public function getUserCount( $userId, $consumed = false, $admin = false ) {
+		if( !$ignoreSite ) {
 
-		$modelClass	= static::$modelClass;
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
 
-		return $modelClass::queryByUserId( $userId )
-			->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
-			->count();
-	}
+		$query->limit( $limit )->orderBy( 'scheduledAt DESC' );
 
-	public function getCountByParent( $parentId, $parentType, $consumed = false, $admin = false ) {
-
-		$modelClass	= static::$modelClass;
-
-		$siteId = Yii::$app->core->siteId;
-
-		return $modelClass::queryByParent( $parentId, $parentType )
-			->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] )
-			->andWhere( [ 'siteId' => $siteId ] )
-			->count();
+		return $query->all();
 	}
 
 	// Read - Lists ----
@@ -297,6 +357,63 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 
 	// Read - Others ---
 
+	public function getNotifyCount( $config = [] ) {
+
+		$consumed	= isset( $config[ 'consumed' ] ) ? $config[ 'consumed' ] : false;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
+
+		$modelClass	= static::$modelClass;
+
+		$query = $modelClass::find()->where( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
+
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		return $query->count();
+	}
+
+	public function getNotifyCountByUserId( $userId, $config = [] ) {
+
+		$consumed	= isset( $config[ 'consumed' ] ) ? $config[ 'consumed' ] : false;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
+
+		$modelClass	= static::$modelClass;
+
+		$query = $modelClass::queryByUserId( $userId )->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
+
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		return $query->count();
+	}
+
+	public function getNotifyCountByParent( $parentId, $parentType, $config = [] ) {
+
+		$consumed	= isset( $config[ 'consumed' ] ) ? $config[ 'consumed' ] : false;
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
+
+		$modelClass	= static::$modelClass;
+
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'scheduledAt <= NOW() AND consumed=:consumed AND admin=:admin', [ ':consumed' => $consumed, ':admin' => $admin ] );
+
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		return $query->count();
+	}
+
 	// Create -------------
 
 	// Update -------------
@@ -304,7 +421,7 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 	public function update( $model, $config = [] ) {
 
 		return parent::update( $model, [
-			'attributes' => [ 'title', 'content' ]
+			'attributes' => [ 'title', 'description', 'content' ]
 		]);
 	}
 
@@ -325,32 +442,6 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 	}
 
 	// Bulk ---------------
-
-	public function applyBulkByUserId( $column, $action, $target, $userId ) {
-
-		foreach( $target as $id ) {
-
-			$model = $this->getById( $id );
-
-			if( isset( $model ) && $model->userId == $userId ) {
-
-				$this->applyBulk( $model, $column, $action, $target );
-			}
-		}
-	}
-
-	public function applyBulkByAdmin( $column, $action, $target ) {
-
-		foreach( $target as $id ) {
-
-			$model = $this->getById( $id );
-
-			if( isset( $model ) && $model->admin ) {
-
-				$this->applyBulk( $model, $column, $action, $target );
-			}
-		}
-	}
 
 	protected function applyBulk( $model, $column, $action, $target, $config = [] ) {
 
@@ -378,7 +469,21 @@ class EventReminderService extends ModelResourceService implements IEventReminde
 			}
 			case 'trash': {
 
-				$this->markTrash( $model );
+				switch( $action ) {
+
+					case 'trash': {
+
+						$this->markTrash( $model );
+
+						break;
+					}
+					case 'active': {
+
+						$this->unTrash( $model );
+
+						break;
+					}
+				}
 
 				break;
 			}

@@ -12,16 +12,14 @@ namespace cmsgears\notify\frontend\controllers;
 // Yii Imports
 use Yii;
 use yii\filters\VerbFilter;
-
-// CMG Imports
-use cmsgears\notify\frontend\controllers\base\Controller;
+use yii\helpers\Url;
 
 /**
  * ActivityController provides actions specific to user reminders.
  *
  * @since 1.0.0
  */
-class ActivityController extends Controller {
+class ActivityController extends \cmsgears\notify\frontend\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -44,6 +42,10 @@ class ActivityController extends Controller {
 
 		// Services
 		$this->modelService	= Yii::$app->factory->get( 'activityService' );
+
+		// Return Url
+		$this->returnUrl = Url::previous( 'activities' );
+		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/activity/all' ], true );
 	}
 
 	// Instance methods --------------------------------------------
@@ -89,7 +91,9 @@ class ActivityController extends Controller {
 
 	public function actionAll() {
 
-		$user = Yii::$app->user->getIdentity();
+		Url::remember( Yii::$app->request->getUrl(), 'activities' );
+
+		$user = Yii::$app->core->getUser();
 
 		$dataProvider = $this->modelService->getPageByUserId( $user->id );
 

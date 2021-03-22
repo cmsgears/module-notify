@@ -11,6 +11,8 @@ namespace cmsgears\notify\common\services\interfaces\resources;
 
 // CMG Imports
 use cmsgears\core\common\services\interfaces\base\IModelResourceService;
+use cmsgears\core\common\services\interfaces\base\IMultiSite;
+
 use cmsgears\notify\common\services\interfaces\base\INotify;
 use cmsgears\notify\common\services\interfaces\base\IToggle;
 
@@ -19,7 +21,7 @@ use cmsgears\notify\common\services\interfaces\base\IToggle;
  *
  * @since 1.0.0
  */
-interface IEventReminderService extends IModelResourceService, INotify, IToggle {
+interface IEventReminderService extends IModelResourceService, IMultiSite, INotify, IToggle {
 
 	// Data Provider ------
 
@@ -44,10 +46,6 @@ interface IEventReminderService extends IModelResourceService, INotify, IToggle 
 	public function deleteByUserId( $userId, $config = [] );
 
 	// Bulk ---------------
-
-	public function applyBulkByUserId( $column, $action, $target, $userId );
-
-	public function applyBulkByAdmin( $column, $action, $target );
 
 	// Notifications ------
 

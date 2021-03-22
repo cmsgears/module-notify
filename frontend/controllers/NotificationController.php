@@ -12,16 +12,14 @@ namespace cmsgears\notify\frontend\controllers;
 // Yii Imports
 use Yii;
 use yii\filters\VerbFilter;
-
-// CMG Imports
-use cmsgears\notify\frontend\controllers\base\Controller;
+use yii\helpers\Url;
 
 /**
- * NotificationController provides actions specific to user notifications.
+ * NotificationController provides actions specific to notifications.
  *
  * @since 1.0.0
  */
-class NotificationController extends Controller {
+class NotificationController extends \cmsgears\notify\frontend\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -45,6 +43,10 @@ class NotificationController extends Controller {
 
 		// Services
 		$this->modelService	= Yii::$app->factory->get( 'notificationService' );
+
+		// Return Url
+		$this->returnUrl = Url::previous( 'notifications' );
+		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/notification/all' ], true );
 	}
 
 	// Instance methods --------------------------------------------
@@ -85,17 +87,48 @@ class NotificationController extends Controller {
 
 	public function actionIndex() {
 
-		return $this->redirect( [ 'all' ] );
+		return $this->redirect( [ 'all?status=inbox' ] );
 	}
 
-	public function actionAll() {
+	public function actionAll( $status ) {
 
-		$user = Yii::$app->user->getIdentity();
+		Url::remember( Yii::$app->request->getUrl(), 'notifications' );
 
-		$dataProvider = $this->modelService->getPageByUserId( $user->id );
+		$user = Yii::$app->core->getUser();
+
+		$dataProvider = null;
+
+		switch( $status ) {
+
+			case 'inbox': {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'inbox' ] );
+
+				break;
+			}
+			case 'new': {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'new' ] );
+
+				break;
+			}
+			case 'read': {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'read' ] );
+
+				break;
+			}
+			case 'trash': {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'trash' ] );
+
+				break;
+			}
+		}
 
 		return $this->render( 'all', [
-			'dataProvider' => $dataProvider
+			'dataProvider' => $dataProvider,
+			'status' => $status
 		]);
 	}
 

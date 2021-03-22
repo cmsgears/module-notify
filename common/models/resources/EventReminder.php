@@ -14,19 +14,25 @@ use Yii;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+
 use cmsgears\notify\common\config\NotifyGlobal;
 
+use cmsgears\core\common\models\interfaces\base\IMultiSite;
 use cmsgears\core\common\models\interfaces\base\IOwner;
 use cmsgears\core\common\models\interfaces\resources\IData;
+
 use cmsgears\notify\common\models\interfaces\base\IToggle;
 
 use cmsgears\core\common\models\base\ModelResource;
 use cmsgears\core\common\models\entities\User;
+
 use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\notify\common\models\resources\Event;
 
-use cmsgears\core\common\models\traits\base\UserOwnerTrait;
+use cmsgears\core\common\models\traits\base\MultiSiteTrait;
+use cmsgears\core\common\models\traits\base\OwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
+
 use cmsgears\notify\common\models\traits\base\ToggleTrait;
 
 /**
@@ -52,7 +58,7 @@ use cmsgears\notify\common\models\traits\base\ToggleTrait;
  * @property boolean $gridCacheValid
  * @property datetime $gridCachedAt
  */
-class EventReminder extends ModelResource implements IData, IOwner, IToggle {
+class EventReminder extends ModelResource implements IData, IMultiSite, IOwner, IToggle {
 
 	// Variables ---------------------------------------------------
 
@@ -77,8 +83,9 @@ class EventReminder extends ModelResource implements IData, IOwner, IToggle {
 	// Traits ------------------------------------------------------
 
 	use DataTrait;
+	use MultiSiteTrait;
+	use OwnerTrait;
 	use ToggleTrait;
-	use UserOwnerTrait;
 
 	// Constructor and Initialisation ------------------------------
 
@@ -100,8 +107,8 @@ class EventReminder extends ModelResource implements IData, IOwner, IToggle {
 		// Model Rules
 		$rules = [
 			// Required, Safe
-			[ [ 'siteId', 'eventId', 'scheduledAt' ], 'required' ],
-			[ [ 'id', 'content', 'data', 'gridCache' ], 'safe' ],
+			[ [ 'eventId', 'title', 'scheduledAt' ], 'required' ],
+			[ [ 'id', 'content' ], 'safe' ],
 			// Text Limit
 			[ 'parentType', 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxLargeText ],
@@ -109,7 +116,7 @@ class EventReminder extends ModelResource implements IData, IOwner, IToggle {
 			[ 'description', 'string', 'min' => 1, 'max' => Yii::$app->core->xtraLargeText ],
 			// Other
 			[ [ 'admin', 'consumed', 'trash', 'gridCacheValid' ], 'boolean' ],
-			[ [ 'eventId', 'userId', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
+			[ [ 'siteId', 'eventId', 'userId', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ 'scheduledAt', 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
 
@@ -134,6 +141,24 @@ class EventReminder extends ModelResource implements IData, IOwner, IToggle {
 			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA ),
 			'gridCache' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_GRID_CACHE )
 		];
+	}
+
+	// yii\db\BaseActiveRecord
+
+    /**
+     * @inheritdoc
+     */
+	public function beforeSave( $insert ) {
+
+	    if( parent::beforeSave( $insert ) ) {
+
+			// Default Type - Default
+			$this->type = $this->type ?? CoreGlobal::TYPE_DEFAULT;
+
+	        return true;
+	    }
+
+		return false;
 	}
 
 	// CMG parent classes --------------------
@@ -187,8 +212,9 @@ class EventReminder extends ModelResource implements IData, IOwner, IToggle {
 	 */
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'event', 'user' ];
-		$config[ 'relations' ]	= $relations;
+		$relations = isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'event', 'user' ];
+
+		$config[ 'relations' ] = $relations;
 
 		return parent::queryWithAll( $config );
 	}
@@ -259,4 +285,5 @@ class EventReminder extends ModelResource implements IData, IOwner, IToggle {
 
 		return self::deleteAll( 'userId=:id', [ ':id' => $userId ] );
 	}
+
 }

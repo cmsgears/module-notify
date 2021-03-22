@@ -22,6 +22,10 @@ interface IToggle {
 
 	public function markConsumed( $model );
 
+	public function toggleTrash( $model );
+
+	public function unTrash( $model );
+
 	public function markTrash( $model );
 
 }

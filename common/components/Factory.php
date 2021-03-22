@@ -12,15 +12,12 @@ namespace cmsgears\notify\common\components;
 // Yii Imports
 use Yii;
 
-// CMG Imports
-use cmsgears\core\common\base\Component;
-
 /**
  * The Notify Factory component initialise the services available in Notify Module.
  *
  * @since 1.0.0
  */
-class Factory extends Component {
+class Factory extends \cmsgears\core\common\base\Component {
 
 	// Global -----------------
 
@@ -95,7 +92,7 @@ class Factory extends Component {
 
 		$factory = Yii::$app->factory->getContainer();
 
-		$factory->set( 'eventService', 'cmsgears\notify\common\services\resources\EventService' );
+		$factory->set( 'calendarEventService', 'cmsgears\notify\common\services\resources\EventService' );
 		$factory->set( 'reminderService', 'cmsgears\notify\common\services\resources\EventReminderService' );
 
 		$factory->set( 'activityService', 'cmsgears\notify\common\services\resources\ActivityService' );

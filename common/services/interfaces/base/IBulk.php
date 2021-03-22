@@ -16,10 +16,6 @@ namespace cmsgears\notify\common\services\interfaces\base;
  */
 interface IBulk {
 
-	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType );
-
-	public function applyBulkByUserId( $column, $action, $target, $userId );
-
 	public function applyBulkByAdmin( $column, $action, $target );
 
 }

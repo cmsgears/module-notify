@@ -15,8 +15,6 @@ use Yii;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\core\common\base\Action;
-
 use cmsgears\core\common\utilities\AjaxUtil;
 
 /**
@@ -24,7 +22,7 @@ use cmsgears\core\common\utilities\AjaxUtil;
  *
  * @since 1.0.0
  */
-abstract class ToggleTrash extends Action {
+abstract class ToggleTrash extends \cmsgears\core\common\base\Action {
 
 	// Variables ---------------------------------------------------
 
@@ -34,8 +32,8 @@ abstract class ToggleTrash extends Action {
 
 	// Public -----------------
 
-	public $user	= true;
 	public $admin	= false;
+	public $user	= false;
 
 	public $parentType;
 
@@ -85,26 +83,28 @@ abstract class ToggleTrash extends Action {
 					$model = $this->notifyService->toggleTrash( $model );
 				}
 
-				$new = $this->notifyService->getCountByParent( $this->parentId, $this->parentType, false, false );
+				$config[ 'admin' ] = $this->admin;
+
+				$new = $this->notifyService->getNotifyCountByParent( $this->parentId, $this->parentType, $config );
 			}
 			// Toggle for admin
 			else if( $this->admin ) {
 
 				$model = $this->notifyService->toggleTrash( $model );
 
-				$new = $this->notifyService->getCount( false, $this->admin );
+				$new = $this->notifyService->getNotifyCount();
 			}
 			// Toggle for user
 			else if( $this->user ) {
 
-				$user = Yii::$app->user->getIdentity();
+				$user = Yii::$app->core->getUser();
 
 				if( $model->userId == $user->id ) {
 
 					$model = $this->notifyService->toggleTrash( $model );
 				}
 
-				$new = $this->notifyService->getUserCount( $user->id, false, false );
+				$new = $this->notifyService->getNotifyCountByUserId( $user->id );
 			}
 
 			$data = [ 'unread' => $new, 'trash' => $model->isTrash() ];

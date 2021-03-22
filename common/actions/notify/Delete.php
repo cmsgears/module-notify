@@ -15,16 +15,14 @@ use Yii;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\core\common\base\Action;
-
 use cmsgears\core\common\utilities\AjaxUtil;
 
 /**
- * Delete process delete action.
+ * Delete action deletes the model.
  *
  * @since 1.0.0
  */
-abstract class Delete extends Action {
+abstract class Delete extends \cmsgears\core\common\base\Action {
 
 	// Variables ---------------------------------------------------
 
@@ -34,8 +32,8 @@ abstract class Delete extends Action {
 
 	// Public -----------------
 
-	public $user	= true;
 	public $admin	= false;
+	public $user	= false;
 
 	public $parentType;
 
@@ -85,26 +83,28 @@ abstract class Delete extends Action {
 					$this->notifyService->delete( $model );
 				}
 
-				$new = $this->notifyService->getCountByParent( $this->parentId, $this->parentType, false, false );
+				$config[ 'admin' ] = $this->admin;
+
+				$new = $this->notifyService->getNotifyCountByParent( $this->parentId, $this->parentType, $config );
 			}
 			// Delete for admin
 			else if( $this->admin ) {
 
 				$this->notifyService->delete( $model );
 
-				$new = $this->notifyService->getCount( false, true );
+				$new = $this->notifyService->getNotifyCount();
 			}
 			// Delete for User
 			else if( $this->user ) {
 
-				$user = Yii::$app->user->getIdentity();
+				$user = Yii::$app->core->getUser();
 
 				if( $model->userId == $user->id ) {
 
 					$this->notifyService->delete( $model );
 				}
 
-				$new = $this->notifyService->getUserCount( $user->id, false, false );
+				$new = $this->notifyService->getNotifyCountByUserId( $user->id );
 			}
 
 			$data = [ 'unread' => $new ];

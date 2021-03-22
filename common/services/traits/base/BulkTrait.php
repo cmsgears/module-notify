@@ -16,32 +16,6 @@ namespace cmsgears\notify\common\services\traits\base;
  */
 trait BulkTrait {
 
-	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType ) {
-
-		foreach( $target as $id ) {
-
-			$model = $this->getById( $id );
-
-			if( isset( $model ) && $model->parentId == $parentId && $model->parentType == $parentType ) {
-
-				$this->applyBulk( $model, $column, $action, $target );
-			}
-		}
-	}
-
-	public function applyBulkByUserId( $column, $action, $target, $userId ) {
-
-		foreach( $target as $id ) {
-
-			$model = $this->getById( $id );
-
-			if( isset( $model ) && $model->userId == $userId ) {
-
-				$this->applyBulk( $model, $column, $action, $target );
-			}
-		}
-	}
-
 	public function applyBulkByAdmin( $column, $action, $target ) {
 
 		foreach( $target as $id ) {

@@ -12,16 +12,14 @@ namespace cmsgears\notify\frontend\controllers;
 // Yii Imports
 use Yii;
 use yii\filters\VerbFilter;
-
-// CMG Imports
-use cmsgears\notify\frontend\controllers\base\Controller;
+use yii\helpers\Url;
 
 /**
- * ReminderController provides actions specific to user reminders.
+ * ReminderController provides actions specific to reminders.
  *
  * @since 1.0.0
  */
-class ReminderController extends Controller {
+class ReminderController extends \cmsgears\notify\frontend\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -40,10 +38,15 @@ class ReminderController extends Controller {
 		parent::init();
 
 		// Config
-		$this->layout = Yii::$app->notify->customLayout[ 'reminder' ] ?? $this->layout;
+		$this->layout	= Yii::$app->notify->customLayout[ 'reminder' ] ?? $this->layout;
+		$this->apixBase	= 'notify/reminder';
 
 		// Services
 		$this->modelService	= Yii::$app->factory->get( 'reminderService' );
+
+		// Return Url
+		$this->returnUrl = Url::previous( 'reminders' );
+		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/reminder/all' ], true );
 	}
 
 	// Instance methods --------------------------------------------
@@ -60,15 +63,15 @@ class ReminderController extends Controller {
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'index'	 => [ 'permission' => $this->crudPermission ],
-					'all'  => [ 'permission' => $this->crudPermission ]
+					'index' => [ 'permission' => $this->crudPermission ],
+					'all' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
 				'class' => VerbFilter::class,
 				'actions' => [
 					'index' => [ 'get', 'post' ],
-					'all'  => [ 'get' ]
+					'all' => [ 'get' ]
 				]
 			]
 		];
@@ -87,14 +90,45 @@ class ReminderController extends Controller {
 		return $this->redirect( [ 'all' ] );
 	}
 
-	public function actionAll() {
+	public function actionAll( $status ) {
 
-		$user = Yii::$app->user->getIdentity();
+		Url::remember( Yii::$app->request->getUrl(), 'reminders' );
 
-		$dataProvider = $this->modelService->getPageByUserId( $user->id );
+		$user = Yii::$app->core->getUser();
+
+		$dataProvider = null;
+
+		switch( $status ) {
+
+			case 'inbox': {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'inbox' ] );
+
+				break;
+			}
+			case 'new': {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'new' ] );
+
+				break;
+			}
+			case 'read': {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'read' ] );
+
+				break;
+			}
+			case 'trash': {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'trash' ] );
+
+				break;
+			}
+		}
 
 		return $this->render( 'all', [
-			'dataProvider' => $dataProvider
+			'dataProvider' => $dataProvider,
+			'status' => $status
 		]);
 	}
 

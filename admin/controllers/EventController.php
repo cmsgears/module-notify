@@ -16,20 +16,21 @@ use yii\helpers\Url;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\resources\File;
 
-use cmsgears\core\admin\controllers\base\Controller as BaseController;
-
 use cmsgears\core\common\utilities\DateUtil;
 
+use cmsgears\core\common\behaviors\ActivityBehavior;
+
 /**
- * EventController provide actions specific to Event model.
+ * EventController provide actions specific to admin events.
  *
  * @since 1.0.0
  */
-class EventController extends BaseController {
+class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -58,7 +59,7 @@ class EventController extends BaseController {
 		$this->apixBase = 'notify/event';
 
 		// Services
-		$this->modelService		= Yii::$app->factory->get( 'eventService' );
+		$this->modelService		= Yii::$app->factory->get( 'calendarEventService' );
 		$this->templateService	= Yii::$app->factory->get( 'templateService' );
 
 		// Sidebar
@@ -76,7 +77,11 @@ class EventController extends BaseController {
 			'all' => [ [ 'label' => 'Events' ] ],
 			'create' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Add' ] ],
 			'update' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Update' ] ],
-			'delete' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Delete' ] ]
+			'delete' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Delete' ] ],
+			'data' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Data' ] ],
+			'attributes' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Attributes' ] ],
+			'config' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Config' ] ],
+			'settings' => [ [ 'label' => 'Events', 'url' => $this->returnUrl ], [ 'label' => 'Settings' ] ]
 		];
 	}
 
@@ -98,23 +103,50 @@ class EventController extends BaseController {
 					'all'  => [ 'permission' => $this->crudPermission ],
 					'create'  => [ 'permission' => $this->crudPermission ],
 					'update'  => [ 'permission' => $this->crudPermission ],
-					'delete'  => [ 'permission' => $this->crudPermission ]
+					'delete'  => [ 'permission' => $this->crudPermission ],
+					'data' => [ 'permission' => $this->crudPermission ],
+					'attributes' => [ 'permission' => $this->crudPermission ],
+					'config' => [ 'permission' => $this->crudPermission ],
+					'settings' => [ 'permission' => $this->crudPermission ]
 				]
 			],
 			'verbs' => [
 				'class' => VerbFilter::class,
 				'actions' => [
 					'index' => [ 'get', 'post' ],
-					'all'  => [ 'get' ],
-					'create'  => [ 'get', 'post' ],
-					'update'  => [ 'get', 'post' ],
-					'delete'  => [ 'get', 'post' ]
+					'all' => [ 'get' ],
+					'create' => [ 'get', 'post' ],
+					'update' => [ 'get', 'post' ],
+					'delete' => [ 'get', 'post' ],
+					'data' => [ 'get', 'post' ],
+					'attributes' => [ 'get', 'post' ],
+					'config' => [ 'get', 'post' ],
+					'settings' => [ 'get', 'post' ]
 				]
+			],
+			'activity' => [
+				'class' => ActivityBehavior::class,
+				'admin' => true,
+				'create' => [ 'create' ],
+				'update' => [ 'update' ],
+				'delete' => [ 'delete' ]
 			]
 		];
 	}
 
 	// yii\base\Controller ----
+
+	public function actions() {
+
+		$actions = parent::actions();
+
+		$actions[ 'data' ] = [ 'class' => 'cmsgears\core\common\actions\data\data\Form' ];
+		$actions[ 'attributes' ] = [ 'class' => 'cmsgears\core\common\actions\data\attributes\Form' ];
+		$actions[ 'config' ] = [ 'class' => 'cmsgears\core\common\actions\data\config\Form' ];
+		$actions[ 'settings' ] = [ 'class' => 'cmsgears\core\common\actions\data\setting\Form' ];
+
+		return $actions;
+	}
 
 	// CMG interfaces ------------------------
 
@@ -137,7 +169,8 @@ class EventController extends BaseController {
 
 		return $this->render( 'all', [
 			'dataProvider' => $dataProvider,
-			'statusMap' => $modelClass::$statusMap
+			'statusMap' => $modelClass::$statusMap,
+			'filterStatusMap' => $modelClass::$filterStatusMap
 		]);
 	}
 
@@ -153,13 +186,21 @@ class EventController extends BaseController {
 
 		$model->siteId	= Yii::$app->core->siteId;
 		$model->admin	= true;
-		$model->type	= $modelClass::TYPE_DEFAULT;
+		$model->type	= CoreGlobal::TYPE_ADMIN;
+
+		$model->preIntervalUnit		= DateUtil::DURATION_HOUR;
+		$model->postIntervalUnit	= DateUtil::DURATION_HOUR;
 
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
-			$this->model = $this->modelService->add( $model, [ 'admin' => true, 'avatar' => $avatar, 'banner' => $banner, 'video' => $video ] );
+			$this->model = $this->modelService->add( $model, [
+				'admin' => true, 'avatar' => $avatar, 'banner' => $banner, 'video' => $video
+			]);
 
-			return $this->redirect( 'all' );
+			if( $this->model ) {
+
+				return $this->redirect( 'all' );
+			}
 		}
 
 		$templatesMap = $this->templateService->getIdNameMapByType( NotifyGlobal::TYPE_EVENT, [ 'default' => true ] );
@@ -191,7 +232,9 @@ class EventController extends BaseController {
 
 			if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
-				$this->model = $this->modelService->update( $model, [ 'admin' => true, 'avatar' => $avatar, 'banner' => $banner, 'video' => $video ] );
+				$this->model = $this->modelService->update( $model, [
+					'admin' => true, 'avatar' => $avatar, 'banner' => $banner, 'video' => $video
+				]);
 
 				return $this->redirect( $this->returnUrl );
 			}

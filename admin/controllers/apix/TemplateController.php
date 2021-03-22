@@ -12,14 +12,12 @@ namespace cmsgears\notify\admin\controllers\apix;
 // CMG Imports
 use cmsgears\notify\common\config\NotifyGlobal;
 
-use cmsgears\core\admin\controllers\apix\TemplateController as BaseTemplateController;
-
 /**
  * TemplateController provides actions specific to notify templates.
  *
  * @since 1.0.0
  */
-class TemplateController extends BaseTemplateController {
+class TemplateController extends \cmsgears\core\admin\controllers\apix\base\TemplateController {
 
 	// Variables ---------------------------------------------------
 

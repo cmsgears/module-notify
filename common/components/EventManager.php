@@ -14,9 +14,8 @@ use Yii;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+use cmsgears\core\common\config\CoreProperties;
 use cmsgears\notify\common\config\NotifyGlobal;
-
-use cmsgears\core\common\components\EventManager as BaseEventManager;
 
 use cmsgears\core\common\utilities\DateUtil;
 
@@ -25,7 +24,7 @@ use cmsgears\core\common\utilities\DateUtil;
  *
  * @since 1.0.0
  */
-class EventManager extends BaseEventManager {
+class EventManager extends \cmsgears\core\common\components\EventManager {
 
 	// Variables ---------------------------------------------------
 
@@ -53,8 +52,8 @@ class EventManager extends BaseEventManager {
 
 		parent::init();
 
-		$this->userService			= Yii::$app->factory->get( 'userService' );
-		$this->templateService		= Yii::$app->factory->get( 'templateService' );
+		$this->userService		= Yii::$app->factory->get( 'userService' );
+		$this->templateService	= Yii::$app->factory->get( 'templateService' );
 
 		$this->notificationService	= Yii::$app->factory->get( 'notificationService' );
 		$this->reminderService		= Yii::$app->factory->get( 'reminderService' );
@@ -75,107 +74,151 @@ class EventManager extends BaseEventManager {
 	/**
 	 * @inheritdoc
 	 */
-	public function getAdminStats() {
-
-		// Query
-		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
-		$newNotifications	= $this->notificationService->getCount( false, true );
-
-		$reminders		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
-		$newReminders	= $this->reminderService->getCount( false, true );
-
-		$activities		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => true ] ] );
-		$newActivities	= $this->activityService->getCount( false, true );
+	public function getAdminStats( $type = null ) {
 
 		// Results
-		$stats	= parent::getAdminStats();
+		$stats = parent::getAdminStats( $type );
 
-		$stats[ 'notifications' ]		= $notifications;
-		$stats[ 'notificationCount' ]	= $newNotifications;
+		if( empty( $type ) || $type == 'notification' ) {
 
-		$stats[ 'reminders' ]		= $reminders;
-		$stats[ 'reminderCount' ]	= $newReminders;
+			$stats[ 'notifications' ]		= $this->notificationService->getNotifyRecent( 5 );
+			$stats[ 'notificationCount' ]	= $this->notificationService->getNotifyCount();
+		}
 
-		$stats[ 'activities' ]		= $activities;
-		$stats[ 'activityCount' ]	= $newActivities;
+		if( empty( $type ) || $type == 'reminder' ) {
 
-		return $stats;
+			$stats[ 'reminders' ]		= $this->reminderService->getNotifyRecent( 5 );
+			$stats[ 'reminderCount' ]	= $this->reminderService->getNotifyCount();
+		}
+
+		if( empty( $type ) || $type == 'activity' ) {
+
+			$stats[ 'activities' ]		= $this->activityService->getNotifyRecent( 5 );
+			$stats[ 'activityCount' ]	= $this->activityService->getNotifyCount();
+		}
+
+		if( empty( $type ) || $type == 'announcement' ) {
+
+			$stats[ 'announcements' ]		= $this->announcementService->getRecentForAdmin( 5 );
+			$stats[ 'announcementCount' ]	= count( $stats[ 'announcements' ] );
+		}
+
+		return $this->generateModelData( $stats );
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function getUserStats() {
+	public function getUserStats( $type = null ) {
 
-		$user = Yii::$app->user->getIdentity();
+		$user = Yii::$app->core->getUser();
 		$site = Yii::$app->core->site;
 
-		// User Notifications
-		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
-		$newNotifications	= $this->notificationService->getUserCount( $user->id, false, false );
-
-		// User Reminders
-		$reminders		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
-		$newReminders	= $this->reminderService->getUserCount( $user->id, false, false );
-
-		// User Activities
-		$activities		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'userId' => $user->id ] ] );
-		$newActivities	= $this->activityService->getCount( false, true );
-
-		// Site Announcements
-		$announcements	= $this->announcementService->getRecentByParent( $site->id, CoreGlobal::TYPE_SITE );
-
 		// Results
-		$stats	= parent::getUserStats();
+		$stats = parent::getUserStats( $type );
 
-		$stats[ 'notifications' ]		= $notifications;
-		$stats[ 'notificationCount' ]	= $newNotifications;
+		if( empty( $type ) || $type == 'notification' ) {
 
-		$stats[ 'reminders' ]		= $reminders;
-		$stats[ 'reminderCount' ]	= $newReminders;
+			$stats[ 'notifications' ]		= $this->notificationService->getNotifyRecentByUserId( $user->id, 5 );
+			$stats[ 'notificationCount' ]	= $this->notificationService->getNotifyCountByUserId( $user->id );
+		}
 
-		$stats[ 'activities' ]		= $activities;
-		$stats[ 'activityCount' ]	= $newActivities;
+		if( empty( $type ) || $type == 'reminder' ) {
 
-		$stats[ 'announcements' ] = $announcements;
+			$stats[ 'reminders' ]		= $this->reminderService->getNotifyRecentByUserId( $user->id, 5 );
+			$stats[ 'reminderCount' ]	= $this->reminderService->getNotifyCountByUserId( $user->id );
+		}
 
-		return $stats;
+		// Show only default activities
+		if( empty( $type ) || $type == 'activity' ) {
+
+			$stats[ 'activities' ]		= $this->activityService->getNotifyRecentByUserId( $user->id, 5 );
+			$stats[ 'activityCount' ]	= $this->activityService->getNotifyCountByUserId( $user->id );
+		}
+
+		if( empty( $type ) || $type == 'announcement' ) {
+
+			$stats[ 'announcements' ]		= $this->announcementService->getRecentForSite( 5 );
+			$stats[ 'announcementCount' ]	= count( $stats[ 'announcements' ] );
+		}
+
+		return $this->generateModelData( $stats );
 	}
 
-	public function getModelStats( $parentId, $parentType ) {
-
-		$site = Yii::$app->core->site;
-
-		// Model Notifications
-		$notifications		= $this->notificationService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
-		$newNotifications	= $this->notificationService->getCountByParent( $parentId, $parentType, false, false );
-
-		// Model Reminders
-		$reminders		= $this->reminderService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
-		$newReminders	= $this->reminderService->getCountByParent( $parentId, $parentType, false, false );
-
-		// Model Activities
-		$activities		= $this->activityService->getRecent( 5, [ 'conditions' => [ 'admin' => false, 'parentId' => $parentId, 'parentType' => $parentType ] ] );
-		$newActivities	= $this->activityService->getCountByParent( $parentId, $parentType, false, false );
-
-		// Site Announcements
-		$announcements	= $this->announcementService->getRecentByParent( $site->id, CoreGlobal::TYPE_SITE );
+	public function getModelStats( $parentId, $parentType, $type = null ) {
 
 		// Results
-		$stats	= parent::getModelStats( $parentId, $parentType );
+		$stats = parent::getModelStats( $parentId, $parentType, $type );
 
-		$stats[ 'notifications' ]		= $notifications;
-		$stats[ 'notificationCount' ]	= $newNotifications;
+		if( empty( $type ) || $type == 'notification' ) {
 
-		$stats[ 'reminders' ]		= $reminders;
-		$stats[ 'reminderCount' ]	= $newReminders;
+			$stats[ 'notifications' ]		= $this->notificationService->getNotifyRecentByParent( $parentId, $parentType, 5 );
+			$stats[ 'notificationCount' ]	= $this->notificationService->getNotifyCountByParent( $parentId, $parentType );
+		}
 
-		$stats[ 'activities' ]		= $activities;
-		$stats[ 'activityCount' ]	= $newActivities;
+		if( empty( $type ) || $type == 'reminder' ) {
 
-		$stats[ 'announcements' ] = $announcements;
+			$stats[ 'reminders' ]		= $this->reminderService->getNotifyRecentByParent( $parentId, $parentType, 5 );
+			$stats[ 'reminderCount' ]	= $this->reminderService->getNotifyCountByParent( $parentId, $parentType );
+		}
 
-		return $stats;
+		// Show only default activities
+		if( empty( $type ) || $type == 'activity' ) {
+
+			$stats[ 'activities' ]		= $this->activityService->getNotifyRecentByParent( $parentId, $parentType, 5 );
+			$stats[ 'activityCount' ]	= $this->activityService->getNotifyCountByParent( $parentId, $parentType );
+		}
+
+		if( empty( $type ) || $type == 'announcement' ) {
+
+			$stats[ 'announcements' ]		= $this->announcementService->getRecentByParent( $parentId, $parentType, 5 );
+			$stats[ 'announcementCount' ]	= count( $stats[ 'announcements' ] );
+		}
+
+		return $this->generateModelData( $stats );
+	}
+
+	public function getMostRecentAnnouncement() {
+
+		$announcements = Yii::$app->core->getSessionParam( 'announcements' );
+
+		if( empty( $announcements ) ) {
+
+			$recentAnnouncements = $this->announcementService->getRecentForSite( 1 );
+
+			if( $recentAnnouncements && count( $recentAnnouncements ) > 0 ) {
+
+				$recentAnnouncement = $recentAnnouncements[ 0 ];
+
+				$announcements = [ $recentAnnouncement->id ];
+
+				$announcements = json_encode( $announcements );
+
+				Yii::$app->core->setSessionParam( 'announcements', $announcements );
+
+				return $recentAnnouncement;
+			}
+		}
+		else {
+
+			$announcements = json_decode( $announcements );
+
+			$recentAnnouncements = $this->announcementService->getRecentForSite( 10 );
+
+			foreach( $recentAnnouncements as $recentAnnouncement ) {
+
+				if( !in_array( $recentAnnouncement->id, $announcements ) ) {
+
+					$announcements[] = $recentAnnouncement->id;
+
+					$announcements = json_encode( $announcements );
+
+					Yii::$app->core->setSessionParam( 'announcements', $announcements );
+
+					return $recentAnnouncement;
+				}
+			}
+		}
 	}
 
 	// Notification Trigger ---
@@ -202,6 +245,12 @@ class EventManager extends BaseEventManager {
 	 */
 	public function triggerNotification( $slug, $data, $config = [] ) {
 
+		$admin	= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+		$users	= isset( $config[ 'users' ] ) ? $config[ 'users' ] : [];
+		$direct	= isset( $config[ 'direct' ] ) ? $config[ 'direct' ] : false;
+
+		$coreProperties = CoreProperties::getInstance();
+
 		// Return in case notifications are disabled at system level.
 		if( !Yii::$app->core->isNotifications() ) {
 
@@ -210,6 +259,7 @@ class EventManager extends BaseEventManager {
 
 		// Generate Message
 
+		// Site Template
 		$template = $this->templateService->getBySlugType( $slug, NotifyGlobal::TYPE_NOTIFICATION );
 
 		// Do nothing if template not found or disabled
@@ -217,8 +267,6 @@ class EventManager extends BaseEventManager {
 
 			return;
 		}
-
-		$message = Yii::$app->templateManager->renderMessage( $template, $data, $config );
 
 		// Trigger Notification
 
@@ -228,7 +276,6 @@ class EventManager extends BaseEventManager {
 
 		$notification->consumed	= false;
 		$notification->trash	= false;
-		$notification->content	= $message;
 
 		$notification->type = $config[ 'type' ] ?? CoreGlobal::TYPE_DEFAULT;
 
@@ -247,29 +294,49 @@ class EventManager extends BaseEventManager {
 			$notification->parentType = $config[ 'parentType' ];
 		}
 
-		if( isset( $config[ 'link' ] ) ) {
+		if( !empty( $template->message ) ) {
 
-			$notification->link = $config[ 'link' ];
+			$notification->title = Yii::$app->templateManager->renderTitle( $template, $data, $config );
 		}
 
-		if( isset( $config[ 'title' ] ) ) {
+		if( empty( $notification->title ) ) {
 
-			$notification->title = $config[ 'title' ];
-		}
-		else {
+			if( isset( $config[ 'title' ] ) ) {
 
-			$notification->title = $template->name;
+				$notification->title = $config[ 'title' ];
+			}
+			else {
+
+				$notification->title = $template->name;
+			}
 		}
+
+		$nconfig = $config;
+
+		unset( $nconfig[ 'link' ] ); // remove frontend link from notification content
+		unset( $nconfig[ 'adminLink' ] ); // remove admin link from notification content
+
+		$message = Yii::$app->templateManager->renderMessage( $template, $data, $nconfig );
+
+		$notification->content = $message;
 
 		// Trigger for Admin
-		if( $templateConfig->admin && $config[ 'admin' ] ) {
+		if( $templateConfig->admin && $admin ) {
 
 			$notification->admin = true;
 
 			if( isset( $config[ 'adminLink' ] ) ) {
 
 				$notification->adminLink = $config[ 'adminLink' ];
+
+				$config[ 'adminLink' ] = $coreProperties->getAdminUrl() . '/' . $config[ 'adminLink' ];
 			}
+
+			$nconfig = $config;
+
+			unset( $nconfig[ 'link' ] ); // remove frontend link from admin notification email
+
+			$message = Yii::$app->templateManager->renderMessage( $template, $data, $nconfig );
 
 			// Create Notification
 			$this->notificationService->create( $notification, $config );
@@ -281,12 +348,25 @@ class EventManager extends BaseEventManager {
 			}
 		}
 
-		// Trigger for Users
-		if( $templateConfig->user && count( $config[ 'users' ] ) > 0 ) {
+		if( isset( $config[ 'link' ] ) ) {
 
-			$users = $config[ 'users' ];
+			$notification->link = $config[ 'link' ];
+
+			$config[ 'link' ] = $coreProperties->getSiteUrl() . '/' . $config[ 'link' ];
+		}
+
+		$nconfig = $config;
+
+		unset( $nconfig[ 'adminLink' ] ); // remove admin link from frontend notification email
+
+		$message = Yii::$app->templateManager->renderMessage( $template, $data, $nconfig );
+
+		// Trigger for Users
+		if( $templateConfig->user && count( $users ) > 0 ) {
 
 			foreach( $users as $userId ) {
+
+				$user = $this->userService->getById( $userId );
 
 				$userNotification = $this->notificationService->getModelObject();
 
@@ -298,16 +378,21 @@ class EventManager extends BaseEventManager {
 				// Create Notification
 				$this->notificationService->create( $userNotification, $config );
 
-				if( $templateConfig->userEmail ) {
+				// Notification Setting
+				$notifyEmailMeta = Yii::$app->factory->get( 'userMetaService' )->getByNameType( $userId, CoreGlobal::META_RECEIVE_EMAIL, CoreGlobal::SETTINGS_NOTIFICATION );
+
+				if( $templateConfig->userEmail && !empty( $user->email ) && ( empty( $notifyEmailMeta ) || $notifyEmailMeta->value ) ) {
 
 					// Trigger Mail
-					Yii::$app->notifyMailer->sendUserMail( $message, $this->userService->getById( $userId ), $template, $data );
+					Yii::$app->notifyMailer->sendUserMail( $message, $user, $template, $data );
 				}
 			}
 		}
 
 		// Trigger for Model
-		if( $templateConfig->directEmail && $config[ 'direct' ] ) {
+		if( $templateConfig->direct && $direct ) {
+
+			$nconfig = $config;
 
 			$modelNotification = $this->notificationService->getModelObject();
 
@@ -319,12 +404,13 @@ class EventManager extends BaseEventManager {
 			// Detect Email
 			$model		= $data[ 'model' ];
 			$service	= $data[ 'service' ];
-			$email		= method_exists( $service, 'getEmail' ) ? $service->getEmail : ( isset( $model->email ) ? $model->email : null );
+			$email		= isset( $config[ 'email' ] ) ? $config[ 'email' ] : null;
+			$email		= isset( $email ) ? $email : ( method_exists( $service, 'getEmail' ) ? $service->getEmail( $model ) : ( isset( $model->email ) ? $model->email : null ) );
 
-			if( isset( $email ) ) {
+			if( $templateConfig->directEmail && !empty( $email ) ) {
 
 				// Trigger Mail
-				Yii::$app->notifyMailer->sendDirectMail( $message, $config[ 'email' ], $template, $data );
+				Yii::$app->notifyMailer->sendDirectMail( $message, $email, $template, $data );
 			}
 		}
 
@@ -357,7 +443,7 @@ class EventManager extends BaseEventManager {
 
 		$title	= isset( $model->name ) ? $model->getClassName() . ' | ' . $model->name : $model->getClassName();
 		$title	= "Create - $title";
-		$slug	= isset( $config[ 'slug' ] ) ? $config[ 'slug' ] : NotifyGlobal::TEMPLATE_LOG_CREATE;
+		$slug	= isset( $config[ 'slug' ] ) ? $config[ 'slug' ] : NotifyGlobal::TPL_LOG_CREATE;
 
 		$this->logActivity( $model, $service, $slug, $title, $config );
 	}
@@ -369,7 +455,7 @@ class EventManager extends BaseEventManager {
 
 		$title	= isset( $model->name ) ? $model->getClassName() . ' | ' . $model->name : $model->getClassName();
 		$title	= "Update - $title";
-		$slug	= isset( $config[ 'slug' ] ) ? $config[ 'slug' ] : NotifyGlobal::TEMPLATE_LOG_UPDATE;
+		$slug	= isset( $config[ 'slug' ] ) ? $config[ 'slug' ] : NotifyGlobal::TPL_LOG_UPDATE;
 
 		$this->logActivity( $model, $service, $slug, $title, $config );
 	}
@@ -381,7 +467,7 @@ class EventManager extends BaseEventManager {
 
 		$title	= isset( $model->name ) ? $model->getClassName() . ' | ' . $model->name : $model->getClassName();
 		$title	= "Delete - $title";
-		$slug	= isset( $config[ 'slug' ] ) ? $config[ 'slug' ] : NotifyGlobal::TEMPLATE_LOG_DELETE;
+		$slug	= isset( $config[ 'slug' ] ) ? $config[ 'slug' ] : NotifyGlobal::TPL_LOG_DELETE;
 
 		$this->logActivity( $model, $service, $slug, $title, $config );
 	}
@@ -389,16 +475,16 @@ class EventManager extends BaseEventManager {
 	// Activity
 	private function logActivity( $model, $service, $slug, $title, $config = [] ) {
 
-		$user =	Yii::$app->user->getIdentity();
+		$user =	Yii::$app->core->getUser();
 
-		$config['parentId'] = $model->id;
-		$config['parentType'] = $service->getParentType();
-		$config['userId'] = $user->getId();
-		$config['title'] = $title;
+		$config[ 'parentId' ]	= $model->id;
+		$config[ 'parentType' ]	= $service->getParentType();
+		$config[ 'userId' ]		= $user->getId();
+		$config[ 'title' ]		= $title;
 
 		$this->triggerActivity(
 			$slug,
-			[ 'model' => $model, 'service' => $service, 'user' => $user ],
+			[ 'model' => $model, 'service' => $service, 'user' => $user, 'parentType' => ucfirst( $config[ 'parentType' ] ) ],
 			$config
 		);
 	}
@@ -440,7 +526,7 @@ class EventManager extends BaseEventManager {
 
 		$gridData[ 'content' ]	= isset( $templateConfig->storeContent ) && $model->hasAttribute( 'content' ) ? $model->content : null;
 		$gridData[ 'data' ]		= isset( $templateConfig->storeData ) && $model->hasAttribute( 'data' ) ? $model->data : null;
-		$gridData[ 'cache' ]	= isset( $templateConfig->storeCache ) && $model->hasAttribute( 'cache' ) ? $model->cache : null;
+		$gridData[ 'cache' ]	= isset( $templateConfig->storeCache ) && $model->hasAttribute( 'gridCache' ) ? $model->gridCache : null;
 
 		$activity = $this->activityService->getModelObject();
 
@@ -471,11 +557,97 @@ class EventManager extends BaseEventManager {
 		// Create Activity
 		$this->activityService->create( $activity, $config );
 
-		$user =	Yii::$app->user->getIdentity();
+		$user =	Yii::$app->core->getUser();
 
 		$user->lastActivityAt = DateUtil::getDateTime();
 
 		$user->update();
+	}
+
+	protected function generateModelData( $stats ) {
+
+		$fields	= [ 'id', 'title', 'description', 'link', 'adminLink', 'consumed', 'trash' ];
+
+		// Notifications
+		if( isset( $stats[ 'notifications' ] ) && count( $stats[ 'notifications' ] ) > 0 ) {
+
+			$notifications = $stats[ 'notifications' ];
+
+			$data = [];
+
+			foreach( $notifications as $notification ) {
+
+				$data[] = [
+					'id' => $notification->id, 'title' => $notification->title, 'description' => $notification->description,
+					'link' => $notification->link, 'adminLink' => $notification->adminLink,
+					'consumed' => $notification->consumed, 'trash' => $notification->trash,
+					'content' => $notification->content
+				];
+			}
+
+			$stats[ 'notifications' ] = json_decode( json_encode( $data ) );
+		}
+
+		// Reminders
+		if( isset( $stats[ 'reminders' ] ) && count( $stats[ 'reminders' ] ) > 0 ) {
+
+			$reminders = $stats[ 'reminders' ];
+
+			$data = [];
+
+			foreach( $reminders as $reminder ) {
+
+				$data[] = [
+					'id' => $reminder->id, 'title' => $reminder->title, 'description' => $reminder->description,
+					'link' => $reminder->link, 'adminLink' => $reminder->adminLink,
+					'consumed' => $reminder->consumed, 'trash' => $reminder->trash,
+					'content' => $reminder->content
+				];
+			}
+
+			$stats[ 'reminders' ] = json_decode( json_encode( $data ) );
+		}
+
+		// Activities
+		if( isset( $stats[ 'activities' ] ) && count( $stats[ 'activities' ] ) > 0 ) {
+
+			$activities = $stats[ 'activities' ];
+
+			$data = [];
+
+			foreach( $activities as $activity ) {
+
+				$data[] = [
+					'id' => $activity->id, 'title' => $activity->title, 'description' => $activity->description,
+					'link' => $activity->link, 'adminLink' => $activity->adminLink,
+					'consumed' => $activity->consumed, 'trash' => $activity->trash,
+					'content' => $activity->content
+				];
+			}
+
+			$stats[ 'activities' ] = json_decode( json_encode( $data ) );
+		}
+
+		// Announcements
+		if( isset( $stats[ 'announcements' ] ) && count( $stats[ 'announcements' ] ) > 0 ) {
+
+			$announcements = $stats[ 'announcements' ];
+
+			$data = [];
+
+			foreach( $announcements as $announcement ) {
+
+				$data[] = [
+					'id' => $announcement->id, 'title' => $announcement->title, 'description' => $announcement->description,
+					'link' => $announcement->link, 'adminLink' => $announcement->adminLink,
+					'content' => $announcement->content
+				];
+			}
+
+			$stats[ 'announcements' ] = json_decode( json_encode( $data ) );
+		}
+
+		return $stats;
 	}
 
 }

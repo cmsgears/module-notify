@@ -19,14 +19,12 @@ use cmsgears\core\common\config\CoreGlobal;
 
 use cmsgears\core\common\models\resources\File;
 
-use cmsgears\notify\frontend\controllers\base\Controller;
-
 /**
- * CalendarController provides actions specific to user events.
+ * CalendarController provides actions specific to calendar events.
  *
  * @since 1.0.0
  */
-class CalendarController extends Controller {
+class CalendarController extends \cmsgears\notify\frontend\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -49,7 +47,7 @@ class CalendarController extends Controller {
 		$this->apixBase	= 'notify/calendar';
 
 		// Services
-		$this->modelService	= Yii::$app->factory->get( 'eventService' );
+		$this->modelService	= Yii::$app->factory->get( 'calendarEventService' );
 
 		// Return Url
 		$this->returnUrl = Url::previous( 'calendar' );
@@ -109,7 +107,7 @@ class CalendarController extends Controller {
 
 		$modelClass = $this->modelService->getModelClass();
 
-		$user = Yii::$app->user->getIdentity();
+		$user = Yii::$app->core->getUser();
 
 		$dataProvider = $this->modelService->getPageByUserId( $user->id );
 
@@ -121,12 +119,14 @@ class CalendarController extends Controller {
 
 	public function actionFull() {
 
+		Url::remember( Yii::$app->request->getUrl(), 'calendar' );
+
 		return $this->render( 'full' );
 	}
 
 	public function actionAdd() {
 
-		$user = Yii::$app->user->getIdentity();
+		$user = Yii::$app->core->getUser();
 
 		$modelClass	= $this->modelService->getModelClass();
 		$model		= new $modelClass();
@@ -135,9 +135,9 @@ class CalendarController extends Controller {
 		$banner	= File::loadFile( $model->banner, 'Banner' );
 		$video	= File::loadFile( $model->banner, 'Video' );
 
-		$model->siteId	= Yii::$app->core->site->id;
+		$model->siteId	= Yii::$app->core->siteId;
 		$model->userId	= $user->id;
-		$model->type	= CoreGlobal::TYPE_DEFAULT;
+		$model->type	= CoreGlobal::TYPE_USER;
 
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
@@ -160,10 +160,11 @@ class CalendarController extends Controller {
 
 	public function actionUpdate( $id ) {
 
-		$user = Yii::$app->user->getIdentity();
+		$user = Yii::$app->core->getUser();
 
 		$modelClass	= $this->modelService->getModelClass();
 		$model		= $this->modelService->getById( $id );
+		$admin		= $model->isOwner( $user ); // Admin own events
 
 		$avatar	= File::loadFile( $model->avatar, 'Avatar' );
 		$banner	= File::loadFile( $model->banner, 'Banner' );
@@ -172,7 +173,7 @@ class CalendarController extends Controller {
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
 			$this->model = $this->modelService->create( $model, [
-				'admin' => true, 'avatar' => $avatar,
+				'admin' => $admin, 'avatar' => $avatar,
 				'banner' => $banner, 'video' => $video
 			]);
 

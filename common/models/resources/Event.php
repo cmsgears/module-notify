@@ -18,6 +18,7 @@ use yii\behaviors\SluggableBehavior;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\core\common\models\interfaces\base\IAuthor;
@@ -33,11 +34,13 @@ use cmsgears\core\common\models\interfaces\mappers\IFile;
 
 use cmsgears\core\common\models\base\ModelResource;
 use cmsgears\core\common\models\entities\User;
+
 use cmsgears\notify\common\models\base\NotifyTables;
 
 use cmsgears\core\common\models\traits\base\AuthorTrait;
 use cmsgears\core\common\models\traits\base\MultiSiteTrait;
 use cmsgears\core\common\models\traits\base\NameTypeTrait;
+use cmsgears\core\common\models\traits\base\OwnerTrait;
 use cmsgears\core\common\models\traits\base\SlugTypeTrait;
 use cmsgears\core\common\models\traits\base\UserOwnerTrait;
 use cmsgears\core\common\models\traits\resources\DataTrait;
@@ -74,12 +77,13 @@ use cmsgears\core\common\utilities\DateUtil;
  * @property short $preReminderCount
  * @property short $preReminderInterval
  * @property short $preIntervalUnit
+ * @property short $preTriggerCount
  * @property short $postReminderCount
  * @property short $postReminderInterval
  * @property short $postIntervalUnit
- * @property boolean $admin
- * @property boolean $multiUser
- * @property short $status
+ * @property short $postTriggerCount
+ * @property boolean $grouped
+ * @property integer $status
  * @property datetime $createdAt
  * @property datetime $modifiedAt
  * @property datetime $scheduledAt
@@ -99,8 +103,6 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 
 	// Globals -------------------------------
 
-	const TYPE_DEFAULT	= 'default';
-
 	const STATUS_NEW		= 	  0;
 	const STATUS_CANCELLED	= 	100;
 	const STATUS_ACTIVE		=  1000;
@@ -108,16 +110,16 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 
 	// Constants --------------
 
-	public static $statusMinMap = [
-		self::STATUS_NEW => 'New',
-		self::STATUS_ACTIVE => 'Active'
-	];
-
 	public static $statusMap = [
 		self::STATUS_NEW => 'New',
 		self::STATUS_CANCELLED => 'Cancelled',
 		self::STATUS_ACTIVE => 'Active',
 		self::STATUS_EXPIRED => 'Expired'
+	];
+
+	public static $minStatusMap = [
+		self::STATUS_NEW => 'New',
+		self::STATUS_ACTIVE => 'Active'
 	];
 
 	public static $revStatusMap = [
@@ -132,6 +134,13 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 		'cancelled' => self::STATUS_CANCELLED,
 		'active' => self::STATUS_ACTIVE,
 		'expired' => self::STATUS_EXPIRED
+	];
+
+	public static $filterStatusMap = [
+		'new' => 'New',
+		'cancelled' => 'Cancelled',
+		'active' => 'Active',
+		'expired' => 'Expired'
 	];
 
 	// Public -----------------
@@ -156,9 +165,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	use ModelMetaTrait;
 	use MultiSiteTrait;
 	use NameTypeTrait;
+	use OwnerTrait;
 	use SlugTypeTrait;
 	use TemplateTrait;
-	use UserOwnerTrait;
 	use VisualTrait;
 
 	// Constructor and Initialisation ------------------------------
@@ -208,7 +217,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 		$rules = [
 			// Required, Safe
 			[ [ 'siteId', 'name', 'scheduledAt' ], 'required' ],
-			[ [ 'id', 'content', 'data', 'gridCache' ], 'safe' ],
+			[ [ 'id', 'content' ], 'safe' ],
+			// Unique
+			[ 'slug', 'unique', 'targetAttribute' => [ 'siteId', 'slug' ], 'message' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_SLUG ) ],
 			// Text Limit
 			[ [ 'parentType', 'type' ], 'string', 'min' => 1, 'max' => Yii::$app->core->mediumText ],
 			[ 'icon', 'string', 'min' => 1, 'max' => Yii::$app->core->largeText ],
@@ -217,8 +228,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 			[ 'title', 'string', 'min' => 1, 'max' => Yii::$app->core->xxxLargeText ],
 			[ 'description', 'string', 'min' => 1, 'max' => Yii::$app->core->xtraLargeText ],
 			// Other
-			[ [ 'preReminderCount', 'preReminderInterval', 'preIntervalUnit', 'postReminderCount', 'postReminderInterval', 'postIntervalUnit', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-			[ [ 'admin', 'multiUser', 'gridCacheValid' ], 'boolean' ],
+			[ [ 'preReminderCount', 'preReminderInterval', 'preIntervalUnit', 'preTriggerCount', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ [ 'postReminderCount', 'postReminderInterval', 'postIntervalUnit', 'postTriggerCount' ], 'number', 'integerOnly' => true, 'min' => 0 ],
+			[ [ 'grouped', 'gridCacheValid' ], 'boolean' ],
 			[ 'status', 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ 'templateId', 'number', 'integerOnly' => true, 'min' => 0, 'tooSmall' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_SELECT ) ],
 			[ [ 'siteId', 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
@@ -270,10 +282,14 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 
 		if( parent::beforeSave( $insert ) ) {
 
+			// Default Template
 			if( $this->templateId <= 0 ) {
 
 				$this->templateId = null;
 			}
+
+			// Default Type - Default
+			$this->type = $this->type ?? CoreGlobal::TYPE_DEFAULT;
 
 			return true;
 		}
@@ -300,23 +316,13 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	}
 
 	/**
-	 * Returns string representation of admin flag.
-	 *
-	 * @return string
-	 */
-	public function getAdminStr() {
-
-		return Yii::$app->formatter->asBoolean( $this->admin );
-	}
-
-	/**
 	 * Returns string representation of multi user flag.
 	 *
 	 * @return string
 	 */
-	public function getMultiStr() {
+	public function getGroupedStr() {
 
-		return Yii::$app->formatter->asBoolean( $this->multiUser );
+		return Yii::$app->formatter->asBoolean( $this->grouped );
 	}
 
 	/**
@@ -378,6 +384,15 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 		return $this->status == self::STATUS_NEW || $this->status == self::STATUS_CANCELLED;
 	}
 
+	public function isExpirable() {
+
+		$statusCheck = in_array( $this->status, [ self::STATUS_NEW, self::STATUS_CANCELLED, self::STATUS_ACTIVE ] );
+
+		$expired = DateUtil::isPast( $this->scheduledAt );
+
+		return $statusCheck && $expired;
+	}
+
 	public function isEditable() {
 
 		return $this->status < self::STATUS_EXPIRED;
@@ -408,8 +423,9 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	 */
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'site', 'template', 'user', 'creator', 'modifier' ];
-		$config[ 'relations' ]	= $relations;
+		$relations = isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'site', 'template', 'user', 'creator', 'modifier' ];
+
+		$config[ 'relations' ] = $relations;
 
 		return parent::queryWithAll( $config );
 	}
@@ -422,7 +438,7 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	 */
 	public static function queryWithUser( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'user' ];
+		$config[ 'relations' ] = [ 'user' ];
 
 		return parent::queryWithAll( $config );
 	}

@@ -9,15 +9,12 @@
 
 namespace cmsgears\notify\common\components;
 
-// CMG Imports
-use cmsgears\core\common\base\Mailer as BaseMailer;
-
 /**
  * Mailer triggers the mails provided by Notify Module.
  *
  * @since 1.0.0
  */
-class Mailer extends BaseMailer {
+class Mailer extends \cmsgears\core\common\base\Mailer {
 
 	// Variables ---------------------------------------------------
 
@@ -29,8 +26,8 @@ class Mailer extends BaseMailer {
 
 	// Public -----------------
 
-	public $htmlLayout 	= '@cmsgears/module-notify/common/mails/layouts/html';
-	public $textLayout 	= '@cmsgears/module-notify/common/mails/layouts/text';
+	public $htmlLayout	= '@cmsgears/module-core/common/mails/layouts/html';
+	public $textLayout	= '@cmsgears/module-core/common/mails/layouts/text';
 	public $viewPath 	= '@cmsgears/module-notify/common/mails/views';
 
 	// Protected --------------

@@ -17,8 +17,8 @@ use yii\behaviors\TimestampBehavior;
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\core\common\models\base\Mapper;
 use cmsgears\core\common\models\entities\User;
+
 use cmsgears\notify\common\models\base\NotifyTables;
 use cmsgears\notify\common\models\entities\Event;
 
@@ -29,13 +29,14 @@ use cmsgears\notify\common\models\entities\Event;
  * @property integer $id
  * @property integer $eventId
  * @property integer $userId
+ * @property boolean $primary
  * @property boolean $active
  * @property datetime $createdAt
  * @property datetime $modifiedAt
  *
  * @since 1.0.0
  */
-class EventParticipant extends Mapper {
+class EventParticipant extends \cmsgears\core\common\models\base\Mapper {
 
 	// Variables ---------------------------------------------------
 
@@ -94,9 +95,9 @@ class EventParticipant extends Mapper {
 			// Required, Safe
 			[ [ 'eventId', 'userId' ], 'required' ],
 			// Unique
-			[ [ 'eventId', 'userId' ], 'unique', 'targetAttribute' => [ 'eventId', 'userId' ], 'comboNotUnique' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_EXIST ) ],
+			[ [ 'eventId', 'userId' ], 'unique', 'targetAttribute' => [ 'eventId', 'userId' ], 'message' => 'User already exist for the Event.' ],
 			// Other
-			[ 'active', 'boolean' ],
+			[ [ 'primary', 'active' ], 'boolean' ],
 			[ [ 'eventId', 'userId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
 			[ [ 'createdAt', 'modifiedAt' ], 'date', 'format' => Yii::$app->formatter->datetimeFormat ]
 		];
@@ -112,6 +113,7 @@ class EventParticipant extends Mapper {
 		return [
 			'eventId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_EVENT ),
 			'userId' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_USER ),
+			'primary' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_PRIMARY ),
 			'active' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ACTIVE )
 		];
 	}
@@ -142,6 +144,16 @@ class EventParticipant extends Mapper {
 	public function getUser() {
 
 		return $this->hasOne( User::class, [ 'id' => 'userId' ] );
+	}
+
+	/**
+	 * Returns string representation of primary flag.
+	 *
+	 * @return string
+	 */
+	public function getPrimaryStr() {
+
+		return Yii::$app->formatter->asBoolean( $this->primary );
 	}
 
 	/**
@@ -179,8 +191,9 @@ class EventParticipant extends Mapper {
 	 */
 	public static function queryWithHasOne( $config = [] ) {
 
-		$relations				= isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'event', 'user' ];
-		$config[ 'relations' ]	= $relations;
+		$relations = isset( $config[ 'relations' ] ) ? $config[ 'relations' ] : [ 'event', 'user' ];
+
+		$config[ 'relations' ] = $relations;
 
 		return parent::queryWithAll( $config );
 	}
@@ -193,7 +206,7 @@ class EventParticipant extends Mapper {
 	 */
 	public static function queryWithEvent( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'event' ];
+		$config[ 'relations' ] = [ 'event' ];
 
 		return parent::queryWithAll( $config );
 	}
@@ -206,7 +219,7 @@ class EventParticipant extends Mapper {
 	 */
 	public static function queryWithUser( $config = [] ) {
 
-		$config[ 'relations' ]	= [ 'user' ];
+		$config[ 'relations' ] = [ 'user' ];
 
 		return parent::queryWithAll( $config );
 	}
@@ -240,4 +253,5 @@ class EventParticipant extends Mapper {
 
 		return self::deleteAll( 'userId=:id', [ ':id' => $userId ] );
 	}
+
 }

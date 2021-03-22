@@ -17,14 +17,14 @@ namespace cmsgears\notify\common\models\interfaces\base;
 interface IToggle {
 
 	/**
-	 * Check whether activity status is new.
+	 * Check whether model status is new.
 	 *
 	 * @return boolean
 	 */
 	public function isNew();
 
 	/**
-	 * Check whether activity status is consumed.
+	 * Check whether model status is consumed.
 	 *
 	 * @return boolean
 	 */
@@ -38,7 +38,7 @@ interface IToggle {
 	public function getConsumedStr();
 
 	/**
-	 * Check whether activity status is trash.
+	 * Check whether model status is trash.
 	 *
 	 * @return boolean
 	 */

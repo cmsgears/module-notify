@@ -12,16 +12,14 @@ namespace cmsgears\notify\frontend\controllers;
 // Yii Imports
 use Yii;
 use yii\filters\VerbFilter;
-
-// CMG Imports
-use cmsgears\notify\frontend\controllers\base\Controller;
+use yii\helpers\Url;
 
 /**
  * AnnouncementController provides actions specific to site announcements.
  *
  * @since 1.0.0
  */
-class AnnouncementController extends Controller {
+class AnnouncementController extends \cmsgears\notify\frontend\controllers\base\Controller {
 
 	// Variables ---------------------------------------------------
 
@@ -44,6 +42,10 @@ class AnnouncementController extends Controller {
 
 		// Services
 		$this->modelService	= Yii::$app->factory->get( 'announcementService' );
+
+		// Return Url
+		$this->returnUrl = Url::previous( 'announcements' );
+		$this->returnUrl = isset( $this->returnUrl ) ? $this->returnUrl : Url::toRoute( [ '/notify/announcement/all' ], true );
 	}
 
 	// Instance methods --------------------------------------------
@@ -88,6 +90,8 @@ class AnnouncementController extends Controller {
 	}
 
 	public function actionAll() {
+
+		Url::remember( Yii::$app->request->getUrl(), 'announcements' );
 
 		$dataProvider = $this->modelService->getPageForSite();
 

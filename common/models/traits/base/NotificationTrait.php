@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2015 VulpineCode Technologies Pvt. Ltd.
  */
 
-namespace cmsgears\notify\common\models\traits\entities;
+namespace cmsgears\notify\common\models\traits\base;
 
 // Yii Imports
 use yii\db\Query;
@@ -51,27 +51,29 @@ trait NotificationTrait {
 	 */
 	public function getNotificationStatusCounts() {
 
-		$returnArr      = [ Notification::STATUS_NEW => 0, Notification::STATUS_CONSUMED => 0, Notification::STATUS_TRASH => 0 ];
+		$returnArr = [ Notification::STATUS_NEW => 0, Notification::STATUS_CONSUMED => 0, Notification::STATUS_TRASH => 0 ];
 
-		$notifyTable   	= NotifyTables::TABLE_NOTIFICATION;
-		$query          = new Query();
+		$notifyTable = NotifyTables::TABLE_NOTIFICATION;
+
+		$query = new Query();
 
 		$query->select( [ 'status', 'count(id) as total' ] )
 				->from( $notifyTable )
 				->where( [ 'parentId' => $this->id, 'parentType' => $this->modelType ] )
 				->groupBy( 'status' );
 
-		$counts     = $query->all();
-		$counter    = 0;
+		$counts = $query->all();
 
-		foreach ( $counts as $count ) {
+		$counter = 0;
+
+		foreach( $counts as $count ) {
 
 			$returnArr[ $count[ 'status' ] ] = $count[ 'total' ];
 		}
 
 		foreach( $returnArr as $val ) {
 
-			$counter    += $val;
+			$counter += $val;
 		}
 
 		$returnArr[ 'all' ] = $counter;

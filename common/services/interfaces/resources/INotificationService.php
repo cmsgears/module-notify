@@ -11,6 +11,7 @@ namespace cmsgears\notify\common\services\interfaces\resources;
 
 // CMG Imports
 use cmsgears\core\common\services\interfaces\base\IModelResourceService;
+use cmsgears\core\common\services\interfaces\base\IMultiSite;
 use cmsgears\notify\common\services\interfaces\base\IBulk;
 use cmsgears\notify\common\services\interfaces\base\INotify;
 use cmsgears\notify\common\services\interfaces\base\IToggle;
@@ -20,7 +21,7 @@ use cmsgears\notify\common\services\interfaces\base\IToggle;
  *
  * @since 1.0.0
  */
-interface INotificationService extends IModelResourceService, IBulk, INotify, IToggle {
+interface INotificationService extends IModelResourceService, IMultiSite, IBulk, INotify, IToggle {
 
 	// Data Provider ------
 

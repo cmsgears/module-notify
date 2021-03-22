@@ -18,7 +18,7 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\services\interfaces\resources\INotificationService;
 
-use cmsgears\core\common\services\base\ModelResourceService;
+use cmsgears\core\common\services\traits\base\MultisiteTrait;
 
 use cmsgears\notify\common\services\traits\base\BulkTrait;
 use cmsgears\notify\common\services\traits\base\NotifyTrait;
@@ -29,7 +29,7 @@ use cmsgears\notify\common\services\traits\base\ToggleTrait;
  *
  * @since 1.0.0
  */
-class NotificationService extends ModelResourceService implements INotificationService {
+class NotificationService extends \cmsgears\core\common\services\base\ModelResourceService implements INotificationService {
 
 	// Variables ---------------------------------------------------
 
@@ -39,9 +39,9 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\resources\Notification';
+	public static $modelClass = '\cmsgears\notify\common\models\resources\Notification';
 
-	public static $parentType	= NotifyGlobal::TYPE_NOTIFICATION;
+	public static $parentType = NotifyGlobal::TYPE_NOTIFICATION;
 
 	// Protected --------------
 
@@ -56,6 +56,7 @@ class NotificationService extends ModelResourceService implements INotificationS
 	// Traits ------------------------------------------------------
 
 	use BulkTrait;
+	use MultisiteTrait;
 	use NotifyTrait;
 	use ToggleTrait;
 
@@ -76,6 +77,11 @@ class NotificationService extends ModelResourceService implements INotificationS
 	// Data Provider ------
 
 	public function getPage( $config = [] ) {
+
+		$searchParam	= $config[ 'search-param' ] ?? 'keywords';
+		$searchColParam	= $config[ 'search-col-param' ] ?? 'search';
+
+		$defaultSort = isset( $config[ 'defaultSort' ] ) ? $config[ 'defaultSort' ] : [ 'id' => SORT_DESC ];
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
@@ -153,7 +159,7 @@ class NotificationService extends ModelResourceService implements INotificationS
 					'label' => 'Updated At'
 				]
 			],
-			'defaultOrder' => [ 'cdate' => 'SORT_ASC' ]
+			'defaultOrder' => $defaultSort
 		]);
 
 		if( !isset( $config[ 'sort' ] ) ) {
@@ -204,27 +210,46 @@ class NotificationService extends ModelResourceService implements INotificationS
 		// Filter - Trash
 		if( isset( $trash ) ) {
 
-			$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+			switch( $trash ) {
+
+				case 'trash': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = true;
+
+					break;
+				}
+				case 'active': {
+
+					$config[ 'conditions' ][ "$modelTable.trash" ] = false;
+
+					break;
+				}
+			}
 		}
 
 		// Searching --------
 
-		$searchCol = Yii::$app->request->getQueryParam( 'search' );
+		$searchCol		= Yii::$app->request->getQueryParam( $searchColParam );
+		$keywordsCol	= Yii::$app->request->getQueryParam( $searchParam );
+
+		$search = [
+			'title' => "$modelTable.title",
+			'desc' => "$modelTable.description",
+			'content' => "$modelTable.content"
+		];
 
 		if( isset( $searchCol ) ) {
 
-			$search = [
-				'title' => "$modelTable.title",
-				'desc' => "$modelTable.description",
-				'content' => "$modelTable.content"
-			];
+			$config[ 'search-col' ] = $config[ 'search-col' ] ?? $search[ $searchCol ];
+		}
+		else if( isset( $keywordsCol ) ) {
 
-			$config[ 'search-col' ] = $search[ $searchCol ];
+			$config[ 'search-col' ] = $config[ 'search-col' ] ?? $search;
 		}
 
 		// Reporting --------
 
-		$config[ 'report-col' ]	= [
+		$config[ 'report-col' ]	= $config[ 'report-col' ] ?? [
 			'title' => "$modelTable.title",
 			'desc' => "$modelTable.description",
 			'content' => "$modelTable.content",
@@ -252,11 +277,8 @@ class NotificationService extends ModelResourceService implements INotificationS
 
 	public function create( $model, $config = [] ) {
 
-		$siteId = isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
-
 		$model->agent	= Yii::$app->request->userAgent ?? $config[ 'agent' ];
 		$model->ip		= Yii::$app->request->userIP ?? $config[ 'ip' ];
-		$model->siteId	= $siteId;
 
 		return parent::create( $model, $config );
 	}
@@ -323,7 +345,21 @@ class NotificationService extends ModelResourceService implements INotificationS
 			}
 			case 'trash': {
 
-				$this->markTrash( $model );
+				switch( $action ) {
+
+					case 'trash': {
+
+						$this->markTrash( $model );
+
+						break;
+					}
+					case 'untrash': {
+
+						$this->unTrash( $model );
+
+						break;
+					}
+				}
 
 				break;
 			}

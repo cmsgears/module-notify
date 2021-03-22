@@ -16,21 +16,23 @@ use yii\helpers\ArrayHelper;
 
 // CMG Imports
 use cmsgears\core\common\config\CoreGlobal;
+
 use cmsgears\notify\common\config\NotifyGlobal;
 
 use cmsgears\notify\common\models\resources\Announcement;
 
 use cmsgears\core\common\services\interfaces\resources\IFileService;
+
 use cmsgears\notify\common\services\interfaces\resources\IAnnouncementService;
 
-use cmsgears\core\common\services\base\ModelResourceService;
+use cmsgears\core\common\services\traits\base\MultisiteTrait;
 
 /**
  * AnnouncementService provide service methods of announcement model.
  *
  * @since 1.0.0
  */
-class AnnouncementService extends ModelResourceService implements IAnnouncementService {
+class AnnouncementService extends \cmsgears\core\common\services\base\ModelResourceService implements IAnnouncementService {
 
 	// Variables ---------------------------------------------------
 
@@ -40,9 +42,9 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 	// Public -----------------
 
-	public static $modelClass	= '\cmsgears\notify\common\models\resources\Announcement';
+	public static $modelClass = '\cmsgears\notify\common\models\resources\Announcement';
 
-	public static $parentType	= NotifyGlobal::TYPE_ANNOUNCEMENT;
+	public static $parentType = NotifyGlobal::TYPE_ANNOUNCEMENT;
 
 	// Protected --------------
 
@@ -57,6 +59,8 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 	// Private ----------------
 
 	// Traits ------------------------------------------------------
+
+	use MultisiteTrait;
 
 	// Constructor and Initialisation ------------------------------
 
@@ -82,6 +86,11 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 	// Data Provider ------
 
 	public function getPage( $config = [] ) {
+
+		$searchParam	= $config[ 'search-param' ] ?? 'keywords';
+		$searchColParam	= $config[ 'search-col-param' ] ?? 'search';
+
+		$defaultSort = isset( $config[ 'defaultSort' ] ) ? $config[ 'defaultSort' ] : [ 'id' => SORT_DESC ];
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
@@ -133,7 +142,7 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 					'label' => 'Updated At'
 				]
 			],
-			'defaultOrder' => [ 'cdate' => 'SORT_ASC' ]
+			'defaultOrder' => $defaultSort
 		]);
 
 		if( !isset( $config[ 'sort' ] ) ) {
@@ -175,27 +184,25 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 		// Searching --------
 
-		$searchCol = Yii::$app->request->getQueryParam( 'search' );
+		$searchCol		= Yii::$app->request->getQueryParam( $searchColParam );
+		$keywordsCol	= Yii::$app->request->getQueryParam( $searchParam );
+
+		$search = [
+			'title' => "$modelTable.title",
+			'desc' => "$modelTable.description",
+			'content' => "$modelTable.content"
+		];
 
 		if( isset( $searchCol ) ) {
 
-			$search = [
-				'title' => "$modelTable.title",
-				'desc' => "$modelTable.description",
-				'content' => "$modelTable.content"
-			];
+			$config[ 'search-col' ] = $config[ 'search-col' ] ?? $search[ $searchCol ];
+		}
+		else if( isset( $keywordsCol ) ) {
 
-			$config[ 'search-col' ] = $search[ $searchCol ];
+			$config[ 'search-col' ] = $config[ 'search-col' ] ?? $search;
 		}
 
 		// Reporting --------
-
-		$config[ 'report-col' ]	= [
-			'title' => "$modelTable.title",
-			'desc' => "$modelTable.description",
-			'content' => "$modelTable.content",
-			'type' => "$modelTable.type"
-		];
 
 		// Result -----------
 
@@ -208,27 +215,45 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 	 *
 	 * @return \cmsgears\core\common\data\ActiveDataProvider
 	 */
-	public function getPageForAdmin() {
+	public function getPageForAdmin( $config = [] ) {
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.access >=" . Announcement::ACCESS_APP ] ] );
+		$config[ 'conditions' ][] = "$modelTable.access >=" . Announcement::ACCESS_MODEL;
+
+		$config[ 'conditions' ][ "$modelTable.admin" ] = true;
+
+		return $this->getPage( $config );
 	}
 
-	public function getPageForSite() {
+	public function getPageForSite( $config = [] ) {
+
+		$siteId = isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->site->id;
 
 		$modelTable	= $this->getModelTable();
 
-		$siteId = Yii::$app->core->site->id;
+		$config[ 'ignoreSite' ] = true;
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.parentId" => $siteId, "$modelTable.parentType" => CoreGlobal::TYPE_SITE, "$modelTable.access < " . Announcement::ACCESS_ADMIN ] ] );
+		$config[ 'conditions' ][ "$modelTable.parentId" ]	= $siteId;
+		$config[ 'conditions' ][ "$modelTable.parentType" ]	= CoreGlobal::TYPE_SITE;
+		$config[ 'conditions' ][ "$modelTable.admin" ]		= false;
+
+		$config[ 'conditions' ][] = "$modelTable.access <" . Announcement::ACCESS_ADMIN;
+
+		return $this->getPage( $config );
 	}
 
-	public function getPageByParent( $parentId, $parentType, $admin = false ) {
+	public function getPageByParent( $parentId, $parentType, $config = [] ) {
+
+		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
 
 		$modelTable	= $this->getModelTable();
 
-		return $this->getPage( [ 'conditions' => [ "$modelTable.parentId" => $parentId, "$modelTable.parentType" => $parentType, "$modelTable.admin" => $admin ] ] );
+		$config[ 'conditions' ][ "$modelTable.parentId" ]	= $parentId;
+		$config[ 'conditions' ][ "$modelTable.parentType" ]	= $parentType;
+		$config[ 'conditions' ][ "$modelTable.admin" ]		= $admin;
+
+		return $this->getPage( $config );
 	}
 
 	// Read ---------------
@@ -242,36 +267,65 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 	 * @param array $config
 	 * @return \cmsgears\notify\common\models\resources\Announcement
 	 */
-	public function getRecentByAdmin( $limit = 5, $config = [] ) {
+	public function getRecentForAdmin( $limit = 5, $config = [] ) {
+
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
 
 		$modelClass	= static::$modelClass;
 		$modelTable	= $this->getModelTable();
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::find()->where( 'status=:status', [ ':status' => $modelClass::STATUS_ACTIVE ] );
 
-		$config[ 'conditions' ][] = "$modelTable.access >=" . Announcement::ACCESS_APP_ADMIN;
+		$query->andWhere( "$modelTable.access >=" . Announcement::ACCESS_APP_ADMIN );
 
-		return $modelClass::find()
-			->where( $config[ 'conditions' ] )
-			->andWhere( [ 'siteId' => $siteId, 'status' => $modelClass::STATUS_ACTIVE ] )
-			->limit( $limit )
-			->orderBy( 'createdAt DESC' )
-			->all();
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		$query->limit( $limit )->orderBy( 'createdAt DESC' );
+
+		return $query->all();
+	}
+
+	public function getRecentForSite( $limit = 5, $config = [] ) {
+
+		$siteId = isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+
+		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
+
+		$query = $modelClass::find()->where( 'status=:status AND siteId=:siteId', [ ':status' => $modelClass::STATUS_ACTIVE, ':siteId' => $siteId ] );
+
+		$query->andWhere( "$modelTable.access < " . Announcement::ACCESS_ADMIN );
+
+		$query->limit( $limit )->orderBy( 'createdAt DESC' );
+
+		return $query->all();
 	}
 
 	public function getRecentByParent( $parentId, $parentType, $limit = 5, $config = [] ) {
 
+		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : true;
+		$siteId		= isset( $config[ 'siteId' ] ) ? $config[ 'siteId' ] : Yii::$app->core->siteId;
+		$ignoreSite	= isset( $config[ 'ignoreSite' ] ) ? $config[ 'ignoreSite' ] : false;
+
 		$modelClass	= static::$modelClass;
+		$modelTable	= $this->getModelTable();
 
-		$siteId = Yii::$app->core->siteId;
+		$query = $modelClass::queryByParent( $parentId, $parentType )->andWhere( 'status=:status', [ ':status' => $modelClass::STATUS_ACTIVE ] );
 
-		$config[ 'conditions' ] = isset( $config[ 'conditions' ] ) ? $config[ 'conditions' ] : [];
+		$query->andWhere( "$modelTable.access >=" . Announcement::ACCESS_APP_ADMIN );
 
-		return $modelClass::queryByParent( $parentId, $parentType )
-			->andWhere( $config[ 'conditions' ] )
-			->andWhere( [ 'siteId' => $siteId, 'status' => $modelClass::STATUS_ACTIVE ] )
-			->limit( $limit )->orderBy( 'createdAt ASC' )
-			->all();
+		if( !$ignoreSite ) {
+
+			$query->andWhere( 'siteId=:siteId', [ ':siteId' => $siteId ] );
+		}
+
+		$query->limit( $limit )->orderBy( 'createdAt DESC' );
+
+		return $query->all();
 	}
 
 	// Read - Lists ----
@@ -295,6 +349,7 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 	public function createByParams( $params = [], $config = [] ) {
 
 		$params[ 'link' ]		= isset( $params[ 'link' ] ) ? $params[ 'link' ] : null;
+		$params[ 'admin' ]		= isset( $params[ 'admin' ] ) ? $params[ 'admin' ] : null;
 		$params[ 'adminLink' ]	= isset( $params[ 'adminLink' ] ) ? $params[ 'adminLink' ] : null;
 
 		return parent::createByParams( $params, $config );
@@ -304,14 +359,18 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 	public function update( $model, $config = [] ) {
 
-		$admin		= isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
-		$attributes	= isset( $config[ 'attributes' ] ) ? $config[ 'attributes' ] : [ 'bannerId', 'title', 'description', 'link', 'adminLink', 'expiresAt', 'content' ];
+		$admin = isset( $config[ 'admin' ] ) ? $config[ 'admin' ] : false;
+
+		$attributes	= isset( $config[ 'attributes' ] ) ? $config[ 'attributes' ] : [
+			'bannerId', 'templateId', 'title', 'description',
+			'link', 'adminLink', 'expiresAt', 'content'
+		];
 
 		$banner = isset( $config[ 'banner' ] ) ? $config[ 'banner' ] : null;
 
 		if( $admin ) {
 
-			$attributes	= ArrayHelper::merge( $attributes, [ 'status', 'access' ] );
+			$attributes	= ArrayHelper::merge( $attributes, [ 'status', 'access', 'admin' ] );
 		}
 
 		// Save resources
@@ -341,6 +400,11 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 		return $this->updateStatus( $model, Announcement::STATUS_ACTIVE );
 	}
 
+	public function pause( $model ) {
+
+		return $this->updateStatus( $model, Announcement::STATUS_PAUSED );
+	}
+
 	public function expire( $model ) {
 
 		return $this->updateStatus( $model, Announcement::STATUS_EXPIRED );
@@ -358,19 +422,6 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 	// Bulk ---------------
 
-	public function applyBulkByParent( $column, $action, $target, $parentId, $parentType ) {
-
-		foreach( $target as $id ) {
-
-			$model = $this->getById( $id );
-
-			if( isset( $model ) && $model->parentId == $parentId && $model->parentType == $parentType ) {
-
-				$this->applyBulk( $model, $column, $action, $target );
-			}
-		}
-	}
-
 	protected function applyBulk( $model, $column, $action, $target, $config = [] ) {
 
 		switch( $column ) {
@@ -379,19 +430,25 @@ class AnnouncementService extends ModelResourceService implements IAnnouncementS
 
 				switch( $action ) {
 
-					case 'approved': {
+					case 'approve': {
 
 						$this->approve( $model );
 
 						break;
 					}
-					case 'active': {
+					case 'activate': {
 
 						$this->activate( $model );
 
 						break;
 					}
-					case 'expired': {
+					case 'pause': {
+
+						$this->pause( $model );
+
+						break;
+					}
+					case 'expire': {
 
 						$this->expire( $model );
 

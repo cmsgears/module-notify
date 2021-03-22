@@ -9,15 +9,12 @@
 
 namespace cmsgears\notify\admin\models\forms;
 
-// CMG Imports
-use cmsgears\core\common\models\forms\DataModel;
-
 /**
  * NotificationConfig form allows admin to configure notification templates.
  *
  * @since 1.0.0
  */
-class NotificationConfig extends DataModel {
+class NotificationConfig extends \cmsgears\core\common\models\forms\DataModel {
 
 	// Variables ---------------------------------------------------
 
@@ -28,13 +25,11 @@ class NotificationConfig extends DataModel {
 	// Public -----------------
 
 	public $admin		= false;
-
 	public $user		= false;
+	public $direct		= false;
 
 	public $adminEmail	= false;
-
 	public $userEmail	= false;
-
 	public $directEmail	= false;
 
 	// Protected --------------
@@ -64,8 +59,8 @@ class NotificationConfig extends DataModel {
 	public function rules() {
 
 		$rules = [
-			[ [ 'admin', 'user', 'adminEmail', 'userEmail', 'directEmail' ], 'required' ],
-			[ [ 'admin', 'user', 'adminEmail', 'userEmail', 'directEmail' ], 'boolean' ]
+			[ [ 'admin', 'user', 'direct', 'adminEmail', 'userEmail', 'directEmail' ], 'required' ],
+			[ [ 'admin', 'user', 'direct', 'adminEmail', 'userEmail', 'directEmail' ], 'boolean' ]
 		];
 
 		return $rules;
@@ -76,6 +71,7 @@ class NotificationConfig extends DataModel {
 		return [
 			'admin' => 'Admin',
 			'user' => 'User',
+			'direct' => 'Direct',
 			'adminEmail' => 'Admin Email',
 			'userEmail' => 'User Email',
 			'directEmail' => 'Direct Email'
