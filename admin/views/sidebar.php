@@ -8,6 +8,8 @@ use cmsgears\notify\common\config\NotifyGlobal;
 
 $core	= Yii::$app->core;
 $user	= Yii::$app->core->getUser();
+
+$siteRootUrl = Yii::$app->core->getSiteRootUrl();
 ?>
 <?php if( $core->hasModule( 'notify' ) && $user->isPermitted( NotifyGlobal::PERM_NOTIFY_ADMIN ) ) { ?>
 	<div id="sidebar-activity" class="collapsible-tab has-children <?= $parent == 'sidebar-activity' ? 'active' : null ?>">
@@ -20,12 +22,12 @@ $user	= Yii::$app->core->getUser();
 		<div class="tab-content clear <?= $parent == 'sidebar-activity' ? 'expanded visible' : null ?>">
 			<ul>
 				<li class="activity <?= $child == 'activity' ? 'active' : null ?>">
-					<a href="<?= Url::toRoute( [ '/notify/activity/all' ], true ) ?>">
+					<a href="<?= Url::toRoute( [ "$siteRootUrl/notify/activity/all" ], true ) ?>">
 						Activities
 						<span class="count-sidebar count-sidebar-content count-activity">0</span>
 					</a>
 				</li>
-				<li class="template <?= $child == 'template' ? 'active' : null ?>"><?= Html::a( "Templates", [ '/notify/activity/template/all' ] ) ?></li>
+				<li class="template <?= $child == 'template' ? 'active' : null ?>"><?= Html::a( "Templates", [ "$siteRootUrl/notify/activity/template/all" ] ) ?></li>
 			</ul>
 		</div>
 	</div>
@@ -43,12 +45,12 @@ $user	= Yii::$app->core->getUser();
 		<div class="tab-content clear <?= $parent == 'sidebar-notify' ? 'expanded visible' : null ?>">
 			<ul>
 				<li class="notification <?= $child == 'notification' ? 'active' : null ?>">
-					<a href="<?= Url::toRoute( [ '/notify/notification/all' ], true ) ?>">
+					<a href="<?= Url::toRoute( [ "$siteRootUrl/notify/notification/all" ], true ) ?>">
 						Notifications
 						<span class="count-sidebar count-sidebar-content count-notification">0</span>
 					</a>
 				</li>
-				<li class="template <?= $child == 'template' ? 'active' : null ?>"><?= Html::a( "Templates", [ '/notify/notification/template/all' ] ) ?></li>
+				<li class="template <?= $child == 'template' ? 'active' : null ?>"><?= Html::a( "Templates", [ "$siteRootUrl/notify/notification/template/all" ] ) ?></li>
 			</ul>
 		</div>
 	</div>
@@ -62,8 +64,8 @@ $user	= Yii::$app->core->getUser();
 		</div>
 		<div class="tab-content clear <?= $parent == 'sidebar-announcement' ? 'expanded visible' : null ?>">
 			<ul>
-				<li class="announcement <?= $child == 'announcement' ? 'active' : null ?>"><?= Html::a( "Announcements", [ '/notify/announcement/all' ] ) ?></li>
-				<li class="template <?= $child == 'template' ? 'active' : null ?>"><?= Html::a( "Templates", [ '/notify/announcement/template/all' ] ) ?></li>
+				<li class="announcement <?= $child == 'announcement' ? 'active' : null ?>"><?= Html::a( "Announcements", [ "$siteRootUrl/notify/announcement/all" ] ) ?></li>
+				<li class="template <?= $child == 'template' ? 'active' : null ?>"><?= Html::a( "Templates", [ "$siteRootUrl/notify/announcement/template/all" ] ) ?></li>
 			</ul>
 		</div>
 	</div>
@@ -80,15 +82,15 @@ $user	= Yii::$app->core->getUser();
 		</div>
 		<div class="tab-content clear <?= $parent == 'sidebar-reminder' ? 'expanded visible' : null ?>">
 			<ul>
-				<li class="event <?= $child == 'event' ? 'active' : null ?>"><?= Html::a( "Events", [ '/notify/event/all' ] ) ?></li>
+				<li class="event <?= $child == 'event' ? 'active' : null ?>"><?= Html::a( "Events", [ "$siteRootUrl/notify/event/all" ] ) ?></li>
 				<li class="reminder <?= $child == 'reminder' ? 'active' : null ?>">
-					<a href="<?= Url::toRoute( [ '/notify/reminder/all' ], true ) ?>">
+					<a href="<?= Url::toRoute( [ "$siteRootUrl/notify/reminder/all" ], true ) ?>">
 						Reminders
 						<span class="count-sidebar count-sidebar-content count-reminder">0</span>
 					</a>
 				</li>
-				<li class="template <?= $child == 'etemplate' ? 'active' : null ?>"><?= Html::a( "Event Templates", [ '/notify/event/template/all' ] ) ?></li>
-				<li class="template <?= $child == 'rtemplate' ? 'active' : null ?>"><?= Html::a( "Reminder Templates", [ '/notify/reminder/template/all' ] ) ?></li>
+				<li class="template <?= $child == 'etemplate' ? 'active' : null ?>"><?= Html::a( "Event Templates", [ "$siteRootUrl/notify/event/template/all" ] ) ?></li>
+				<li class="template <?= $child == 'rtemplate' ? 'active' : null ?>"><?= Html::a( "Reminder Templates", [ "$siteRootUrl/notify/reminder/template/all" ] ) ?></li>
 			</ul>
 		</div>
 	</div>
