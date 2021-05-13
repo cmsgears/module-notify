@@ -313,7 +313,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 		$modelTable	= $this->getModelTable();
 
-		$config[ 'conditions' ][ "$modelTable.userId" ] = null;
+		$config[ 'conditions' ][ "$modelTable.admin" ] = true;
 
 		return $this->getPage( $config );
 	}

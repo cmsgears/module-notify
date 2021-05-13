@@ -141,6 +141,8 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 
+			$model->admin = false;
+
 			$this->model = $this->modelService->create( $model, [
 				'admin' => true, 'avatar' => $avatar,
 				'banner' => $banner, 'video' => $video

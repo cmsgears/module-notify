@@ -82,6 +82,7 @@ use cmsgears\core\common\utilities\DateUtil;
  * @property short $postReminderInterval
  * @property short $postIntervalUnit
  * @property short $postTriggerCount
+ * @property boolean $admin
  * @property boolean $grouped
  * @property integer $status
  * @property datetime $createdAt
@@ -230,7 +231,7 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 			// Other
 			[ [ 'preReminderCount', 'preReminderInterval', 'preIntervalUnit', 'preTriggerCount', 'status' ], 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ [ 'postReminderCount', 'postReminderInterval', 'postIntervalUnit', 'postTriggerCount' ], 'number', 'integerOnly' => true, 'min' => 0 ],
-			[ [ 'grouped', 'gridCacheValid' ], 'boolean' ],
+			[ [ 'admin', 'grouped', 'gridCacheValid' ], 'boolean' ],
 			[ 'status', 'number', 'integerOnly' => true, 'min' => 0 ],
 			[ 'templateId', 'number', 'integerOnly' => true, 'min' => 0, 'tooSmall' => Yii::$app->coreMessage->getMessage( CoreGlobal::ERROR_SELECT ) ],
 			[ [ 'siteId', 'userId', 'createdBy', 'modifiedBy', 'parentId' ], 'number', 'integerOnly' => true, 'min' => 1 ],
@@ -265,6 +266,7 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 			'title' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_TITLE ),
 			'description' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DESCRIPTION ),
 			'status' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_STATUS ),
+			'admin' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_ADMIN ),
 			'content' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_CONTENT ),
 			'data' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_DATA ),
 			'gridCache' => Yii::$app->coreMessage->getMessage( CoreGlobal::FIELD_GRID_CACHE ),
@@ -313,6 +315,16 @@ class Event extends ModelResource implements IAuthor, IData, IFile, IModelMeta, 
 	public function getUser() {
 
 		return $this->hasOne( User::class, [ 'id' => 'userId' ] );
+	}
+
+	/**
+	 * Returns string representation of admin flag.
+	 *
+	 * @return string
+	 */
+	public function getAdminStr() {
+
+		return Yii::$app->formatter->asBoolean( $this->admin );
 	}
 
 	/**
