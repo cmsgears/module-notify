@@ -204,6 +204,14 @@ class AnnouncementService extends \cmsgears\core\common\services\base\ModelResou
 
 		// Reporting --------
 
+		$config[ 'report-col' ]	= $config[ 'report-col' ] ?? [
+			'title' => "$modelTable.title",
+			'desc' => "$modelTable.description",
+			'content' => "$modelTable.content",
+			'status' => "$modelTable.status",
+			'access' => "$modelTable.access"
+		];
+
 		// Result -----------
 
 		return parent::getPage( $config );
@@ -415,7 +423,7 @@ class AnnouncementService extends \cmsgears\core\common\services\base\ModelResou
 	public function delete( $model, $config = [] ) {
 
 		// Delete resources
-		$this->fileService->deleteFiles( [ $model->banner ] );
+		$this->fileService->deleteMultiple( [ $model->banner ] );
 
 		return parent::delete( $model, $config );
 	}

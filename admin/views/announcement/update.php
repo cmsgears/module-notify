@@ -15,7 +15,7 @@ Editor::widget();
 ?>
 <div class="box-crud-wrap row max-cols-100">
 	<div class="box-crud-wrap-main colf colf3x2">
-		<?php $form = ActiveForm::begin( [ 'id' => 'frm-page', 'options' => [ 'class' => 'form' ] ] ); ?>
+		<?php $form = ActiveForm::begin( [ 'id' => 'frm-announcement', 'options' => [ 'class' => 'form' ] ] ); ?>
 		<div class="box box-crud">
 			<div class="box-header">
 				<div class="box-header-title">Basic Details</div>
@@ -64,7 +64,10 @@ Editor::widget();
 					<div class="row max-cols-50 padding padding-small-v">
 						<div class="col col12x4">
 							<label>Banner</label>
-							<?= ImageUploader::widget( [ 'model' => $banner ] ) ?>
+							<?= ImageUploader::widget([
+								'model' => $banner, 'clearAction' => true,
+								'clearActionUrl' => "$apixBase/clear-banner?id=$model->id"
+							])?>
 						</div>
 					</div>
 				</div>
@@ -86,6 +89,7 @@ Editor::widget();
 			<?= Html::a( 'View All', $returnUrl, [ 'class' => 'btn btn-medium' ] ); ?>
 			<input class="frm-element-medium" type="submit" value="Update" />
 		</div>
+
 		<div class="filler-height filler-height-medium"></div>
 		<?php ActiveForm::end(); ?>
 	</div>
