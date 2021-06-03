@@ -156,7 +156,7 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 			'avatar' => $avatar,
 			'banner' => $banner,
 			'video' => $video,
-			'statusMap' => $modelClass::$statusMinMap
+			'statusMap' => $modelClass::$minStatusMap
 		]);
 	}
 
@@ -187,7 +187,7 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 			'avatar' => $avatar,
 			'banner' => $banner,
 			'video' => $video,
-			'statusMap' => $modelClass::$statusMinMap
+			'statusMap' => $modelClass::$minStatusMap
 		]);
 	}
 

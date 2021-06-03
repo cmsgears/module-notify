@@ -109,7 +109,10 @@ class CalendarController extends \cmsgears\core\frontend\controllers\apix\base\C
 
 		foreach( $events as $event ) {
 
-			$data[] = [ 'id' => $event->id, 'title' => $event->displayName, 'desc' => $event->description, 'start' => $event->scheduledAt ];
+			$data[] = [
+				'id' => $event->id, 'title' => $event->displayName,
+				'description' => $event->description, 'start' => $event->scheduledAt
+			];
 		}
 
 		// Trigger Ajax Success

@@ -90,7 +90,7 @@ class ReminderController extends \cmsgears\notify\frontend\controllers\base\Cont
 		return $this->redirect( [ 'all' ] );
 	}
 
-	public function actionAll( $status ) {
+	public function actionAll( $status = null ) {
 
 		Url::remember( Yii::$app->request->getUrl(), 'reminders' );
 
@@ -123,6 +123,10 @@ class ReminderController extends \cmsgears\notify\frontend\controllers\base\Cont
 				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'trash' ] );
 
 				break;
+			}
+			default: {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id );
 			}
 		}
 
