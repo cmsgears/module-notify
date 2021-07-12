@@ -8,9 +8,9 @@
  */
 
 // CMG Imports
-use cmsgears\core\common\base\Migration;
+use cmsgears\core\common\config\CoreGlobal;
 
-use cmsgears\core\common\models\resources\Stats;
+use cmsgears\core\common\models\resources\ModelStats;
 use cmsgears\notify\common\models\base\NotifyTables;
 
 /**
@@ -19,7 +19,7 @@ use cmsgears\notify\common\models\base\NotifyTables;
  *
  * @since 1.0.0
  */
-class m160628_015612_notify_stats extends Migration {
+class m160628_015612_notify_stats extends \cmsgears\core\common\base\Migration {
 
 	// Public Variables
 
@@ -32,10 +32,10 @@ class m160628_015612_notify_stats extends Migration {
 	public function init() {
 
 		// Table prefix
-		$this->prefix		= Yii::$app->migration->cmgPrefix;
+		$this->prefix = Yii::$app->migration->cmgPrefix;
 
 		// Get the values via config
-		$this->options		= Yii::$app->migration->getTableOptions();
+		$this->options = Yii::$app->migration->getTableOptions();
 
 		// Default collation
 		if( $this->db->driverName === 'mysql' ) {
@@ -52,25 +52,26 @@ class m160628_015612_notify_stats extends Migration {
 
 	private function insertTables() {
 
-		$columns 	= [ 'tableName', 'type', 'count' ];
+		$columns 	= [ 'parentId', 'parentType', 'name', 'type', 'count' ];
 
 		$tableData	= [
-			[ $this->prefix . 'notify_event', 'rows', 0 ],
-			[ $this->prefix . 'notify_event_participant', 'rows', 0 ],
-			[ $this->prefix . 'notify_event_reminder', 'rows', 0 ],
-			[ $this->prefix . 'notify_notification', 'rows', 0 ],
-			[ $this->prefix . 'notify_activity', 'rows', 0 ]
+			[ 1, CoreGlobal::TYPE_SITE, $this->prefix . 'notify_event', 'rows', 0 ],
+			[ 1, CoreGlobal::TYPE_SITE, $this->prefix . 'notify_event_participant', 'rows', 0 ],
+			[ 1, CoreGlobal::TYPE_SITE, $this->prefix . 'notify_event_reminder', 'rows', 0 ],
+			[ 1, CoreGlobal::TYPE_SITE, $this->prefix . 'notify_notification', 'rows', 0 ],
+			[ 1, CoreGlobal::TYPE_SITE, $this->prefix . 'notify_activity', 'rows', 0 ]
 		];
 
-		$this->batchInsert( $this->prefix . 'core_stats', $columns, $tableData );
+		$this->batchInsert( $this->prefix . 'core_model_stats', $columns, $tableData );
 	}
 
 	public function down() {
 
-		Stats::deleteByTableName( NotifyTables::getTableName( NotifyTables::TABLE_EVENT ) );
-		Stats::deleteByTableName( NotifyTables::getTableName( NotifyTables::TABLE_EVENT_PARTICIPANT ) );
-		Stats::deleteByTableName( NotifyTables::getTableName( NotifyTables::TABLE_EVENT_REMINDER ) );
-		Stats::deleteByTableName( NotifyTables::getTableName( NotifyTables::TABLE_NOTIFICATION ) );
-		Stats::deleteByTableName( NotifyTables::getTableName( NotifyTables::TABLE_ACTIVITY ) );
+		ModelStats::deleteByTable( NotifyTables::getTableName( NotifyTables::TABLE_EVENT ) );
+		ModelStats::deleteByTable( NotifyTables::getTableName( NotifyTables::TABLE_EVENT_PARTICIPANT ) );
+		ModelStats::deleteByTable( NotifyTables::getTableName( NotifyTables::TABLE_EVENT_REMINDER ) );
+		ModelStats::deleteByTable( NotifyTables::getTableName( NotifyTables::TABLE_NOTIFICATION ) );
+		ModelStats::deleteByTable( NotifyTables::getTableName( NotifyTables::TABLE_ACTIVITY ) );
 	}
+
 }
