@@ -148,7 +148,11 @@ class AnnouncementController extends \cmsgears\core\admin\controllers\base\Contr
 
 		$banner	= File::loadFile( null, 'Banner' );
 
-		$model->admin = true;
+		$model->siteId	= Yii::$app->core->siteId;
+		$model->admin	= true;
+
+		$model->parentId	= Yii::$app->core->siteId;
+		$model->parentType	= CoreGlobal::TYPE_SITE;
 
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 

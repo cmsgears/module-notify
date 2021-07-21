@@ -188,6 +188,9 @@ class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 		$model->admin	= true;
 		$model->type	= CoreGlobal::TYPE_ADMIN;
 
+		$model->parentId	= Yii::$app->core->siteId;
+		$model->parentType	= CoreGlobal::TYPE_SITE;
+
 		$model->preIntervalUnit		= DateUtil::DURATION_HOUR;
 		$model->postIntervalUnit	= DateUtil::DURATION_HOUR;
 

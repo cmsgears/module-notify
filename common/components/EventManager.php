@@ -325,6 +325,16 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 			$notification->admin = true;
 
+			if( empty( $config[ 'parentId' ] ) ) {
+
+				$notification->parentId = Yii::$app->core->siteId;
+			}
+
+			if( empty( $config[ 'parentType' ] ) ) {
+
+				$notification->parentType = CoreGlobal::TYPE_SITE;
+			}
+
 			if( isset( $config[ 'adminLink' ] ) ) {
 
 				$notification->adminLink = $config[ 'adminLink' ];
@@ -374,6 +384,16 @@ class EventManager extends \cmsgears\core\common\components\EventManager {
 
 				$userNotification->userId	= $userId;
 				$userNotification->admin	= false;
+
+				if( empty( $userNotification->parentId ) ) {
+
+					$userNotification->parentId = Yii::$app->core->siteId;
+				}
+
+				if( empty( $userNotification->parentType ) ) {
+
+					$userNotification->parentType = CoreGlobal::TYPE_SITE;
+				}
 
 				// Create Notification
 				$this->notificationService->create( $userNotification, $config );
