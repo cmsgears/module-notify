@@ -141,6 +141,9 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 		$model->userId	= $user->id;
 		$model->type	= CoreGlobal::TYPE_USER;
 
+		$model->parentId	= $user->id;
+		$model->parentType	= CoreGlobal::TYPE_USER;
+
 		$model->preIntervalUnit		= DateUtil::DURATION_HOUR;
 		$model->postIntervalUnit	= DateUtil::DURATION_HOUR;
 
