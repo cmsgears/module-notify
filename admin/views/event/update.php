@@ -76,7 +76,7 @@ Editor::widget();
 					</div>
 					<div class="row max-cols-100">
 						<div class="col col2">
-							<?= $form->field( $model, 'scheduledAt' ) ?>
+							<?= Yii::$app->formDesigner->getIconInput( $form, $model, 'scheduledAt', [ 'right' => true, 'icon' => 'cmti cmti-calendar', 'options' => [ 'class' => 'datetimepicker', 'autocomplete' => 'off' ] ] ) ?>
 						</div>
 						<div class="col col2">
 							<?= Yii::$app->formDesigner->getIconCheckbox( $form, $model, 'grouped' ) ?>

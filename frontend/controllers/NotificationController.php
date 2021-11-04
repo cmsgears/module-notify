@@ -90,7 +90,7 @@ class NotificationController extends \cmsgears\notify\frontend\controllers\base\
 		return $this->redirect( [ 'all?status=inbox' ] );
 	}
 
-	public function actionAll( $status ) {
+	public function actionAll( $status = null ) {
 
 		Url::remember( Yii::$app->request->getUrl(), 'notifications' );
 
@@ -123,6 +123,10 @@ class NotificationController extends \cmsgears\notify\frontend\controllers\base\
 				$dataProvider = $this->modelService->getPageByUserId( $user->id, [ 'status' => 'trash' ] );
 
 				break;
+			}
+			default: {
+
+				$dataProvider = $this->modelService->getPageByUserId( $user->id );
 			}
 		}
 

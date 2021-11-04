@@ -18,6 +18,7 @@ use cmsgears\core\common\config\CoreGlobal;
 
 use cmsgears\core\common\utilities\AjaxUtil;
 use cmsgears\core\common\utilities\DateUtil;
+use cmsgears\core\common\utilities\CodeGenUtil;
 
 /**
  * CalendarController provides actions specific to event model.
@@ -109,7 +110,10 @@ class CalendarController extends \cmsgears\core\frontend\controllers\apix\base\C
 
 		foreach( $events as $event ) {
 
-			$data[] = [ 'id' => $event->id, 'title' => $event->displayName, 'desc' => $event->description, 'start' => $event->scheduledAt ];
+			$data[] = [
+				'id' => $event->id, 'title' => $event->displayName,
+				'description' => $event->description, 'start' => $event->scheduledAt
+			];
 		}
 
 		// Trigger Ajax Success
@@ -126,9 +130,11 @@ class CalendarController extends \cmsgears\core\frontend\controllers\apix\base\C
 			'postReminderCount', 'postReminderInterval', 'postIntervalUnit'
 		]);
 
+		$bannerUrl = CodeGenUtil::getFileUrl( $event->banner, [ 'image' => $this->siteProperties->getDefaultBanner() ] );
+
 		$data[ 'preIntervalUnit' ]	= DateUtil::$durationMap[ $data[ 'preIntervalUnit' ] ];
 		$data[ 'postIntervalUnit' ] = DateUtil::$durationMap[ $data[ 'postIntervalUnit' ] ];
-		$data[ 'bannerUrl' ]		= isset( $event->banner ) ? $event->banner->getFileUrl() : null;
+		$data[ 'bannerUrl' ]		= $bannerUrl;
 		$data[ 'scheduledAt' ]		= date( 'F d, Y - g:i:s A', strtotime( $data[ 'scheduledAt' ] ) );
 
 		// Trigger Ajax Success

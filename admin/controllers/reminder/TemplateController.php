@@ -90,6 +90,8 @@ class TemplateController extends \cmsgears\core\admin\controllers\base\TemplateC
 
 		Url::remember( Yii::$app->request->getUrl(), 'reminder-templates' );
 
+		$this->setViewPath( '@cmsgears/module-notify/admin/views/reminder/template' );
+
 		return parent::actionAll( $config );
 	}
 

@@ -99,11 +99,11 @@ class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 			'rbac' => [
 				'class' => Yii::$app->core->getRbacFilterClass(),
 				'actions' => [
-					'index'	 => [ 'permission' => $this->crudPermission ],
-					'all'  => [ 'permission' => $this->crudPermission ],
-					'create'  => [ 'permission' => $this->crudPermission ],
-					'update'  => [ 'permission' => $this->crudPermission ],
-					'delete'  => [ 'permission' => $this->crudPermission ],
+					'index' => [ 'permission' => $this->crudPermission ],
+					'all' => [ 'permission' => $this->crudPermission ],
+					'create' => [ 'permission' => $this->crudPermission ],
+					'update' => [ 'permission' => $this->crudPermission ],
+					'delete' => [ 'permission' => $this->crudPermission ],
 					'data' => [ 'permission' => $this->crudPermission ],
 					'attributes' => [ 'permission' => $this->crudPermission ],
 					'config' => [ 'permission' => $this->crudPermission ],
@@ -188,8 +188,18 @@ class EventController extends \cmsgears\core\admin\controllers\base\Controller {
 		$model->admin	= true;
 		$model->type	= CoreGlobal::TYPE_ADMIN;
 
+		$model->parentId	= Yii::$app->core->siteId;
+		$model->parentType	= CoreGlobal::TYPE_SITE;
+
 		$model->preIntervalUnit		= DateUtil::DURATION_HOUR;
 		$model->postIntervalUnit	= DateUtil::DURATION_HOUR;
+
+		$model->preReminderCount		= 0;
+		$model->preReminderInterval		= 0;
+		$model->preTriggerCount			= 0;
+		$model->postReminderCount		= 0;
+		$model->postReminderInterval	= 0;
+		$model->postTriggerCount		= 0;
 
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
 

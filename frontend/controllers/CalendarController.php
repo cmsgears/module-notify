@@ -19,6 +19,8 @@ use cmsgears\core\common\config\CoreGlobal;
 
 use cmsgears\core\common\models\resources\File;
 
+use cmsgears\core\common\utilities\DateUtil;
+
 /**
  * CalendarController provides actions specific to calendar events.
  *
@@ -139,7 +141,22 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 		$model->userId	= $user->id;
 		$model->type	= CoreGlobal::TYPE_USER;
 
+		$model->parentId	= $user->id;
+		$model->parentType	= CoreGlobal::TYPE_USER;
+
+		$model->preIntervalUnit		= DateUtil::DURATION_HOUR;
+		$model->postIntervalUnit	= DateUtil::DURATION_HOUR;
+
+		$model->preReminderCount		= 0;
+		$model->preReminderInterval		= 0;
+		$model->preTriggerCount			= 0;
+		$model->postReminderCount		= 0;
+		$model->postReminderInterval	= 0;
+		$model->postTriggerCount		= 0;
+
 		if( $model->load( Yii::$app->request->post(), $model->getClassName() ) && $model->validate() ) {
+
+			$model->admin = false;
 
 			$this->model = $this->modelService->create( $model, [
 				'admin' => true, 'avatar' => $avatar,
@@ -154,7 +171,7 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 			'avatar' => $avatar,
 			'banner' => $banner,
 			'video' => $video,
-			'statusMap' => $modelClass::$statusMinMap
+			'statusMap' => $modelClass::$minStatusMap
 		]);
 	}
 
@@ -185,7 +202,7 @@ class CalendarController extends \cmsgears\notify\frontend\controllers\base\Cont
 			'avatar' => $avatar,
 			'banner' => $banner,
 			'video' => $video,
-			'statusMap' => $modelClass::$statusMinMap
+			'statusMap' => $modelClass::$minStatusMap
 		]);
 	}
 

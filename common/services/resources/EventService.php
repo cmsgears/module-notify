@@ -313,7 +313,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 		$modelTable	= $this->getModelTable();
 
-		$config[ 'conditions' ][ "$modelTable.userId" ] = null;
+		$config[ 'conditions' ][ "$modelTable.admin" ] = true;
 
 		return $this->getPage( $config );
 	}
@@ -358,7 +358,7 @@ class EventService extends \cmsgears\core\common\services\base\ModelResourceServ
 
 		$query = $modelClass::queryWithUser( [ 'conditions' => $conditions ] );
 
-		$query->andWhere( "$modelTable.scheduledAt BETWEEN ':sdate' AND ':edate'", [ ':sdate' => $startDate, ':edate' => $endDate ] );
+		$query->andWhere( "$modelTable.scheduledAt BETWEEN :sdate AND :edate", [ ':sdate' => $startDate, ':edate' => $endDate ] );
 
 		return $query->all();
 	}
